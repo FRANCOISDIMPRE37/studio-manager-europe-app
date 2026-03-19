@@ -17,7 +17,6 @@ import DocumentForm from "./pages/DocumentForm";
 
 function AppRoutes() {
   const { state } = useApp();
-
   if (state.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
@@ -37,6 +36,7 @@ function AppRoutes() {
     return <Login />;
   }
 
+  // make sure to consider if you need authentication for certain routes
   return (
     <Layout>
       <Switch>

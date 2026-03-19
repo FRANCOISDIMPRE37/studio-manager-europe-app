@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { Client, SalonInfo, DashboardStats, RGPDStatus, RendezVous, calculateRGPDStatus } from './types';
 import { nanoid } from 'nanoid';
+import { trpc } from './trpc';
 
 interface AppState {
   clients: Client[];
@@ -9,6 +10,7 @@ interface AppState {
   isLoading: boolean;
   isAuthenticated: boolean;
   isDemo: boolean;
+  isSyncing: boolean;
 }
 
 type AppAction =
@@ -24,6 +26,7 @@ type AppAction =
   | { type: 'UPDATE_RDV'; payload: RendezVous }
   | { type: 'DELETE_RDV'; payload: string }
   | { type: 'SET_DEMO'; payload: boolean }
+  | { type: 'SET_SYNCING'; payload: boolean }
   | { type: 'LOAD_STATE'; payload: Partial<AppState> };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -49,6 +52,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_LOADING': return { ...state, isLoading: action.payload };
     case 'SET_AUTHENTICATED': return { ...state, isAuthenticated: action.payload };
     case 'SET_DEMO': return { ...state, isDemo: action.payload };
+    case 'SET_SYNCING': return { ...state, isSyncing: action.payload };
     default: return state;
   }
 }
@@ -165,17 +169,65 @@ function saveToStorage(key: string, data: unknown) {
   } catch { /* ignore */ }
 }
 
+// Helper: convert DB client row to Client type
+function dbClientToClient(row: Record<string, unknown>): Client {
+  return {
+    id: row.id as string,
+    nom: row.nom as string,
+    prenom: row.prenom as string,
+    dateNaissance: row.dateNaissance as string,
+    adresse: (row.adresse as string) || '',
+    codePostal: (row.codePostal as string) || '',
+    ville: (row.ville as string) || '',
+    telephone: row.telephone as string,
+    email: row.email as string | undefined,
+    pieceIdentiteType: row.pieceIdentiteType as Client['pieceIdentiteType'],
+    pieceIdentiteNumero: row.pieceIdentiteNumero as string | undefined,
+    estMineur: Boolean(row.estMineur),
+    estArchive: Boolean(row.estArchive),
+    dateArchivage: row.dateArchivage as string | undefined,
+    dateConsentement: row.dateConsentement as string | undefined,
+    dateSuppressionPrevue: row.dateSuppressionPrevue as string,
+    rgpdStatus: calculateRGPDStatus(row.dateSuppressionPrevue as string),
+    rgpdDroitsExerces: (row.rgpdDroitsExerces as Client['rgpdDroitsExerces']) || [],
+    dateCreation: row.createdAt ? new Date(row.createdAt as string).toISOString().split('T')[0] : fmt(new Date()),
+    dateModification: row.updatedAt ? new Date(row.updatedAt as string).toISOString().split('T')[0] : undefined,
+    prestations: [],
+    documentsAssocies: [],
+    documents: [],
+    photos: [],
+  };
+}
+
+// Helper: convert DB RDV row to RendezVous type
+function dbRDVToRDV(row: Record<string, unknown>): RendezVous {
+  return {
+    id: row.id as string,
+    date: row.date as string,
+    heureDebut: row.heureDebut as string,
+    heureFin: row.heureFin as string,
+    clientId: row.clientId as string | undefined,
+    clientNom: row.clientNom as string | undefined,
+    clientTelephone: row.clientTelephone as string | undefined,
+    type: row.type as RendezVous['type'],
+    zone: row.zone as string | undefined,
+    notes: row.notes as string | undefined,
+    statut: row.statut as RendezVous['statut'],
+    dateCreation: row.createdAt ? new Date(row.createdAt as string).toISOString().split('T')[0] : fmt(new Date()),
+  };
+}
+
 interface AppContextValue {
   state: AppState;
   enterDemoMode: () => void;
   exitDemoMode: () => void;
-  addRDV: (rdv: Omit<RendezVous, 'id' | 'dateCreation'>) => void;
-  updateRDV: (rdv: RendezVous) => void;
-  deleteRDV: (id: string) => void;
-  addClient: (client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>) => void;
-  updateClient: (client: Client) => void;
-  deleteClient: (id: string) => void;
-  updateSalonInfo: (info: SalonInfo) => void;
+  addRDV: (rdv: Omit<RendezVous, 'id' | 'dateCreation'>) => Promise<void>;
+  updateRDV: (rdv: RendezVous) => Promise<void>;
+  deleteRDV: (id: string) => Promise<void>;
+  addClient: (client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>) => Promise<void>;
+  updateClient: (client: Client) => Promise<void>;
+  deleteClient: (id: string) => Promise<void>;
+  updateSalonInfo: (info: SalonInfo) => Promise<void>;
   setAuthenticated: (val: boolean) => void;
   getDashboardStats: () => DashboardStats;
   getClientById: (id: string) => Client | undefined;
@@ -183,56 +235,87 @@ interface AppContextValue {
   verifyPin: (pin: string) => boolean;
   setPin: (pin: string) => void;
   hasPin: () => boolean;
+  syncFromCloud: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, {
-    clients: [],
-    salonInfo: null,
-    rendezVous: [],
-    isLoading: true,
-    isAuthenticated: false,
-    isDemo: false,
-  });
+// Inner component that has access to tRPC hooks
+function AppProviderInner({ children, dispatch, state }: {
+  children: React.ReactNode;
+  dispatch: React.Dispatch<AppAction>;
+  state: AppState;
+}) {
+  const utils = trpc.useUtils();
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const clients = loadFromStorage<Client[]>(STORAGE_KEYS.clients) || [];
-    const salonInfo = loadFromStorage<SalonInfo>(STORAGE_KEYS.salonInfo);
-    const rdv = loadFromStorage<RendezVous[]>(STORAGE_KEYS.rdv) || [];
-    const isAuthenticated = loadFromStorage<boolean>(STORAGE_KEYS.auth) || false;
+  // tRPC mutations
+  const createClientMutation = trpc.clients.create.useMutation();
+  const updateClientMutation = trpc.clients.update.useMutation();
+  const deleteClientMutation = trpc.clients.delete.useMutation();
+  const createRDVMutation = trpc.rdv.create.useMutation();
+  const updateRDVMutation = trpc.rdv.update.useMutation();
+  const deleteRDVMutation = trpc.rdv.delete.useMutation();
+  const updateSalonMutation = trpc.salon.update.useMutation();
 
-    // Update RGPD statuses
-    const updatedClients = clients.map(c => ({
-      ...c,
-      rgpdStatus: calculateRGPDStatus(c.dateSuppressionPrevue) as RGPDStatus,
-    }));
+  // Sync from cloud
+  const syncFromCloud = useCallback(async () => {
+    if (state.isDemo) return;
+    try {
+      dispatch({ type: 'SET_SYNCING', payload: true });
+      const [dbClients, dbRDV, dbSalon] = await Promise.all([
+        utils.clients.list.fetch(),
+        utils.rdv.list.fetch(),
+        utils.salon.get.fetch(),
+      ]);
 
-    dispatch({ type: 'LOAD_STATE', payload: { clients: updatedClients, salonInfo, rendezVous: rdv, isAuthenticated, isLoading: false } });
-  }, []);
+      const clients = (dbClients as Record<string, unknown>[]).map(dbClientToClient);
+      const rdv = (dbRDV as Record<string, unknown>[]).map(dbRDVToRDV);
 
-  // Persist clients
-  useEffect(() => {
-    if (!state.isLoading && !state.isDemo) {
-      saveToStorage(STORAGE_KEYS.clients, state.clients);
+      // Merge with localStorage data (localStorage takes priority for documents/prestations not yet in DB)
+      const localClients = loadFromStorage<Client[]>(STORAGE_KEYS.clients) || [];
+      const mergedClients = clients.map(dbC => {
+        const localC = localClients.find(lc => lc.id === dbC.id);
+        if (localC) {
+          return {
+            ...dbC,
+            prestations: localC.prestations || [],
+            documentsAssocies: localC.documentsAssocies || [],
+            documents: localC.documents || [],
+            photos: localC.photos || [],
+          };
+        }
+        return dbC;
+      });
+
+      // Add local-only clients (not yet synced)
+      const dbClientIds = new Set(clients.map(c => c.id));
+      const localOnlyClients = localClients.filter(lc => !dbClientIds.has(lc.id));
+
+      dispatch({ type: 'SET_CLIENTS', payload: [...mergedClients, ...localOnlyClients] });
+      dispatch({ type: 'SET_RDV', payload: rdv });
+
+      if (dbSalon) {
+        const salonInfo: SalonInfo = {
+          nom: (dbSalon as Record<string, unknown>).nom as string || '',
+          raisonSociale: (dbSalon as Record<string, unknown>).raisonSociale as string | undefined,
+          adresse: (dbSalon as Record<string, unknown>).adresse as string || '',
+          codePostal: (dbSalon as Record<string, unknown>).codePostal as string || '',
+          ville: (dbSalon as Record<string, unknown>).ville as string || '',
+          telephone: (dbSalon as Record<string, unknown>).telephone as string || '',
+          email: (dbSalon as Record<string, unknown>).email as string || '',
+          siret: (dbSalon as Record<string, unknown>).siret as string || '',
+          nomPierceur: (dbSalon as Record<string, unknown>).nomPierceur as string || '',
+          nomTatoueur: (dbSalon as Record<string, unknown>).nomTatoueur as string | undefined,
+          nomDermographe: (dbSalon as Record<string, unknown>).nomDermographe as string | undefined,
+        };
+        dispatch({ type: 'SET_SALON_INFO', payload: salonInfo });
+      }
+    } catch (err) {
+      console.warn('[Sync] Cloud sync failed, using local data:', err);
+    } finally {
+      dispatch({ type: 'SET_SYNCING', payload: false });
     }
-  }, [state.clients, state.isLoading, state.isDemo]);
-
-  // Persist RDV
-  useEffect(() => {
-    if (!state.isLoading && !state.isDemo) {
-      saveToStorage(STORAGE_KEYS.rdv, state.rendezVous);
-    }
-  }, [state.rendezVous, state.isLoading, state.isDemo]);
-
-  // Persist salon info
-  useEffect(() => {
-    if (state.salonInfo && !state.isDemo) {
-      saveToStorage(STORAGE_KEYS.salonInfo, state.salonInfo);
-    }
-  }, [state.salonInfo, state.isDemo]);
+  }, [state.isDemo, utils]);
 
   const enterDemoMode = useCallback(() => {
     dispatch({ type: 'SET_DEMO', payload: true });
@@ -253,20 +336,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_AUTHENTICATED', payload: false });
   }, []);
 
-  const addRDV = useCallback((rdv: Omit<RendezVous, 'id' | 'dateCreation'>) => {
+  const addRDV = useCallback(async (rdv: Omit<RendezVous, 'id' | 'dateCreation'>) => {
     const newRDV: RendezVous = { ...rdv, id: nanoid(), dateCreation: fmt(new Date()) };
     dispatch({ type: 'ADD_RDV', payload: newRDV });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await createRDVMutation.mutateAsync({ ...newRDV });
+      } catch (err) {
+        console.warn('[Sync] RDV create failed:', err);
+      }
+    }
+  }, [state.isDemo, createRDVMutation]);
 
-  const updateRDV = useCallback((rdv: RendezVous) => {
+  const updateRDV = useCallback(async (rdv: RendezVous) => {
     dispatch({ type: 'UPDATE_RDV', payload: rdv });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await updateRDVMutation.mutateAsync({ ...rdv });
+      } catch (err) {
+        console.warn('[Sync] RDV update failed:', err);
+      }
+    }
+  }, [state.isDemo, updateRDVMutation]);
 
-  const deleteRDV = useCallback((id: string) => {
+  const deleteRDV = useCallback(async (id: string) => {
     dispatch({ type: 'DELETE_RDV', payload: id });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await deleteRDVMutation.mutateAsync({ id });
+      } catch (err) {
+        console.warn('[Sync] RDV delete failed:', err);
+      }
+    }
+  }, [state.isDemo, deleteRDVMutation]);
 
-  const addClient = useCallback((client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>) => {
+  const addClient = useCallback(async (client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>) => {
     const dateCreation = fmt(new Date());
     const dateSuppressionPrevue = (() => {
       const d = new Date();
@@ -281,24 +385,104 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       rgpdStatus: 'ok',
     };
     dispatch({ type: 'ADD_CLIENT', payload: newClient });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await createClientMutation.mutateAsync({
+          id: newClient.id,
+          nom: newClient.nom,
+          prenom: newClient.prenom,
+          dateNaissance: newClient.dateNaissance,
+          adresse: newClient.adresse,
+          codePostal: newClient.codePostal,
+          ville: newClient.ville,
+          telephone: newClient.telephone,
+          email: newClient.email,
+          pieceIdentiteType: newClient.pieceIdentiteType,
+          pieceIdentiteNumero: newClient.pieceIdentiteNumero,
+          estMineur: newClient.estMineur,
+          estArchive: newClient.estArchive,
+          dateArchivage: newClient.dateArchivage,
+          dateConsentement: newClient.dateConsentement,
+          dateSuppressionPrevue: newClient.dateSuppressionPrevue,
+          rgpdDroitsExerces: newClient.rgpdDroitsExerces || [],
+        });
+      } catch (err) {
+        console.warn('[Sync] Client create failed:', err);
+      }
+    }
+  }, [state.isDemo, createClientMutation]);
 
-  const updateClient = useCallback((client: Client) => {
+  const updateClient = useCallback(async (client: Client) => {
     dispatch({ type: 'UPDATE_CLIENT', payload: client });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await updateClientMutation.mutateAsync({
+          id: client.id,
+          nom: client.nom,
+          prenom: client.prenom,
+          dateNaissance: client.dateNaissance,
+          adresse: client.adresse,
+          codePostal: client.codePostal,
+          ville: client.ville,
+          telephone: client.telephone,
+          email: client.email,
+          pieceIdentiteType: client.pieceIdentiteType,
+          pieceIdentiteNumero: client.pieceIdentiteNumero,
+          estMineur: client.estMineur,
+          estArchive: client.estArchive,
+          dateArchivage: client.dateArchivage,
+          dateConsentement: client.dateConsentement,
+          dateSuppressionPrevue: client.dateSuppressionPrevue,
+          rgpdDroitsExerces: client.rgpdDroitsExerces || [],
+        });
+      } catch (err) {
+        console.warn('[Sync] Client update failed:', err);
+      }
+    }
+  }, [state.isDemo, updateClientMutation]);
 
-  const deleteClient = useCallback((id: string) => {
+  const deleteClient = useCallback(async (id: string) => {
     dispatch({ type: 'DELETE_CLIENT', payload: id });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await deleteClientMutation.mutateAsync({ id });
+      } catch (err) {
+        console.warn('[Sync] Client delete failed:', err);
+      }
+    }
+  }, [state.isDemo, deleteClientMutation]);
 
-  const updateSalonInfo = useCallback((info: SalonInfo) => {
+  const updateSalonInfo = useCallback(async (info: SalonInfo) => {
     dispatch({ type: 'SET_SALON_INFO', payload: info });
-  }, []);
+    if (!state.isDemo) {
+      try {
+        await updateSalonMutation.mutateAsync({
+          nom: info.nom,
+          raisonSociale: info.raisonSociale,
+          adresse: info.adresse,
+          codePostal: info.codePostal,
+          ville: info.ville,
+          telephone: info.telephone,
+          email: info.email,
+          siret: info.siret,
+          nomPierceur: info.nomPierceur,
+          nomTatoueur: info.nomTatoueur,
+          nomDermographe: info.nomDermographe,
+        });
+      } catch (err) {
+        console.warn('[Sync] Salon update failed:', err);
+      }
+    }
+  }, [state.isDemo, updateSalonMutation]);
 
   const setAuthenticated = useCallback((val: boolean) => {
     dispatch({ type: 'SET_AUTHENTICATED', payload: val });
     saveToStorage(STORAGE_KEYS.auth, val);
-  }, []);
+    // Sync from cloud when authenticated
+    if (val && !state.isDemo) {
+      setTimeout(() => syncFromCloud(), 100);
+    }
+  }, [state.isDemo, syncFromCloud]);
 
   const getDashboardStats = useCallback((): DashboardStats => {
     const actifs = state.clients.filter(c => !c.estArchive);
@@ -345,10 +529,64 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addClient, updateClient, deleteClient,
       updateSalonInfo, setAuthenticated,
       getDashboardStats, getClientById, searchClients,
-      verifyPin, setPin, hasPin,
+      verifyPin, setPin, hasPin, syncFromCloud,
     }}>
       {children}
     </AppContext.Provider>
+  );
+}
+
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(appReducer, {
+    clients: [],
+    salonInfo: null,
+    rendezVous: [],
+    isLoading: true,
+    isAuthenticated: false,
+    isDemo: false,
+    isSyncing: false,
+  });
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const clients = loadFromStorage<Client[]>(STORAGE_KEYS.clients) || [];
+    const salonInfo = loadFromStorage<SalonInfo>(STORAGE_KEYS.salonInfo);
+    const rdv = loadFromStorage<RendezVous[]>(STORAGE_KEYS.rdv) || [];
+    const isAuthenticated = loadFromStorage<boolean>(STORAGE_KEYS.auth) || false;
+
+    const updatedClients = clients.map(c => ({
+      ...c,
+      rgpdStatus: calculateRGPDStatus(c.dateSuppressionPrevue) as RGPDStatus,
+    }));
+
+    dispatch({ type: 'LOAD_STATE', payload: { clients: updatedClients, salonInfo, rendezVous: rdv, isAuthenticated, isLoading: false } });
+  }, []);
+
+  // Persist clients to localStorage
+  useEffect(() => {
+    if (!state.isLoading && !state.isDemo) {
+      saveToStorage(STORAGE_KEYS.clients, state.clients);
+    }
+  }, [state.clients, state.isLoading, state.isDemo]);
+
+  // Persist RDV to localStorage
+  useEffect(() => {
+    if (!state.isLoading && !state.isDemo) {
+      saveToStorage(STORAGE_KEYS.rdv, state.rendezVous);
+    }
+  }, [state.rendezVous, state.isLoading, state.isDemo]);
+
+  // Persist salon info to localStorage
+  useEffect(() => {
+    if (state.salonInfo && !state.isDemo) {
+      saveToStorage(STORAGE_KEYS.salonInfo, state.salonInfo);
+    }
+  }, [state.salonInfo, state.isDemo]);
+
+  return (
+    <AppProviderInner dispatch={dispatch} state={state}>
+      {children}
+    </AppProviderInner>
   );
 }
 

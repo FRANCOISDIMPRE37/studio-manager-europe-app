@@ -1,0 +1,226 @@
+import { eq, desc, and } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/mysql2";
+import { InsertUser, users, clients, prestations, documents, rendezVous, salonSettings } from "../drizzle/schema";
+import type { InsertClient, InsertPrestation, InsertDocument, InsertRendezVous, InsertSalonSettings } from "../drizzle/schema";
+import { ENV } from './_core/env';
+
+let _db: ReturnType<typeof drizzle> | null = null;
+
+// Lazily create the drizzle instance so local tooling can run without a DB.
+export async function getDb() {
+  if (!_db && process.env.DATABASE_URL) {
+    try {
+      _db = drizzle(process.env.DATABASE_URL);
+    } catch (error) {
+      console.warn("[Database] Failed to connect:", error);
+      _db = null;
+    }
+  }
+  return _db;
+}
+
+export async function upsertUser(user: InsertUser): Promise<void> {
+  if (!user.openId) {
+    throw new Error("User openId is required for upsert");
+  }
+
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot upsert user: database not available");
+    return;
+  }
+
+  try {
+    const values: InsertUser = {
+      openId: user.openId,
+    };
+    const updateSet: Record<string, unknown> = {};
+
+    const textFields = ["name", "email", "loginMethod"] as const;
+    type TextField = (typeof textFields)[number];
+
+    const assignNullable = (field: TextField) => {
+      const value = user[field];
+      if (value === undefined) return;
+      const normalized = value ?? null;
+      values[field] = normalized;
+      updateSet[field] = normalized;
+    };
+
+    textFields.forEach(assignNullable);
+
+    if (user.lastSignedIn !== undefined) {
+      values.lastSignedIn = user.lastSignedIn;
+      updateSet.lastSignedIn = user.lastSignedIn;
+    }
+    if (user.role !== undefined) {
+      values.role = user.role;
+      updateSet.role = user.role;
+    } else if (user.openId === ENV.ownerOpenId) {
+      values.role = 'admin';
+      updateSet.role = 'admin';
+    }
+
+    if (!values.lastSignedIn) {
+      values.lastSignedIn = new Date();
+    }
+
+    if (Object.keys(updateSet).length === 0) {
+      updateSet.lastSignedIn = new Date();
+    }
+
+    await db.insert(users).values(values).onDuplicateKeyUpdate({
+      set: updateSet,
+    });
+  } catch (error) {
+    console.error("[Database] Failed to upsert user:", error);
+    throw error;
+  }
+}
+
+export async function getUserByOpenId(openId: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// ============ CLIENTS ============
+
+export async function getClientsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(clients).where(eq(clients.userId, userId)).orderBy(desc(clients.createdAt));
+}
+
+export async function getClientById(clientId: string, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clients)
+    .where(and(eq(clients.id, clientId), eq(clients.userId, userId)))
+    .limit(1);
+  return result[0];
+}
+
+export async function createClient(data: InsertClient) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(clients).values(data);
+  return data;
+}
+
+export async function updateClientById(clientId: string, userId: number, data: Partial<InsertClient>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(clients).set(data).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
+}
+
+export async function deleteClientById(clientId: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(clients).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
+}
+
+// ============ PRESTATIONS ============
+
+export async function getPrestationsByClientId(clientId: string, userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(prestations)
+    .where(and(eq(prestations.clientId, clientId), eq(prestations.userId, userId)))
+    .orderBy(desc(prestations.createdAt));
+}
+
+export async function createPrestation(data: InsertPrestation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(prestations).values(data);
+  return data;
+}
+
+export async function deletePrestationById(prestationId: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(prestations).where(and(eq(prestations.id, prestationId), eq(prestations.userId, userId)));
+}
+
+// ============ DOCUMENTS ============
+
+export async function getDocumentsByClientId(clientId: string, userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(documents)
+    .where(and(eq(documents.clientId, clientId), eq(documents.userId, userId)))
+    .orderBy(desc(documents.createdAt));
+}
+
+export async function getDocumentById(docId: string, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(documents)
+    .where(and(eq(documents.id, docId), eq(documents.userId, userId)))
+    .limit(1);
+  return result[0];
+}
+
+export async function createDocument(data: InsertDocument) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(documents).values(data);
+  return data;
+}
+
+export async function updateDocumentById(docId: string, userId: number, data: Partial<InsertDocument>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(documents).set(data).where(and(eq(documents.id, docId), eq(documents.userId, userId)));
+}
+
+// ============ RENDEZ-VOUS ============
+
+export async function getRDVByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(rendezVous).where(eq(rendezVous.userId, userId)).orderBy(desc(rendezVous.date));
+}
+
+export async function createRDV(data: InsertRendezVous) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(rendezVous).values(data);
+  return data;
+}
+
+export async function updateRDVById(rdvId: string, userId: number, data: Partial<InsertRendezVous>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(rendezVous).set(data).where(and(eq(rendezVous.id, rdvId), eq(rendezVous.userId, userId)));
+}
+
+export async function deleteRDVById(rdvId: string, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(rendezVous).where(and(eq(rendezVous.id, rdvId), eq(rendezVous.userId, userId)));
+}
+
+// ============ SALON SETTINGS ============
+
+export async function getSalonSettings(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(salonSettings).where(eq(salonSettings.userId, userId)).limit(1);
+  return result[0];
+}
+
+export async function upsertSalonSettings(userId: number, data: Omit<InsertSalonSettings, 'id' | 'userId' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(salonSettings)
+    .values({ userId, ...data })
+    .onDuplicateKeyUpdate({ set: data });
+}
