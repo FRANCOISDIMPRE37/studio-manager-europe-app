@@ -648,7 +648,7 @@ const SOINS_DATA: Record<string, { title: string; zones: { zone: string; desc: s
   },
 };
 
-function FormSoins({ docType, data, update }: { docType: string; data: Record<string, any>; update: (k: string, v: any) => void }) {
+function FormSoins({ docType, data, update, client }: { docType: string; data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
   const soins = SOINS_DATA[docType];
   if (!soins) return <p style={{ color: 'var(--brand-text-muted)' }}>Fiche de soins non disponible pour ce type.</p>;
 
@@ -657,6 +657,23 @@ function FormSoins({ docType, data, update }: { docType: string; data: Record<st
       <div className="p-4 rounded-xl mb-4 text-center" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
         <p className="text-base font-700" style={{ color: 'var(--brand-cyan)', fontWeight: 700, fontFamily: 'Outfit' }}>FICHE DE SOINS — {soins.title}</p>
         <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>Document à remettre au client après chaque séance</p>
+      </div>
+
+      <FormSection title="IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nom || client.nom} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom(s)" value={data.prenom || client.prenom} onChange={v => update('prenom', v)} required />
+      </div>
+      <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
       </div>
 
       <FormSection title="INFORMATIONS PRESTATION" />
@@ -1103,7 +1120,7 @@ export default function DocumentForm() {
         return <FormQuestionnaireDermographe data={formData} update={updateField} client={client} />;
       default:
         if (docType.startsWith('soins_') || docType.startsWith('cicatrisation_')) {
-          return <FormSoins docType={docType} data={formData} update={updateField} />;
+          return <FormSoins docType={docType} data={formData} update={updateField} client={client} />;
         }
         return (
           <div className="text-center py-8" style={{ color: 'var(--brand-text-muted)' }}>

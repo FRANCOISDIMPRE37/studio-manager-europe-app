@@ -1,0 +1,2 @@
+- [x] Ajouter section identité client sur FormSoins (7 fiches de soins piercing)
+- [x] Ajouter section identité client sur FormAutorisationParentale (déjà présente section 2 mineur — vérifier complétude)
