@@ -207,7 +207,7 @@ export default function AddClientModal({ onClose }: Props) {
               Identité
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Prénom */}
               <div>
                 <label style={labelStyle}>Prénom *</label>
@@ -216,7 +216,10 @@ export default function AddClientModal({ onClose }: Props) {
                   value={prenom}
                   onChange={e => setPrenom(e.target.value)}
                   onBlur={() => touch('prenom')}
-                  autoComplete="off"
+                  placeholder="Ex: Marie"
+                  autoComplete="given-name"
+                  autoCapitalize="words"
+                  inputMode="text"
                 />
                 {errPrenom && (
                   <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
@@ -233,7 +236,10 @@ export default function AddClientModal({ onClose }: Props) {
                   value={nom}
                   onChange={e => setNom(e.target.value)}
                   onBlur={() => touch('nom')}
-                  autoComplete="off"
+                  placeholder="Ex: DUPUIS"
+                  autoComplete="family-name"
+                  autoCapitalize="characters"
+                  inputMode="text"
                 />
                 {errNom && (
                   <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
