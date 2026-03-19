@@ -646,41 +646,6 @@ const SOINS_DATA: Record<string, { title: string; zones: { zone: string; desc: s
       'Toucher ou manipuler le bijou.',
     ],
   },
-  cicatrisation_tatouage: {
-    title: 'TATOUAGE',
-    zones: [
-      { zone: 'Tatouage', desc: 'Encrage permanent dans le derme.', cica: '2 à 4 semaines (surface) / 3 mois (complet)' },
-    ],
-    faire: [
-      'Laver délicatement 2-3×/jour à l\'eau tiède et savon doux.',
-      'Appliquer une fine couche de crème cicatrisante (Bepanthen, Tattoo Goo).',
-      'Protéger du soleil avec SPF 50+ une fois cicatrisé.',
-      'Hydrater quotidiennement après cicatrisation.',
-    ],
-    eviter: [
-      'Soleil direct pendant la cicatrisation.',
-      'Piscine, mer, bain pendant 3 semaines.',
-      'Gratter ou arracher les croûtes.',
-      'Vêtements synthétiques frottant sur la zone.',
-    ],
-  },
-  cicatrisation_dermographie: {
-    title: 'DERMOGRAPHIE / MAQUILLAGE PERMANENT',
-    zones: [
-      { zone: 'Dermographie', desc: 'Pigmentation permanente du derme (sourcils, eye-liner, lèvres).', cica: '7 à 14 jours' },
-    ],
-    faire: [
-      'Appliquer la crème cicatrisante fournie 3-4×/jour.',
-      'Laisser les croûtes tomber naturellement.',
-      'Protéger du soleil avec SPF 50+ après cicatrisation.',
-    ],
-    eviter: [
-      'Maquillage sur la zone pendant 10 jours.',
-      'Soleil direct, UV, sauna pendant 1 mois.',
-      'Gratter ou frotter la zone.',
-      'Piscine, mer pendant la cicatrisation.',
-    ],
-  },
 };
 
 function FormSoins({ docType, data, update }: { docType: string; data: Record<string, any>; update: (k: string, v: any) => void }) {

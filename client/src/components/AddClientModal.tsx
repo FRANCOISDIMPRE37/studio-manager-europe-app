@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 
 const DOCS_PAR_PRESTATION: Record<PrestationType, DocumentType[]> = {
   piercing: ['questionnaire_majeur', 'soins_oreilles'],
-  tatouage: ['cicatrisation_tatouage'],
-  dermographie: ['cicatrisation_dermographie'],
+  tatouage: ['questionnaire_tatouage_majeur'],
+  dermographie: ['questionnaire_tatouage_majeur'],
 };
 
 const DOCS_MINEURS: DocumentType[] = ['questionnaire_mineur', 'autorisation_parentale'];
