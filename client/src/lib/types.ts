@@ -27,6 +27,8 @@ export type DocumentType =
   | 'soins_mamelons'
   | 'soins_arcade_sourcil'
   | 'soins_surface_dermal'
+  | 'questionnaire_tatouage_majeur'
+  | 'questionnaire_tatouage_mineur'
   | 'cicatrisation_tatouage'
   | 'cicatrisation_dermographie';
 
@@ -161,6 +163,8 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_mamelons: 'E — Fiche de Soins Mamelons',
   soins_arcade_sourcil: 'F — Fiche de Soins Arcade/Sourcil',
   soins_surface_dermal: 'G — Fiche de Soins Surface/Dermal',
+  questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
+  questionnaire_tatouage_mineur: '06 — Questionnaire Médical Tatouage Mineur',
   cicatrisation_tatouage: 'H — Cicatrisation Tatouage',
   cicatrisation_dermographie: 'I — Cicatrisation Dermographie',
 };

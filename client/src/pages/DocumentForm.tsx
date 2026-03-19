@@ -824,6 +824,197 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
 
 // ─── Page principale DocumentForm ────────────────────────────────────────────
 
+
+// ─── Formulaire Questionnaire Médical Tatouage Majeur ────────────────────────
+
+function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  return (
+    <>
+      <LegalBox color="green">
+        <em>Conservation : 3 ans minimum à compter de la dernière prestation (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
+      </LegalBox>
+
+      <LegalBox color="orange">
+        <strong>▪ Règlement UE 2020/2081 — Encres de tatouage</strong><br />
+        ▪ Les encres utilisées sont conformes au Règlement UE 2020/2081 en vigueur depuis le 4 janvier 2022.<br />
+        ▪ La traçabilité des encres est conservée <strong>5 ans</strong> (Art. R 1311-7 CSP + Arrêté 13/03/2009).
+      </LegalBox>
+
+      <FormField label="Nom du salon" value={data.nomSalon || ''} onChange={v => update('nomSalon', v)} />
+
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nom || client.nom} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom(s)" value={data.prenom || client.prenom} onChange={v => update('prenom', v)} required />
+      </div>
+      <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
+      </div>
+      <RadioField label="Pièce d'identité" options={['CNI', 'Passeport', 'Titre de séjour']} value={data.pieceIdType || ''} onChange={v => update('pieceIdType', v)} />
+      {data.pieceIdType && (
+        <FormField label="Numéro de la pièce d'identité" value={data.pieceIdNumero || ''} onChange={v => update('pieceIdNumero', v)} />
+      )}
+
+      <FormSection title="2 — PROJET DE TATOUAGE" />
+      <FormField label="Zone à tatouer" value={data.zoneTatouage || ''} onChange={v => update('zoneTatouage', v)} required />
+      <FormField label="Description du motif" value={data.descriptionMotif || ''} onChange={v => update('descriptionMotif', v)} multiline />
+      <RadioField label="Type de tatouage" options={['Noir & gris', 'Couleur', 'Minimaliste', 'Traditionnel', 'Réaliste', 'Autre']} value={data.typeTatouage || ''} onChange={v => update('typeTatouage', v)} />
+      <RadioField label="Premier tatouage" options={['Oui', 'Non']} value={data.premierTatouage || 'Non'} onChange={v => update('premierTatouage', v)} />
+
+      <FormSection title="3 — ÉTAT DE SANTÉ — QUESTIONNAIRE MÉDICAL COMPLET" />
+      <WarningBox>Toute réponse « Oui » peut suspendre la prestation jusqu'à avis médical. Répondez honnêtement. (Arrêté du 3 décembre 2008 — ARS)</WarningBox>
+
+      <FormSection title="3.1 — Antécédents médicaux" />
+      <RadioField label="Maladies de peau en cours (eczéma, psoriasis, acné, herpès, infection cutanée)" options={['Non', 'Oui']} value={data.maladiesPeau || 'Non'} onChange={v => update('maladiesPeau', v)} />
+      <RadioField label="Maladies auto-immunes (lupus, sclérose en plaques, maladie de Crohn…)" options={['Non', 'Oui']} value={data.maladiesAutoImmunes || 'Non'} onChange={v => update('maladiesAutoImmunes', v)} />
+      <RadioField label="Diabète (type 1 ou type 2)" options={['Non', 'Oui']} value={data.diabete || 'Non'} onChange={v => update('diabete', v)} />
+      <RadioField label="Maladie cardiaque ou prothèse cardiaque / pacemaker" options={['Non', 'Oui']} value={data.pathologieCardiaque || 'Non'} onChange={v => update('pathologieCardiaque', v)} />
+      <RadioField label="Insuffisance rénale ou hépatique" options={['Non', 'Oui']} value={data.insuffisanceRenaleHepatique || 'Non'} onChange={v => update('insuffisanceRenaleHepatique', v)} />
+      <RadioField label="Immunodépression (VIH/SIDA, greffe d'organe, chimiothérapie)" options={['Non', 'Oui']} value={data.immunodepression || 'Non'} onChange={v => update('immunodepression', v)} />
+      <RadioField label="Troubles de la coagulation (hémophilie, thrombopénie)" options={['Non', 'Oui']} value={data.troublesCoagulation || 'Non'} onChange={v => update('troublesCoagulation', v)} />
+      <RadioField label="Tendance aux cicatrices chéloïdes (boursouflées, hypertrophiques)" options={['Non', 'Oui']} value={data.cheloide || 'Non'} onChange={v => update('cheloide', v)} />
+      <RadioField label="Antécédents d'herpès (labial ou génital)" options={['Non', 'Oui']} value={data.antecedentsHerpes || 'Non'} onChange={v => update('antecedentsHerpes', v)} />
+      <RadioField label="Porteur(se) d'une hépatite B ou C" options={['Non', 'Oui']} value={data.hepatite || 'Non'} onChange={v => update('hepatite', v)} />
+      <RadioField label="Épilepsie" options={['Non', 'Oui']} value={data.epilepsie || 'Non'} onChange={v => update('epilepsie', v)} />
+      <RadioField label="Vitiligo ou hypopigmentation" options={['Non', 'Oui']} value={data.vitiligo || 'Non'} onChange={v => update('vitiligo', v)} />
+      <RadioField label="Antécédent de réaction à un tatouage précédent" options={['Non', 'Oui']} value={data.reactionTatouage || 'Non'} onChange={v => update('reactionTatouage', v)} />
+      {data.reactionTatouage === 'Oui' && (
+        <FormField label="Décrire la réaction" value={data.reactionTatouageDetail || ''} onChange={v => update('reactionTatouageDetail', v)} multiline />
+      )}
+
+      <FormSection title="3.2 — Traitements médicamenteux en cours" />
+      <RadioField label="Anticoagulants (Warfarine, Xarelto, Eliquis, Pradaxa, Héparine…)" options={['Non', 'Oui']} value={data.anticoagulants || 'Non'} onChange={v => update('anticoagulants', v)} />
+      <RadioField label="Aspirine ou anti-inflammatoires (Ibuprofène, Kétoprofène…)" options={['Non', 'Oui']} value={data.aspirineAntiInflammatoires || 'Non'} onChange={v => update('aspirineAntiInflammatoires', v)} />
+      <RadioField label="Vitamine A acide / Roaccutane® (isotrétinoïne)" options={['Non', 'Oui']} value={data.roaccutane || 'Non'} onChange={v => update('roaccutane', v)} />
+      <RadioField label="Corticoïdes (cortisone, prednisone…) ou immunosuppresseurs" options={['Non', 'Oui']} value={data.corticoides || 'Non'} onChange={v => update('corticoides', v)} />
+      <RadioField label="Antibiotiques en cours" options={['Non', 'Oui']} value={data.antibiotiques || 'Non'} onChange={v => update('antibiotiques', v)} />
+      {(data.anticoagulants === 'Oui' || data.aspirineAntiInflammatoires === 'Oui' || data.roaccutane === 'Oui' || data.corticoides === 'Oui' || data.antibiotiques === 'Oui') && (
+        <FormField label="Préciser le(s) médicament(s)" value={data.traitementMedicalDetail || ''} onChange={v => update('traitementMedicalDetail', v)} multiline />
+      )}
+
+      <FormSection title="3.3 — Allergies connues" />
+      <RadioField label="Allergie aux encres de tatouage ou pigments" options={['Non', 'Oui']} value={data.allergieEncres || 'Non'} onChange={v => update('allergieEncres', v)} />
+      <RadioField label="Allergie aux métaux (nickel, cobalt, chrome)" options={['Non', 'Oui']} value={data.allergieMetaux || 'Non'} onChange={v => update('allergieMetaux', v)} />
+      <RadioField label="Allergie au latex" options={['Non', 'Oui']} value={data.allergieLatex || 'Non'} onChange={v => update('allergieLatex', v)} />
+      <RadioField label="Allergie aux produits désinfectants (alcool, chlorhexidine)" options={['Non', 'Oui']} value={data.allergieDesinfectants || 'Non'} onChange={v => update('allergieDesinfectants', v)} />
+      <RadioField label="Allergie aux anesthésiants topiques (crème EMLA, lidoïne)" options={['Non', 'Oui']} value={data.allergieAnesthesiants || 'Non'} onChange={v => update('allergieAnesthesiants', v)} />
+      {(data.allergieEncres === 'Oui' || data.allergieMetaux === 'Oui' || data.allergieLatex === 'Oui' || data.allergieDesinfectants === 'Oui' || data.allergieAnesthesiants === 'Oui') && (
+        <FormField label="Préciser toute allergie connue" value={data.allergiesDetail || ''} onChange={v => update('allergiesDetail', v)} multiline />
+      )}
+
+      <FormSection title="3.4 — Situation particulière" />
+      <RadioField label="Enceinte ou allaitante" options={['Non', 'Oui', 'Ne sait pas']} value={data.grossesse || 'Non'} onChange={v => update('grossesse', v)} />
+      <RadioField label="Consommation d'alcool dans les 24h précédant la prestation" options={['Non', 'Oui']} value={data.alcool || 'Non'} onChange={v => update('alcool', v)} />
+      <RadioField label="A bien mangé dans les 4h précédant la prestation" options={['Oui', 'Non']} value={data.aBienMange || 'Oui'} onChange={v => update('aBienMange', v)} />
+      <RadioField label="Lésion, plaie ou irritation sur la zone à tatouer" options={['Non', 'Oui']} value={data.lesionZone || 'Non'} onChange={v => update('lesionZone', v)} />
+      <RadioField label="Exposition solaire récente sur la zone à tatouer" options={['Non', 'Oui']} value={data.expositionSolaire || 'Non'} onChange={v => update('expositionSolaire', v)} />
+      <FormField label="Informations médicales complémentaires" value={data.autresInfosMedicales || ''} onChange={v => update('autresInfosMedicales', v)} multiline />
+
+      <FormSection title="4 — TRAÇABILITÉ DES ENCRES (Règl. UE 2020/2081)" />
+      <WarningBox>Conservation obligatoire 5 ans. Toutes les encres utilisées doivent être conformes au Règlement UE 2020/2081 en vigueur depuis le 4 janvier 2022.</WarningBox>
+      <FormField label="Marque de l'encre" value={data.marqueEncre || ''} onChange={v => update('marqueEncre', v)} />
+      <FormField label="Couleur(s) utilisée(s)" value={data.couleurEncre || ''} onChange={v => update('couleurEncre', v)} />
+      <FormField label="N° de lot / référence" value={data.lotEncre || ''} onChange={v => update('lotEncre', v)} />
+      <FormField label="Date de péremption" value={data.peremptionEncre || ''} onChange={v => update('peremptionEncre', v)} />
+      <RadioField label="Certificat de conformité UE 2020/2081 disponible" options={['Oui', 'Non']} value={data.certifEncre || 'Oui'} onChange={v => update('certifEncre', v)} />
+
+      <FormSection title="5 — CONSENTEMENT ÉCLAIRÉ" />
+      <CheckboxField label="A été informé(e) des risques liés au tatouage (infection, allergie, chéloïde, décoloration)" value={data.informeRisques || false} onToggle={() => update('informeRisques', !data.informeRisques)} />
+      <CheckboxField label="A répondu honnêtement au questionnaire médical" value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} />
+      <CheckboxField label="Reçu la fiche de soins post-tatouage" value={data.recuFicheSoins || false} onToggle={() => update('recuFicheSoins', !data.recuFicheSoins)} />
+      <CheckboxField label="Donne son consentement libre et éclairé pour la réalisation du tatouage" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} />
+      <CheckboxField label="Assume la responsabilité du suivi des soins post-tatouage" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} />
+      <CheckboxField label="Confirme être majeur(e) et ne pas être sous tutelle" value={data.confirmeMajeur || false} onToggle={() => update('confirmeMajeur', !data.confirmeMajeur)} />
+    </>
+  );
+}
+
+// ─── Formulaire Questionnaire Médical Tatouage Mineur ────────────────────────
+
+function FormQuestionnaireTatouageMineur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  return (
+    <>
+      <LegalBox color="orange">
+        <strong>▪ Cadre légal — Art. 371-1 et suivants du Code civil</strong><br />
+        ▪ Le tatouage sur un mineur est interdit en France (Art. L1311-7 CSP) sauf dérogation médicale.<br />
+        ▪ En cas d'exception autorisée, le consentement écrit du ou des titulaires de l'autorité parentale est obligatoire.<br />
+        Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP).
+      </LegalBox>
+      <LegalBox color="cyan">
+        <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
+      </LegalBox>
+
+      <FormField label="Nom du salon" value={data.nomSalon || ''} onChange={v => update('nomSalon', v)} />
+
+      <FormSection title="1 — IDENTITÉ DU MINEUR" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nom || client.nom} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom(s)" value={data.prenom || client.prenom} onChange={v => update('prenom', v)} required />
+      </div>
+      <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+
+      <FormSection title="2 — PROJET DE TATOUAGE" />
+      <FormField label="Zone à tatouer" value={data.zoneTatouage || ''} onChange={v => update('zoneTatouage', v)} required />
+      <FormField label="Description du motif" value={data.descriptionMotif || ''} onChange={v => update('descriptionMotif', v)} multiline />
+
+      <FormSection title="3 — AUTORISATION MÉDICALE" />
+      <WarningBox>Le tatouage sur mineur est interdit en France (Art. L1311-7 CSP). Ce formulaire est réservé aux cas dérogatoires autorisés par un médecin.</WarningBox>
+      <RadioField label="Autorisation médicale écrite obtenue" options={['Oui', 'Non']} value={data.autorisationMedicale || 'Non'} onChange={v => update('autorisationMedicale', v)} />
+      {data.autorisationMedicale === 'Oui' && (
+        <FormField label="Nom du médecin prescripteur" value={data.medecinPrescripteur || ''} onChange={v => update('medecinPrescripteur', v)} />
+      )}
+
+      <FormSection title="4 — ÉTAT DE SANTÉ DU MINEUR" />
+      <WarningBox>Toute réponse « Oui » suspend la prestation jusqu'à avis médical. (Arrêté du 3 décembre 2008 — ARS)</WarningBox>
+      <RadioField label="Maladies de peau en cours" options={['Non', 'Oui']} value={data.maladiesPeau || 'Non'} onChange={v => update('maladiesPeau', v)} />
+      <RadioField label="Troubles de la coagulation" options={['Non', 'Oui']} value={data.troublesCoagulation || 'Non'} onChange={v => update('troublesCoagulation', v)} />
+      <RadioField label="Tendance aux cicatrices chéloïdes" options={['Non', 'Oui']} value={data.cheloide || 'Non'} onChange={v => update('cheloide', v)} />
+      <RadioField label="Allergie aux encres ou pigments" options={['Non', 'Oui']} value={data.allergieEncres || 'Non'} onChange={v => update('allergieEncres', v)} />
+      <RadioField label="Allergie au latex" options={['Non', 'Oui']} value={data.allergieLatex || 'Non'} onChange={v => update('allergieLatex', v)} />
+      <RadioField label="Traitement médicamenteux en cours" options={['Non', 'Oui']} value={data.traitementEnCours || 'Non'} onChange={v => update('traitementEnCours', v)} />
+      {data.traitementEnCours === 'Oui' && (
+        <FormField label="Préciser le(s) traitement(s)" value={data.traitementDetail || ''} onChange={v => update('traitementDetail', v)} multiline />
+      )}
+      <FormField label="Informations médicales complémentaires" value={data.autresInfosMedicales || ''} onChange={v => update('autresInfosMedicales', v)} multiline />
+
+      <FormSection title="5 — TRAÇABILITÉ DES ENCRES (Règl. UE 2020/2081)" />
+      <FormField label="Marque de l'encre" value={data.marqueEncre || ''} onChange={v => update('marqueEncre', v)} />
+      <FormField label="Couleur(s) utilisée(s)" value={data.couleurEncre || ''} onChange={v => update('couleurEncre', v)} />
+      <FormField label="N° de lot / référence" value={data.lotEncre || ''} onChange={v => update('lotEncre', v)} />
+      <RadioField label="Certificat de conformité UE 2020/2081 disponible" options={['Oui', 'Non']} value={data.certifEncre || 'Oui'} onChange={v => update('certifEncre', v)} />
+
+      <FormSection title="6 — REPRÉSENTANT(S) LÉGAL/AUX" />
+      <FormField label="Représentant légal — Nom / Prénom" value={data.representantNom || ''} onChange={v => update('representantNom', v)} required />
+      <RadioField label="Lien" options={['Mère', 'Père', 'Tuteur légal', 'Autre']} value={data.representantLien || ''} onChange={v => update('representantLien', v)} />
+      <FormField label="Téléphone représentant" value={data.representantTelephone || ''} onChange={v => update('representantTelephone', v)} type="tel" />
+      <RadioField label="Pièce d'identité" options={['CNI', 'Passeport', 'Titre de séjour']} value={data.representantPieceId || ''} onChange={v => update('representantPieceId', v)} />
+
+      <FormSection title="7 — CONSENTEMENT PARENTAL ÉCLAIRÉ" />
+      <CheckboxField label="Exerce l'autorité parentale sur le mineur" value={data.exerceAutoriteParentale || false} onToggle={() => update('exerceAutoriteParentale', !data.exerceAutoriteParentale)} />
+      <CheckboxField label="A pris connaissance de l'interdiction légale du tatouage sur mineur" value={data.connaitInterdiction || false} onToggle={() => update('connaitInterdiction', !data.connaitInterdiction)} />
+      <CheckboxField label="Dispose d'une autorisation médicale écrite" value={data.disposeAutorisationMedicale || false} onToggle={() => update('disposeAutorisationMedicale', !data.disposeAutorisationMedicale)} />
+      <CheckboxField label="Donne son consentement libre et éclairé" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} />
+      <CheckboxField label="Assume la responsabilité du suivi des soins post-tatouage" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} />
+    </>
+  );
+}
+
 export default function DocumentForm() {
   const params = useParams<{ clientId: string; docType: string }>();
   const [, navigate] = useLocation();
@@ -898,6 +1089,10 @@ export default function DocumentForm() {
         return <FormAutorisationParentale data={formData} update={updateField} client={client} salonInfo={state.salonInfo} />;
       case 'fiche_seance_piercing':
         return <FormFicheSeance data={formData} update={updateField} client={client} />;
+      case 'questionnaire_tatouage_majeur':
+        return <FormQuestionnaireTatouageMajeur data={formData} update={updateField} client={client} />;
+      case 'questionnaire_tatouage_mineur':
+        return <FormQuestionnaireTatouageMineur data={formData} update={updateField} client={client} />;
       default:
         if (docType.startsWith('soins_') || docType.startsWith('cicatrisation_')) {
           return <FormSoins docType={docType} data={formData} update={updateField} />;
