@@ -789,33 +789,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       <FormField label="Référence / N° de lot du matériel à usage unique" value={data.refMaterielsUnique || ''} onChange={v => update('refMaterielsUnique', v)} />
       <FormField label="Notes supplémentaires (optionnel)" value={data.notesMaterielsUnique || ''} onChange={v => update('notesMaterielsUnique', v)} multiline />
 
-      <FormSection title="4 — TRAÇABILITÉ DU MATÉRIEL RÉUTILISABLE STÉRILISÉ" />
-      <FormField label="Référence / N° de lot du matériel réutilisable" value={data.refMaterielsReutilisables || ''} onChange={v => update('refMaterielsReutilisables', v)} />
-      <FormField label="Notes supplémentaires (optionnel)" value={data.notesMaterielsReutilisables || ''} onChange={v => update('notesMaterielsReutilisables', v)} multiline />
-
-      <FormSection title="5 — BIJOU POSÉ — TRAÇABILITÉ MATIÈRE" />
-      <div className="grid grid-cols-2 gap-3">
-        <RadioField label="Type de bijou" options={['Anneau', 'Labret', 'Barbell', 'Autre']} value={data.typeBijou || ''} onChange={v => update('typeBijou', v)} />
-        <RadioField label="Matière" options={['Titane G23 ASTM F136', 'Acier chirurgical 316L', 'PTFE / Bioflex', 'Autre']} value={data.matiereBijou || ''} onChange={v => update('matiereBijou', v)} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Calibre (gauge)" value={data.calibreBijou || ''} onChange={v => update('calibreBijou', v)} />
-        <FormField label="Longueur / Diamètre" value={data.longueurBijou || ''} onChange={v => update('longueurBijou', v)} />
-      </div>
-      <FormField label="Marque fournisseur" value={data.marqueBijou || ''} onChange={v => update('marqueBijou', v)} />
-      <FormField label="N° de lot / référence" value={data.numLotBijou || ''} onChange={v => update('numLotBijou', v)} />
-      <CheckboxField label="Certificat de biocompatibilité fourni" value={data.certificatBiocompat || false} onToggle={() => update('certificatBiocompat', !data.certificatBiocompat)} />
-
-      <FormSection title="6 — PRODUITS DÉSINFECTANTS UTILISÉS" />
-      {['Désinfectant cutané', 'Désinfectant surface', 'Solution PHA mains'].map((item, i) => (
-        <div key={i} className="grid grid-cols-3 gap-2 mb-2">
-          <div className="flex items-center text-xs" style={{ color: 'var(--brand-text-muted)' }}>{item}</div>
-          <FormField label="Marque / Réf" value={data[`produit${i}_marque`] || ''} onChange={v => update(`produit${i}_marque`, v)} />
-          <FormField label="N° lot" value={data[`produit${i}_lot`] || ''} onChange={v => update(`produit${i}_lot`, v)} />
-        </div>
-      ))}
-
-      <FormSection title="7 — PROTOCOLE D'HYGIÈNE — CHECKLIST OPÉRATEUR" />
+      <FormSection title="4 — PROTOCOLE D'HYGIÈNE — CHECKLIST OPÉRATEUR" />
       <p className="text-xs mb-2" style={{ color: 'var(--brand-text-muted)', fontWeight: 600 }}>Avant la séance</p>
       {['Lavage hygiénique des mains (PHA 30 sec)', 'Nettoyage-désinfection plan de travail', 'Pose champ stérile à usage unique', 'Vérification intégrité emballages stériles', 'Marquage du point de perçage'].map((item, i) => (
         <CheckboxField key={i} label={item} value={data[`avant${i}`] || false} onToggle={() => update(`avant${i}`, !data[`avant${i}`])} />
@@ -825,20 +799,20 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
         <CheckboxField key={i} label={item} value={data[`apres${i}`] || false} onToggle={() => update(`apres${i}`, !data[`apres${i}`])} />
       ))}
 
-      <FormSection title="8 — GESTION DES DÉCHETS DASRI" />
+      <FormSection title="5 — GESTION DES DÉCHETS DASRI" />
       <div className="grid grid-cols-3 gap-3">
         <FormField label="Conteneur DASRI (n° ou réf.)" value={data.containerDasri || ''} onChange={v => update('containerDasri', v)} />
         <RadioField label="Taux de remplissage" options={['< 75%', '75% - fermeture', 'Fermé']} value={data.tauxRemplissage || ''} onChange={v => update('tauxRemplissage', v)} />
         <FormField label="Date dernier enlev. DASRI" value={data.dateDernierDasri || ''} onChange={v => update('dateDernierDasri', v)} />
       </div>
 
-      <FormSection title="9 — DOCUMENTS REMIS AU CLIENT" />
+      <FormSection title="6 — DOCUMENTS REMIS AU CLIENT" />
       <CheckboxField label="Fiche de soins post-piercing (zone concernée)" value={data.fichesSoinsRemise || false} onToggle={() => update('fichesSoinsRemise', !data.fichesSoinsRemise)} />
       <CheckboxField label="Informations sur les risques et contre-indications" value={data.infosRisques || false} onToggle={() => update('infosRisques', !data.infosRisques)} />
       <CheckboxField label="Coordonnées du professionnel" value={data.coordonneesProf || false} onToggle={() => update('coordonneesProf', !data.coordonneesProf)} />
       <CheckboxField label="Numéro d'urgence en cas de réaction" value={data.numUrgence || false} onToggle={() => update('numUrgence', !data.numUrgence)} />
 
-      <FormSection title="10 — OBSERVATIONS POST-SÉANCE & SUIVI" />
+      <FormSection title="7 — OBSERVATIONS POST-SÉANCE & SUIVI" />
       <RadioField label="Réaction immédiate observée" options={['Aucune', 'Saignement léger', 'Rougeur locale', 'Malaise vasculaire', 'Autre']} value={data.reactionObservee || 'Aucune'} onChange={v => update('reactionObservee', v)} />
       <RadioField label="RDV de contrôle proposé" options={['Oui', 'Non']} value={data.rdvControlePropose || 'Oui'} onChange={v => update('rdvControlePropose', v)} />
       <FormField label="Commentaires / observations complémentaires" value={data.observationsPostseance || ''} onChange={v => update('observationsPostseance', v)} multiline />
