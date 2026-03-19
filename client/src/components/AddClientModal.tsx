@@ -73,7 +73,7 @@ export default function AddClientModal({ onClose }: Props) {
 
   const set = (k: string, v: string) => {
     setForm(f => ({ ...f, [k]: v }));
-    if (submitted) setErrors(prev => ({ ...prev, [k]: '' }));
+    if (submitted && errors[k]) setErrors(prev => ({ ...prev, [k]: '' }));
   };
 
   const validate = (): boolean => {
@@ -151,7 +151,7 @@ export default function AddClientModal({ onClose }: Props) {
     border: '1px solid #F44336',
   };
 
-  const getInputStyle = (name: string) => errors[name] ? inputError : inputBase;
+  const getInputStyle = (name: string) => (submitted && errors[name]) ? inputError : inputBase;
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -187,12 +187,12 @@ export default function AddClientModal({ onClose }: Props) {
               <div>
                 <label style={labelStyle}>Prénom *</label>
                 <input style={getInputStyle('prenom')} value={form.prenom} onChange={e => set('prenom', e.target.value)} autoComplete="off" />
-                {errors.prenom && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.prenom}</p>}
+                {submitted && errors.prenom && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.prenom}</p>}
               </div>
               <div>
                 <label style={labelStyle}>Nom *</label>
                 <input style={getInputStyle('nom')} value={form.nom} onChange={e => set('nom', e.target.value)} autoComplete="off" />
-                {errors.nom && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.nom}</p>}
+                {submitted && errors.nom && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.nom}</p>}
               </div>
             </div>
             <div className="mt-3">
@@ -201,12 +201,12 @@ export default function AddClientModal({ onClose }: Props) {
                 <div>
                   <input
                     type="number"
-                    style={errors.dateNaissance ? inputError : inputBase}
+                    style={(submitted && errors.dateNaissance) ? inputError : inputBase}
                     value={dateJour}
                     onChange={e => {
                       const v = e.target.value.replace(/\D/g, '').slice(0, 2);
                       setDateJour(v);
-                      if (submitted) setErrors(prev => ({ ...prev, dateNaissance: '' }));
+                      if (submitted && errors.dateNaissance) setErrors(prev => ({ ...prev, dateNaissance: '' }));
                     }}
                     placeholder="JJ"
                     min="1" max="31"
@@ -215,12 +215,12 @@ export default function AddClientModal({ onClose }: Props) {
                 <div>
                   <input
                     type="number"
-                    style={errors.dateNaissance ? inputError : inputBase}
+                    style={(submitted && errors.dateNaissance) ? inputError : inputBase}
                     value={dateMois}
                     onChange={e => {
                       const v = e.target.value.replace(/\D/g, '').slice(0, 2);
                       setDateMois(v);
-                      if (submitted) setErrors(prev => ({ ...prev, dateNaissance: '' }));
+                      if (submitted && errors.dateNaissance) setErrors(prev => ({ ...prev, dateNaissance: '' }));
                     }}
                     placeholder="MM"
                     min="1" max="12"
@@ -229,12 +229,12 @@ export default function AddClientModal({ onClose }: Props) {
                 <div>
                   <input
                     type="number"
-                    style={errors.dateNaissance ? inputError : inputBase}
+                    style={(submitted && errors.dateNaissance) ? inputError : inputBase}
                     value={dateAnnee}
                     onChange={e => {
                       const v = e.target.value.replace(/\D/g, '').slice(0, 4);
                       setDateAnnee(v);
-                      if (submitted) setErrors(prev => ({ ...prev, dateNaissance: '' }));
+                      if (submitted && errors.dateNaissance) setErrors(prev => ({ ...prev, dateNaissance: '' }));
                     }}
                     placeholder="AAAA"
                     min="1900" max={new Date().getFullYear()}
@@ -242,7 +242,7 @@ export default function AddClientModal({ onClose }: Props) {
                 </div>
               </div>
               <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)', opacity: 0.6 }}>Jour / Mois / Année</p>
-              {errors.dateNaissance && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.dateNaissance}</p>}
+              {submitted && errors.dateNaissance && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.dateNaissance}</p>}
               {dateNaissanceValue && isDateValid && (
                 <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: isMineur ? '#9C27B0' : 'var(--brand-text-muted)' }}>
                   {isMineur
@@ -261,7 +261,7 @@ export default function AddClientModal({ onClose }: Props) {
               <div>
                 <label style={labelStyle}>Téléphone *</label>
                 <input type="tel" style={getInputStyle('telephone')} value={form.telephone} onChange={e => set('telephone', e.target.value)} placeholder="06 XX XX XX XX" autoComplete="off" />
-                {errors.telephone && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.telephone}</p>}
+                {submitted && errors.telephone && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errors.telephone}</p>}
               </div>
               <div>
                 <label style={labelStyle}>Email</label>
