@@ -33,8 +33,8 @@ const DOC_CATEGORIES = [
     title: 'Tatouage & Dermographie',
     icon: FileText,
     color: '#FF9800',
-    docs: ['questionnaire_tatouage_majeur', 'questionnaire_tatouage_mineur'] as DocumentType[],
-    forMineur: 'questionnaire_tatouage_mineur',
+    docs: ['questionnaire_tatouage_majeur', 'questionnaire_dermographe'] as DocumentType[],
+    forMineur: null,
   },
 ];
 

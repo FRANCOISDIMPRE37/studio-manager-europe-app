@@ -28,7 +28,7 @@ export type DocumentType =
   | 'soins_arcade_sourcil'
   | 'soins_surface_dermal'
   | 'questionnaire_tatouage_majeur'
-  | 'questionnaire_tatouage_mineur'
+  | 'questionnaire_dermographe'
 ;
 
 // Document rempli
@@ -163,7 +163,7 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_arcade_sourcil: 'F — Fiche de Soins Arcade/Sourcil',
   soins_surface_dermal: 'G — Fiche de Soins Surface/Dermal',
   questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
-  questionnaire_tatouage_mineur: '06 — Questionnaire Médical Tatouage Mineur',
+  questionnaire_dermographe: '06 — Questionnaire Médical Dermographe',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {
