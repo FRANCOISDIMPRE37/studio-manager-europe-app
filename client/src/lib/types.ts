@@ -29,6 +29,7 @@ export type DocumentType =
   | 'soins_surface_dermal'
   | 'questionnaire_tatouage_majeur'
   | 'questionnaire_dermographe'
+  | 'consentement_soins_tatouage'
 ;
 
 // Document rempli
@@ -164,6 +165,7 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_surface_dermal: 'G — Fiche de Soins Surface/Dermal',
   questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
   questionnaire_dermographe: '06 — Questionnaire Médical Dermographe',
+  consentement_soins_tatouage: '07 — Consentement & Soins Post-Tatouage',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {

@@ -1,2 +1,6 @@
 - [x] Ajouter section identité client sur FormSoins (7 fiches de soins piercing)
 - [x] Ajouter section identité client sur FormAutorisationParentale (déjà présente section 2 mineur — vérifier complétude)
+- [x] Créer FormConsentementSoinsTatouage avec consentement + cicatrisation J1-J30
+- [x] Ajouter le type consentement_soins_tatouage dans types.ts et DOCUMENT_LABELS
+- [x] Ajouter la fiche dans la catégorie Tatouage & Dermographie de Documents.tsx
+- [x] Ajouter le case dans le switch renderForm() de DocumentForm.tsx

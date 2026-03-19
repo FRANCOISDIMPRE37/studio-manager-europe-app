@@ -807,6 +807,236 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
 // ─── Page principale DocumentForm ────────────────────────────────────────────
 
 
+// ─── Formulaire Consentement & Soins Post-Tatouage ───────────────────────────
+
+const CICATRISATION_JOURS = [
+  {
+    phase: 'Phase 1 — Inflammation aiguë',
+    jours: 'J1 — J3',
+    couleur: '#F44336',
+    etapes: [
+      { jour: 'J1', titre: 'Immédiatement après la séance', instructions: "Le film protecteur (Dermalize / Saniderm / film alimentaire) est posé par le tatoueur. Ne pas retirer avant 2 à 4 heures minimum. La zone est rouge, légèrement gonflée et peut suinter un liquide clair ou légèrement rosé : c'est normal. Ne pas toucher, ne pas frotter." },
+      { jour: 'J1 soir', titre: 'Premier nettoyage', instructions: "Retirer délicatement le film sous l'eau tiède. Laver doucement avec un savon surgras non parfumé (Dove, Neutrogena, Sanex doux) en mouvements circulaires très légers. Rincer abondamment à l'eau tiède. Sécher en tamponnant (ne jamais frotter) avec une compresse stérile ou un essuie-tout propre. Appliquer une fine couche de crème cicatrisante (Bepanthen, Cicalfate, Tattoo Goo) — couche légère, pas épaisse." },
+      { jour: 'J2', titre: 'Inflammation normale', instructions: "La zone reste rouge, chaude au toucher, légèrement gonflée. Continuer : 2 à 3 nettoyages par jour au savon surgras doux + application fine de crème cicatrisante. Ne pas remettre de film occlusif. Éviter tout contact avec des vêtements serrés sur la zone. Boire beaucoup d'eau pour favoriser la régénération cellulaire." },
+      { jour: 'J3', titre: 'Début de la desquamation', instructions: "Les premières pellicules fines peuvent apparaître : c'est la peau morte qui se détache naturellement. Ne jamais arracher, gratter ou peler ces pellicules — risque de décoloration et d'infection. Continuer le protocole de nettoyage 2×/jour. La crème cicatrisante peut être appliquée 3 fois par jour si la peau tire fortement." },
+    ],
+  },
+  {
+    phase: 'Phase 2 — Desquamation & Régénération',
+    jours: 'J4 — J14',
+    couleur: '#FF9800',
+    etapes: [
+      { jour: 'J4 — J7', titre: 'Desquamation active', instructions: "La peau pèle comme après un coup de soleil : fines lamelles qui tombent naturellement. Les couleurs peuvent sembler ternes ou voilées sous la couche de peau morte — c'est temporaire. Continuer 2 nettoyages/jour + crème cicatrisante. Si des démangeaisons apparaissent : tapoter doucement (ne jamais gratter). Éviter absolument l'exposition solaire directe sur la zone." },
+      { jour: 'J8 — J10', titre: 'Fin de la desquamation', instructions: 'La majorité des pellicules sont tombées. La peau retrouve progressivement son aspect normal. Les couleurs commencent à réapparaître plus nettement. Réduire la crème cicatrisante à 1 à 2 applications/jour. Continuer le nettoyage doux 1×/jour. La zone peut encore être légèrement sensible au toucher.' },
+      { jour: 'J11 — J14', titre: 'Peau régénérée en surface', instructions: 'La couche superficielle de la peau est régénérée. Le tatouage est visible dans ses couleurs finales (ou presque). Continuer à hydrater avec une crème neutre non parfumée (Lubriderm, Aveeno, Cetaphil). Éviter le soleil, la piscine, la mer et les bains prolongés. La peau peut encore être légèrement brillante ou tendue.' },
+    ],
+  },
+  {
+    phase: 'Phase 3 — Cicatrisation profonde',
+    jours: 'J15 — J30',
+    couleur: '#4CAF50',
+    etapes: [
+      { jour: 'J15 — J21', titre: 'Cicatrisation dermique', instructions: 'La surface est cicatrisée mais les couches profondes du derme continuent de se régénérer. Hydrater 1×/jour avec une crème neutre. Appliquer un écran solaire SPF 50+ à chaque exposition au soleil (obligatoire pendant 3 mois). La piscine et la mer sont autorisées avec précaution (rincer immédiatement après). Éviter les bains prolongés (baignoire, hammam, sauna).' },
+      { jour: 'J22 — J30', titre: 'Fin de la cicatrisation visible', instructions: "Le tatouage est pleinement cicatrisé en surface. Les couleurs sont stabilisées. Continuer l'hydratation quotidienne pour maintenir la qualité de l'encre sur le long terme. Protection solaire SPF 50+ obligatoire à chaque exposition pendant encore 2 mois. En cas de doute sur la cicatrisation, contacter le tatoueur ou un médecin." },
+    ],
+  },
+];
+
+function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  return (
+    <>
+      {/* Cadre légal */}
+      <LegalBox color="orange">
+        <strong>■ Cadre légal — Arrêté du 3 décembre 2008 (ARS) + Règlement UE 2020/2081</strong><br />
+        ■ Toute prestation de tatouage est soumise à la réglementation sanitaire française.<br />
+        ■ Les encres utilisées sont conformes au Règlement UE 2020/2081 (en vigueur depuis le 4 janvier 2022).<br />
+        ■ Conservation du dossier : <strong>5 ans</strong> minimum à compter de la dernière prestation (Art. R 1311-7 CSP).
+      </LegalBox>
+      <LegalBox color="cyan">
+        <em>VOS DROITS RGPD — Art. 15 Droit d'accès · Art. 16 Rectification · Art. 17 Effacement · Art. 21 Opposition.<br />
+        Pour exercer vos droits : francois-dimpre@intemporelle.eu — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
+      </LegalBox>
+
+      {/* Identité client */}
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nom || client.nom} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom(s)" value={data.prenom || client.prenom} onChange={v => update('prenom', v)} required />
+      </div>
+      <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
+      </div>
+      <RadioField label="Pièce d'identité présentée" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdType || ''} onChange={v => update('pieceIdType', v)} />
+      {data.pieceIdType && data.pieceIdType !== 'Non présentée' && (
+        <FormField label="Numéro de la pièce d'identité" value={data.pieceIdNumero || ''} onChange={v => update('pieceIdNumero', v)} />
+      )}
+
+      {/* Prestation */}
+      <FormSection title="2 — PRESTATION RÉALISÉE" />
+      <FormField label="Zone tatouée" value={data.zoneTatouage || ''} onChange={v => update('zoneTatouage', v)} required />
+      <FormField label="Description du motif" value={data.descriptionMotif || ''} onChange={v => update('descriptionMotif', v)} multiline />
+      <RadioField label="Style" options={['Noir & gris', 'Couleur', 'Minimaliste', 'Traditionnel', 'Réaliste', 'Géométrique', 'Aquarelle', 'Autre']} value={data.styleTatouage || ''} onChange={v => update('styleTatouage', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Taille approximative" value={data.tailleTatouage || ''} onChange={v => update('tailleTatouage', v)} />
+        <FormField label="Durée de séance" value={data.dureeSéance || ''} onChange={v => update('dureeSéance', v)} />
+      </div>
+      <RadioField label="Premier tatouage" options={['Oui', 'Non']} value={data.premierTatouage || 'Non'} onChange={v => update('premierTatouage', v)} />
+
+      {/* Traçabilité encres */}
+      <FormSection title="3 — TRAÇABILITÉ DES ENCRES (UE 2020/2081)" />
+      <WarningBox>Conformément au Règlement UE 2020/2081, les encres utilisées doivent être conformes et traçables. Conserver ces informations 5 ans minimum.</WarningBox>
+      <FormField label="Marque(s) d'encre utilisée(s)" value={data.marqueEncre || ''} onChange={v => update('marqueEncre', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="N° de lot" value={data.lotEncre || ''} onChange={v => update('lotEncre', v)} />
+        <FormField label="Date de péremption" value={data.perempEncre || ''} onChange={v => update('perempEncre', v)} />
+      </div>
+      <FormField label="Couleurs utilisées" value={data.couleursEncre || ''} onChange={v => update('couleursEncre', v)} />
+      <CheckboxField label="Encres conformes UE 2020/2081 vérifiées" value={data.encresConformes || false} onToggle={() => update('encresConformes', !data.encresConformes)} />
+
+      {/* Consentement éclairé */}
+      <FormSection title="4 — CONSENTEMENT ÉCLAIRÉ" />
+      <LegalBox color="green">
+        En signant ce document, le client déclare avoir été informé(e) des éléments suivants et y consent librement :
+      </LegalBox>
+      <CheckboxField label="Je suis majeur(e) et en pleine capacité juridique" value={data.consent_majeur || false} onToggle={() => update('consent_majeur', !data.consent_majeur)} />
+      <CheckboxField label="J'ai répondu honnêtement au questionnaire médical" value={data.consent_honnete || false} onToggle={() => update('consent_honnete', !data.consent_honnete)} />
+      <CheckboxField label="J'ai été informé(e) des risques : infection, allergie, chéloïde, décoloration, retouche possible" value={data.consent_risques || false} onToggle={() => update('consent_risques', !data.consent_risques)} />
+      <CheckboxField label="J'ai été informé(e) que le résultat définitif est visible après cicatrisation complète (3 à 4 semaines)" value={data.consent_resultat || false} onToggle={() => update('consent_resultat', !data.consent_resultat)} />
+      <CheckboxField label="J'accepte que le tatouage est permanent et que les retouches peuvent nécessiter une séance supplémentaire" value={data.consent_permanent || false} onToggle={() => update('consent_permanent', !data.consent_permanent)} />
+      <CheckboxField label="J'ai reçu et lu la fiche de soins post-tatouage" value={data.consent_ficheRecue || false} onToggle={() => update('consent_ficheRecue', !data.consent_ficheRecue)} />
+      <CheckboxField label="Je m'engage à respecter le protocole de cicatrisation" value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} />
+      <CheckboxField label="Je consens librement à la réalisation de cette prestation" value={data.consent_libre || false} onToggle={() => update('consent_libre', !data.consent_libre)} />
+
+      {/* Contre-indications rappel */}
+      <FormSection title="5 — DÉCLARATIONS MÉDICALES PRÉALABLES" />
+      <WarningBox>Toute réponse « Oui » peut suspendre la prestation jusqu'à avis médical. Ces informations sont confidentielles et protégées par le secret professionnel.</WarningBox>
+      <RadioField label="Enceinte ou allaitante" options={['Non', 'Oui', 'Ne sait pas']} value={data.grossesse || 'Non'} onChange={v => update('grossesse', v)} />
+      <RadioField label="Traitement anticoagulant en cours (Xarelto, Eliquis, Warfarine, Aspirine…)" options={['Non', 'Oui']} value={data.anticoagulants || 'Non'} onChange={v => update('anticoagulants', v)} />
+      <RadioField label="Roaccutane / Isotrétinoïne (en cours ou arrêt < 6 mois)" options={['Non', 'Oui']} value={data.roaccutane || 'Non'} onChange={v => update('roaccutane', v)} />
+      <RadioField label="Diabète ou troubles de la cicatrisation" options={['Non', 'Oui']} value={data.diabete || 'Non'} onChange={v => update('diabete', v)} />
+      <RadioField label="Allergie aux encres de tatouage connue" options={['Non', 'Oui']} value={data.allergieEncre || 'Non'} onChange={v => update('allergieEncre', v)} />
+      <RadioField label="Tendance aux cicatrices chéloïdes" options={['Non', 'Oui']} value={data.cheloide || 'Non'} onChange={v => update('cheloide', v)} />
+      <RadioField label="Immunodépression (VIH, chimiothérapie, greffe)" options={['Non', 'Oui']} value={data.immunodepression || 'Non'} onChange={v => update('immunodepression', v)} />
+      <RadioField label="A bien mangé dans les 4h précédant la séance" options={['Oui', 'Non']} value={data.aBienMange || 'Oui'} onChange={v => update('aBienMange', v)} />
+      <RadioField label="Consommation d'alcool dans les 24h précédentes" options={['Non', 'Oui']} value={data.alcool || 'Non'} onChange={v => update('alcool', v)} />
+      <FormField label="Informations médicales complémentaires" value={data.infosMedicales || ''} onChange={v => update('infosMedicales', v)} multiline />
+
+      {/* Protocole de cicatrisation J1-J30 */}
+      <FormSection title="6 — PROTOCOLE DE CICATRISATION — J1 À J30" />
+      <LegalBox color="cyan">
+        <strong>Ce protocole est remis au client à l'issue de chaque séance.</strong> Il constitue la fiche de soins officielle conforme à l'Arrêté du 3 décembre 2008. Le respect de ces consignes conditionne la qualité du résultat et prévient tout risque infectieux.
+      </LegalBox>
+
+      {CICATRISATION_JOURS.map((phase, pi) => (
+        <div key={pi} className="mb-4">
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px flex-1" style={{ background: phase.couleur + '44' }} />
+            <span className="text-xs font-700 px-3 py-1 rounded-full" style={{
+              color: phase.couleur,
+              background: phase.couleur + '18',
+              fontWeight: 700,
+              fontFamily: 'Outfit',
+              border: `1px solid ${phase.couleur}44`,
+            }}>
+              {phase.phase} — {phase.jours}
+            </span>
+            <div className="h-px flex-1" style={{ background: phase.couleur + '44' }} />
+          </div>
+          {phase.etapes.map((etape, ei) => (
+            <div key={ei} className="mb-3 p-3 rounded-xl" style={{
+              background: phase.couleur + '08',
+              border: `1px solid ${phase.couleur}28`,
+            }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-700 px-2 py-0.5 rounded" style={{
+                  background: phase.couleur + '22',
+                  color: phase.couleur,
+                  fontWeight: 700,
+                  fontFamily: 'Outfit',
+                }}>{etape.jour}</span>
+                <span className="text-xs font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{etape.titre}</span>
+              </div>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--brand-text-muted)', lineHeight: 1.7 }}>{etape.instructions}</p>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* Règles absolues */}
+      <FormSection title="7 — RÈGLES ABSOLUES PENDANT TOUTE LA CICATRISATION" />
+      <div className="grid grid-cols-1 gap-3 mb-4">
+        <div className="p-3 rounded-xl" style={{ background: 'rgba(244,67,54,0.05)', border: '1px solid rgba(244,67,54,0.2)' }}>
+          <p className="text-xs font-700 mb-2" style={{ color: '#F44336', fontWeight: 700 }}>INTERDICTIONS ABSOLUES (J1 à J30)</p>
+          {[
+            "Gratter, frotter ou peler la peau — risque de décoloration et d'infection",
+            'Exposition solaire directe sans protection SPF 50+ — décoloration irréversible',
+            'Bain prolongé (baignoire, hammam, sauna, jacuzzi) — macération et infection',
+            'Piscine chlorée les 15 premiers jours — produits chimiques agressifs',
+            'Mer les 10 premiers jours — bactéries et sel irritants',
+            'Vêtements synthétiques serrés sur la zone — frottements et étouffement',
+            'Crèmes parfumées, alcool, eau oxygénée, bétadine sur la zone',
+            'Rasage de la zone tatouée avant cicatrisation complète',
+            'Sport de contact ou activité provoquant une transpiration excessive J1-J7',
+          ].map((item, i) => (
+            <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>✗ {item}</p>
+          ))}
+        </div>
+        <div className="p-3 rounded-xl" style={{ background: 'rgba(76,175,80,0.05)', border: '1px solid rgba(76,175,80,0.2)' }}>
+          <p className="text-xs font-700 mb-2" style={{ color: '#4CAF50', fontWeight: 700 }}>BONNES PRATIQUES (J1 à J30)</p>
+          {[
+            'Laver les mains avant tout contact avec la zone tatouée',
+            'Utiliser uniquement un savon surgras non parfumé (Dove, Neutrogena doux)',
+            'Sécher en tamponnant avec une compresse stérile ou essuie-tout propre',
+            'Appliquer une fine couche de crème cicatrisante (Bepanthen, Cicalfate, Tattoo Goo)',
+            'Hydrater quotidiennement avec une crème neutre non parfumée après J14',
+            'Appliquer SPF 50+ à chaque exposition solaire pendant 3 mois',
+            'Porter des vêtements amples en coton sur la zone',
+            "Boire suffisamment d'eau pour favoriser la régénération cellulaire",
+          ].map((item, i) => (
+            <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>✓ {item}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Signes d'alerte */}
+      <FormSection title="8 — SIGNES D'ALERTE — CONSULTER UN MÉDECIN" />
+      <WarningBox>
+        Consultez immédiatement un médecin si vous observez : fièvre &gt; 38°C · rougeur qui s'étend au-delà de la zone tatouée · pus ou écoulement malodorant · douleur intense et croissante · gonflement important après J3 · éruption cutanée généralisée · difficultés respiratoires (choc allergique).
+      </WarningBox>
+      <FormField label="Contact d'urgence du tatoueur" value={data.contactUrgence || ''} onChange={v => update('contactUrgence', v)} type="tel" />
+
+      {/* Retouche */}
+      <FormSection title="9 — RETOUCHE & SUIVI" />
+      <LegalBox color="green">
+        Une retouche gratuite peut être réalisée <strong>3 mois après la séance</strong>, une fois la cicatrisation complète. Passé ce délai, la retouche peut être facturée. Contactez le salon pour convenir d'un rendez-vous de contrôle.
+      </LegalBox>
+      <RadioField label="RDV de contrôle proposé" options={['Oui — dans 3 mois', 'Non']} value={data.rdvControle || 'Oui — dans 3 mois'} onChange={v => update('rdvControle', v)} />
+      <FormField label="Date du RDV de contrôle (si planifié)" value={data.dateRdvControle || ''} onChange={v => update('dateRdvControle', v)} />
+      <FormField label="Observations post-séance" value={data.observationsPostseance || ''} onChange={v => update('observationsPostseance', v)} multiline />
+
+      {/* Documents remis */}
+      <FormSection title="10 — DOCUMENTS REMIS AU CLIENT" />
+      <CheckboxField label="Fiche de consentement et de soins signée (ce document)" value={data.docConsentement || false} onToggle={() => update('docConsentement', !data.docConsentement)} />
+      <CheckboxField label="Protocole de cicatrisation J1-J30 remis" value={data.docCicatrisation || false} onToggle={() => update('docCicatrisation', !data.docCicatrisation)} />
+      <CheckboxField label="Informations sur les encres (conformité UE 2020/2081)" value={data.docEncres || false} onToggle={() => update('docEncres', !data.docEncres)} />
+      <CheckboxField label="Coordonnées du professionnel remises" value={data.docCoordonnees || false} onToggle={() => update('docCoordonnees', !data.docCoordonnees)} />
+
+      <LegalBox color="cyan">
+        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
+      </LegalBox>
+    </>
+  );
+}
+
 // ─── Formulaire Questionnaire Médical Tatouage Majeur ────────────────────────
 
 function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
@@ -1118,6 +1348,8 @@ export default function DocumentForm() {
         return <FormQuestionnaireTatouageMajeur data={formData} update={updateField} client={client} />;
       case 'questionnaire_dermographe':
         return <FormQuestionnaireDermographe data={formData} update={updateField} client={client} />;
+      case 'consentement_soins_tatouage':
+        return <FormConsentementSoinsTatouage data={formData} update={updateField} client={client} />;
       default:
         if (docType.startsWith('soins_') || docType.startsWith('cicatrisation_')) {
           return <FormSoins docType={docType} data={formData} update={updateField} client={client} />;
