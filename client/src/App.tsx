@@ -13,6 +13,7 @@ import Agenda from "./pages/Agenda";
 import Documents from "./pages/Documents";
 import Parametres from "./pages/Parametres";
 import NotFound from "./pages/NotFound";
+import DocumentForm from "./pages/DocumentForm";
 
 function AppRoutes() {
   const { state } = useApp();
@@ -42,6 +43,7 @@ function AppRoutes() {
         <Route path="/" component={Dashboard} />
         <Route path="/clients" component={Clients} />
         <Route path="/clients/:id" component={ClientDetail} />
+        <Route path="/clients/:clientId/document/:docType" component={DocumentForm} />
         <Route path="/agenda" component={Agenda} />
         <Route path="/documents" component={Documents} />
         <Route path="/parametres" component={Parametres} />

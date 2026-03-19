@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import { useLocation, useParams } from 'wouter';
-import { ArrowLeft, Phone, Mail, MapPin, CreditCard, Calendar, FileText, Shield, Trash2, Archive, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, MapPin, CreditCard, Calendar, FileText, Shield, Trash2, Archive, AlertTriangle, CheckCircle, Edit, PlusCircle } from 'lucide-react';
 import { DOCUMENT_LABELS, RGPDStatus } from '@/lib/types';
 import { toast } from 'sonner';
 
@@ -153,7 +153,7 @@ export default function ClientDetail() {
         )}
 
         {tab === 'documents' && (
-          <div>
+          <div className="space-y-3">
             {client.documentsAssocies.length === 0 ? (
               <div className="text-center py-12">
                 <FileText size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
@@ -162,22 +162,37 @@ export default function ClientDetail() {
             ) : (
               <div className="space-y-2">
                 {client.documentsAssocies.map(docType => {
-                  const doc = client.documents.find(d => d.type === docType);
+                  const doc = client.documents?.find(d => d.type === docType);
                   const status = doc?.status || 'empty';
                   const statusColors = { empty: '#FF9800', filled: 'var(--brand-cyan)', signed: '#4CAF50' };
                   const statusLabels = { empty: 'À remplir', filled: 'Rempli', signed: 'Signé' };
                   return (
-                    <div key={docType} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
+                    <button
+                      key={docType}
+                      onClick={() => navigate(`/clients/${client.id}/document/${docType}`)}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 text-left"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}
+                    >
                       <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
                       <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType]}</span>
                       <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColors[status] + '22', color: statusColors[status], border: `1px solid ${statusColors[status]}` }}>
                         {statusLabels[status]}
                       </span>
-                    </div>
+                      <Edit size={12} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
+                    </button>
                   );
                 })}
               </div>
             )}
+            {/* Bouton ajouter un document */}
+            <button
+              onClick={() => navigate('/documents')}
+              className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
+              style={{ background: 'rgba(131,208,245,0.05)', border: '1px dashed rgba(131,208,245,0.3)', color: 'var(--brand-cyan)' }}
+            >
+              <PlusCircle size={14} />
+              Voir tous les documents disponibles
+            </button>
           </div>
         )}
 
