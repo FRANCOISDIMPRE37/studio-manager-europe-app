@@ -404,6 +404,17 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
             />
           </div>
         </div>
+        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Nom du pierceur" value={data.nomPierceurSign || ''} onChange={v => update('nomPierceurSign', v)} />
+          <FormField label="Date" value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
+          <div className="mt-3">
+            <SignaturePad
+              label="Signature du pierceur"
+              value={data.signatureImagePierceur || ''}
+              onChange={v => update('signatureImagePierceur', v ?? '')}
+            />
+          </div>
+        </div>
       </div>
     </>
   );
