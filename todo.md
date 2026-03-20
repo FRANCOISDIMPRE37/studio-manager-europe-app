@@ -13,3 +13,4 @@
 - [x] Créer FormEngagementConfidentialite fidèle au PDF (mise en page + toutes lois)
 - [x] Créer FormAffichageSalon fidèle au PDF (blocs colorés rouge/bleu/vert/orange/violet/gris)
 - [x] Ajouter les deux cases dans le switch renderForm() de DocumentForm.tsx
+- [x] Ajouter 3 liens externes dans la sidebar (Intemporelle, ARS Santé, CNIL)

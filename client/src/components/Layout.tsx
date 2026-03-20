@@ -6,7 +6,7 @@ import { Link, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import {
   LayoutDashboard, Users, Calendar, FileText, Settings,
-  LogOut, Shield, AlertTriangle, ChevronRight
+  LogOut, Shield, AlertTriangle, ChevronRight, ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +92,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+
+        {/* Liens externes */}
+        <div className="px-1 pb-2 space-y-1">
+          <p className="hidden md:block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>Ressources</p>
+          {[
+            { href: 'https://www.intemporelle.eu/', label: 'Intemporelle' },
+            { href: 'https://www.ars.sante.fr/', label: 'ARS Santé' },
+            { href: 'https://www.cnil.fr/fr', label: 'CNIL' },
+          ].map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/5 group"
+              style={{ color: 'var(--brand-text-muted)' }}
+            >
+              <ExternalLink size={15} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.7 }} />
+              <span className="hidden md:block text-xs truncate group-hover:text-white transition-colors" style={{ fontWeight: 400 }}>{label}</span>
+            </a>
+          ))}
+        </div>
 
         {/* RGPD Alert */}
         {stats.alertesUrgentes > 0 && (
