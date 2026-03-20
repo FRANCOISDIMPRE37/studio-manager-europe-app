@@ -23,3 +23,4 @@
 - [x] Étendre la recherche globale du tableau de bord aux RDV et documents
 - [x] Créer composant SignaturePad (canvas tactile + souris, effacer, base64)
 - [x] Intégrer SignaturePad sur toutes les fiches de consentement (01, 02, 03, 05, 06, 07, 08)
+- [x] Rendre la signature obligatoire sur les fiches critiques (01, 03, 05, 06, 07) avec validation et message d'erreur

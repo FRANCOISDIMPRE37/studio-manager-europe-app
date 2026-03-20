@@ -2098,8 +2098,24 @@ export default function DocumentForm() {
     setFormData(prev => ({ ...prev, [key]: value }));
   }
 
+  // Fiches de consentement critiques qui requièrent une signature obligatoire
+  const FICHES_SIGNATURE_OBLIGATOIRE: DocumentType[] = [
+    'questionnaire_mineur',
+    'questionnaire_majeur',
+    'questionnaire_tatouage_majeur',
+    'questionnaire_dermographe',
+    'consentement_soins_tatouage',
+  ];
+
+  const signatureRequise = FICHES_SIGNATURE_OBLIGATOIRE.includes(docType);
+  const signatureManquante = signatureRequise && !formData.signatureImageClient;
+
   async function handleSave() {
     if (!client) return;
+    if (signatureManquante) {
+      toast.error('La signature du client est obligatoire pour valider ce document.');
+      return;
+    }
     setIsSaving(true);
     try {
       const existingDocIdx = (client.documents || []).findIndex(d => d.type === docType);
@@ -2252,18 +2268,21 @@ export default function DocumentForm() {
           {/* Bouton Sauvegarder */}
           <button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || signatureManquante}
+            title={signatureManquante ? 'Signature du client obligatoire' : 'Sauvegarder le document'}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-600 transition-all"
             style={{
-              background: 'var(--brand-cyan)',
-              color: 'var(--brand-navy)',
+              background: signatureManquante ? 'rgba(192,57,106,0.3)' : 'var(--brand-cyan)',
+              color: signatureManquante ? '#C0396A' : 'var(--brand-navy)',
               fontWeight: 600,
               fontFamily: 'Outfit',
               opacity: isSaving ? 0.7 : 1,
+              border: signatureManquante ? '1px solid rgba(192,57,106,0.5)' : 'none',
+              cursor: signatureManquante ? 'not-allowed' : 'pointer',
             }}
           >
             <Save size={16} />
-            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+            {isSaving ? 'Sauvegarde...' : signatureManquante ? 'Signature requise' : 'Sauvegarder'}
           </button>
         </div>
       </div>
@@ -2274,19 +2293,27 @@ export default function DocumentForm() {
 
         {/* Save button at bottom */}
         <div className="mt-6 pt-4" style={{ borderTop: '1px solid var(--brand-border)' }}>
+          {signatureManquante && (
+            <div className="flex items-center gap-2 mb-3 px-4 py-2 rounded-lg text-xs" style={{ background: 'rgba(192,57,106,0.1)', border: '1px solid rgba(192,57,106,0.3)', color: '#C0396A' }}>
+              <AlertTriangle size={14} />
+              <span>La <strong>signature du client</strong> est obligatoire pour valider ce document. Veuillez signer dans la section Signatures ci-dessus.</span>
+            </div>
+          )}
           <button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || signatureManquante}
             className="w-full py-3 rounded-xl text-sm font-700 transition-all"
             style={{
-              background: 'var(--brand-cyan)',
-              color: 'var(--brand-navy)',
+              background: signatureManquante ? 'rgba(192,57,106,0.15)' : 'var(--brand-cyan)',
+              color: signatureManquante ? '#C0396A' : 'var(--brand-navy)',
               fontWeight: 700,
               fontFamily: 'Outfit',
               opacity: isSaving ? 0.7 : 1,
+              border: signatureManquante ? '1px solid rgba(192,57,106,0.4)' : 'none',
+              cursor: signatureManquante ? 'not-allowed' : 'pointer',
             }}
           >
-            {isSaving ? 'Sauvegarde en cours...' : '✓ Sauvegarder le document'}
+            {isSaving ? 'Sauvegarde en cours...' : signatureManquante ? '✍️ Signature requise pour sauvegarder' : '✓ Sauvegarder le document'}
           </button>
         </div>
       </div>
