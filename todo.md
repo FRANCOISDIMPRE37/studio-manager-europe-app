@@ -29,3 +29,5 @@
 - [x] Réorganiser les fiches en 6 catégories logiques et mettre à jour la numérotation 01-12 + A-G
 - [x] Ajouter onglet "Photos de traçabilité" dans la ligne 3 du tableau de bord (Dashboard.tsx)
 - [x] Ajouter champ téléchargement logo du salon dans Paramètres — Informations Salon
+- [x] Intégrer le logo du salon dans l'en-tête de toutes les fiches imprimables (DocumentForm.tsx)
+- [x] Ajouter les styles CSS d'impression pour afficher le logo correctement sur papier

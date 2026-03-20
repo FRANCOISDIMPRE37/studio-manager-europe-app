@@ -176,6 +176,51 @@ function AgeVerif({ dateNaissance }: { dateNaissance: string }) {
   );
 }
 
+// ─── En-tête d'impression avec logo ────────────────────────────────────────────
+
+function PrintHeader({ salonInfo, docTitle, clientName, date }: {
+  salonInfo: any;
+  docTitle: string;
+  clientName: string;
+  date: string;
+}) {
+  return (
+    <div className="print-header" style={{ display: 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderBottom: '2px solid #0A1628', paddingBottom: 12, marginBottom: 16 }}>
+        {salonInfo?.logo && (
+          <img
+            src={salonInfo.logo}
+            alt="Logo du salon"
+            style={{ height: 60, width: 'auto', objectFit: 'contain', flexShrink: 0 }}
+          />
+        )}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#0A1628', fontFamily: 'Outfit, sans-serif' }}>
+            {salonInfo?.nom || 'Studio'}
+          </div>
+          {salonInfo?.adresse && (
+            <div style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{salonInfo.adresse}{salonInfo.codePostal ? ` — ${salonInfo.codePostal}` : ''}{salonInfo.ville ? ` ${salonInfo.ville}` : ''}</div>
+          )}
+          {salonInfo?.telephone && (
+            <div style={{ fontSize: 11, color: '#555' }}>Tél : {salonInfo.telephone}</div>
+          )}
+          {salonInfo?.email && (
+            <div style={{ fontSize: 11, color: '#555' }}>Email : {salonInfo.email}</div>
+          )}
+          {salonInfo?.siret && (
+            <div style={{ fontSize: 11, color: '#555' }}>SIRET : {salonInfo.siret}</div>
+          )}
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', fontFamily: 'Outfit, sans-serif' }}>{docTitle}</div>
+          <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>Client : {clientName}</div>
+          <div style={{ fontSize: 11, color: '#555' }}>Date : {date}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Formulaire Questionnaire Médical Mineur ─────────────────────────────────
 
 function FormQuestionnaireMineur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
@@ -2316,18 +2361,31 @@ export default function DocumentForm() {
     style.id = '__print_style__';
     style.innerHTML = `
       @media print {
+        /* Masquer la sidebar, le header sticky et les boutons */
         body > div > aside,
-        .sticky { display: none !important; }
-        body { background: white !important; color: black !important; }
+        .sticky,
+        nav { display: none !important; }
+        /* Réinitialiser le fond et les couleurs pour l'impression */
+        body { background: white !important; color: black !important; margin: 0; padding: 0; }
+        * { color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        /* Cartes et champs */
         .studio-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; }
         input, textarea, select { border: 1px solid #ccc !important; color: black !important; background: white !important; }
+        /* Masquer tous les boutons sauf le contenu */
         button { display: none !important; }
-        * { color: black !important; }
+        /* Afficher l'en-tête d'impression avec le logo */
+        .print-header { display: block !important; margin-bottom: 20px; }
+        /* Supprimer les marges excessives */
+        .p-4 { padding: 8px !important; }
+        /* Assurer que les canvas de signature s'impriment */
+        canvas { display: block !important; border: 1px solid #ccc !important; }
+        /* Mise en page A4 */
+        @page { size: A4 portrait; margin: 15mm; }
       }
     `;
     document.head.appendChild(style);
     window.print();
-    setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 1000);
+    setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 1500);
   }
 
   function handleEmail() {
@@ -2448,6 +2506,13 @@ export default function DocumentForm() {
 
       {/* Form content */}
       <div className="p-4 max-w-3xl mx-auto pb-16">
+        {/* En-tête visible uniquement à l'impression */}
+        <PrintHeader
+          salonInfo={state.salonInfo}
+          docTitle={docTitle}
+          clientName={`${client.prenom} ${client.nom}`}
+          date={today}
+        />
         {renderForm()}
 
         {/* Save button at bottom */}
