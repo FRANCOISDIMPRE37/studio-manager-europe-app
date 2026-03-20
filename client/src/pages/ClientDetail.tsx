@@ -90,7 +90,6 @@ export default function ClientDetail() {
 
   const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: 'infos', label: 'Infos', icon: CreditCard },
-    { key: 'prestations', label: 'Prestations', icon: Calendar },
     { key: 'documents', label: 'Documents', icon: FileText },
     { key: 'rgpd', label: 'RGPD', icon: Shield },
   ];
@@ -180,29 +179,6 @@ export default function ClientDetail() {
           </>
         )}
 
-        {tab === 'prestations' && (
-          <div>
-            {client.prestations.length === 0 ? (
-              <div className="text-center py-12">
-                <Calendar size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
-                <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucune prestation enregistrée</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {client.prestations.map(p => (
-                  <div key={p.id} className="studio-card p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs px-2 py-0.5 rounded capitalize" style={{ background: 'var(--brand-cyan-dim)', color: 'var(--brand-cyan)', border: '1px solid rgba(131,208,245,0.3)' }}>{p.type}</span>
-                      <span className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>{new Date(p.date).toLocaleDateString('fr-FR')}</span>
-                    </div>
-                    <p className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{p.zone}</p>
-                    {p.description && <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>{p.description}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {tab === 'documents' && (
           <div className="space-y-3">
