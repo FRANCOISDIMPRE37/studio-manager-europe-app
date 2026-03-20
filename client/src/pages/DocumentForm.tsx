@@ -400,7 +400,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       </div>
       <FormField label="Lien avec le client (conjoint, parent, ami…)" value={data.urgenceLien || ''} onChange={v => update('urgenceLien', v)} />
 
-      <FormSection title="6 — CONSENTEMENT ÉCLAIRÉ" />
+      <FormSection title="6 — DECLARATION CLIENT" />
       <CheckboxField label="Être majeur(e) et avoir capacité juridique" value={data.consent_majeur || false} onToggle={() => update('consent_majeur', !data.consent_majeur)} />
       <CheckboxField label="A répondu honnêtement" value={data.consent_honnete || false} onToggle={() => update('consent_honnete', !data.consent_honnete)} />
       <CheckboxField label="Consent librement" value={data.consent_librement || false} onToggle={() => update('consent_librement', !data.consent_librement)} />
