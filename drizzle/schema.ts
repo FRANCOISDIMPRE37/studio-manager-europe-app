@@ -131,3 +131,22 @@ export const salonSettings = mysqlTable("salon_settings", {
 
 export type SalonSettings = typeof salonSettings.$inferSelect;
 export type InsertSalonSettings = typeof salonSettings.$inferInsert;
+
+/**
+ * Table de configuration SMTP pour l'envoi d'emails
+ */
+export const smtpConfig = mysqlTable("smtp_config", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  host: varchar("host", { length: 200 }).notNull().default("smtp.ionos.fr"),
+  port: int("port").notNull().default(587),
+  secure: boolean("secure").default(false).notNull(), // true = SSL port 465, false = STARTTLS port 587
+  user: varchar("user", { length: 320 }).notNull().default(""),
+  password: text("password").notNull().default(""), // stocké chiffré en production
+  fromName: varchar("fromName", { length: 200 }),
+  replyTo: varchar("replyTo", { length: 320 }),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SmtpConfig = typeof smtpConfig.$inferSelect;
+export type InsertSmtpConfig = typeof smtpConfig.$inferInsert;

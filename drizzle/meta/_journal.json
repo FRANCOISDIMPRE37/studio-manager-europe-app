@@ -15,6 +15,13 @@
       "when": 1773957434275,
       "tag": "0001_married_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773973475114,
+      "tag": "0002_luxuriant_true_believers",
+      "breakpoints": true
     }
   ]
 }

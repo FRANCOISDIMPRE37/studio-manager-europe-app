@@ -3,12 +3,14 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import nodemailer from "nodemailer";
 import {
   getClientsByUserId, getClientById, createClient, updateClientById, deleteClientById,
   getPrestationsByClientId, createPrestation, deletePrestationById,
   getDocumentsByClientId, getDocumentById, createDocument, updateDocumentById,
   getRDVByUserId, createRDV, updateRDVById, deleteRDVById,
   getSalonSettings, upsertSalonSettings,
+  getSmtpConfig, upsertSmtpConfig,
 } from "./db";
 
 export const appRouter = router({
@@ -230,6 +232,112 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         await upsertSalonSettings(ctx.user.id, input);
         return { success: true };
+      }),
+  }),
+
+  smtp: router({
+    // Récupérer la config SMTP (mot de passe masqué)
+    get: protectedProcedure.query(async ({ ctx }) => {
+      const config = await getSmtpConfig(ctx.user.id);
+      if (!config) return null;
+      return {
+        host: config.host,
+        port: config.port,
+        secure: config.secure,
+        user: config.user,
+        passwordSet: config.password.length > 0,
+        fromName: config.fromName,
+        replyTo: config.replyTo,
+      };
+    }),
+    // Sauvegarder la config SMTP
+    save: protectedProcedure
+      .input(z.object({
+        host: z.string().min(1),
+        port: z.number().int().min(1).max(65535),
+        secure: z.boolean(),
+        user: z.string().min(1),
+        password: z.string().optional(), // vide = ne pas changer
+        fromName: z.string().optional(),
+        replyTo: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const existing = await getSmtpConfig(ctx.user.id);
+        const password = input.password && input.password.length > 0
+          ? input.password
+          : (existing?.password ?? '');
+        await upsertSmtpConfig(ctx.user.id, {
+          host: input.host,
+          port: input.port,
+          secure: input.secure,
+          user: input.user,
+          password,
+          fromName: input.fromName ?? null,
+          replyTo: input.replyTo ?? null,
+        });
+        return { success: true };
+      }),
+    // Tester la connexion SMTP
+    test: protectedProcedure.mutation(async ({ ctx }) => {
+      const config = await getSmtpConfig(ctx.user.id);
+      if (!config || !config.user || !config.password) {
+        throw new Error('Configuration SMTP incomplète. Veuillez d\'abord sauvegarder vos paramètres.');
+      }
+      try {
+        const transporter = nodemailer.createTransport({
+          host: config.host,
+          port: config.port,
+          secure: config.secure,
+          auth: { user: config.user, pass: config.password },
+          tls: { rejectUnauthorized: false },
+        });
+        await transporter.verify();
+        return { success: true, message: 'Connexion SMTP réussie !' };
+      } catch (err: any) {
+        throw new Error(`Échec de connexion SMTP : ${err.message}`);
+      }
+    }),
+    // Envoyer un email avec le contenu d'une fiche
+    sendDocument: protectedProcedure
+      .input(z.object({
+        to: z.string().email(),
+        subject: z.string(),
+        body: z.string(),
+        documentTitle: z.string(),
+        clientNom: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const config = await getSmtpConfig(ctx.user.id);
+        if (!config || !config.user || !config.password) {
+          throw new Error('Configuration SMTP non configurée. Rendez-vous dans Paramètres > Configuration Email.');
+        }
+        const salon = await getSalonSettings(ctx.user.id);
+        const fromName = config.fromName || salon?.nom || 'Studio Manager';
+        try {
+          const transporter = nodemailer.createTransport({
+            host: config.host,
+            port: config.port,
+            secure: config.secure,
+            auth: { user: config.user, pass: config.password },
+            tls: { rejectUnauthorized: false },
+          });
+          await transporter.sendMail({
+            from: `"${fromName}" <${config.user}>`,
+            to: input.to,
+            replyTo: config.replyTo || config.user,
+            subject: input.subject,
+            html: `<div style="font-family:sans-serif;max-width:600px;margin:auto">
+              <h2 style="color:#0A1628">${input.documentTitle}</h2>
+              <p>Bonjour ${input.clientNom},</p>
+              ${input.body}
+              <hr style="margin:24px 0;border:none;border-top:1px solid #eee">
+              <p style="font-size:12px;color:#888">${fromName} — ${salon?.adresse || ''} ${salon?.ville || ''}</p>
+            </div>`,
+          });
+          return { success: true };
+        } catch (err: any) {
+          throw new Error(`Échec d'envoi : ${err.message}`);
+        }
       }),
   }),
 });

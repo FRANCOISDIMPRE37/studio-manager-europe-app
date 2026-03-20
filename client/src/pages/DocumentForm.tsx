@@ -7,9 +7,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import { DocumentType, DOCUMENT_LABELS, Client } from '@/lib/types';
-import { ArrowLeft, Save, CheckCircle, AlertTriangle, Info, Phone, Printer, Mail } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle, AlertTriangle, Info, Phone, Printer, Mail, Send, X } from 'lucide-react';
 import { toast } from 'sonner';
 import SignaturePad from '@/components/SignaturePad';
+import { trpc } from '@/lib/trpc';
 
 // ─── Composants de formulaire ───────────────────────────────────────────────
 
@@ -2547,16 +2548,32 @@ export default function DocumentForm() {
     setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 1500);
   }
 
+  // ─── Email SMTP ───
+  const sendDocumentEmail = trpc.smtp.sendDocument.useMutation({
+    onSuccess: () => { toast.success('Email envoyé avec succès !'); setEmailModal(false); },
+    onError: (e) => toast.error(e.message),
+  });
+  const [emailModal, setEmailModal] = useState(false);
+  const [emailTo, setEmailTo] = useState('');
+
   function handleEmail() {
     if (!client) return;
-    const subject = encodeURIComponent(`${docTitle} — ${client.prenom} ${client.nom}`);
-    const body = encodeURIComponent(
-      `Bonjour,\n\nVeuillez trouver ci-joint le document : ${docTitle}\n` +
-      `Client : ${client.prenom} ${client.nom}\n` +
-      `Date : ${today}\n\n` +
-      `Ce document a été généré depuis Studio Manager by Intemporelle.\n\nCordialement`
-    );
-    window.open(`mailto:${client.email || ''}?subject=${subject}&body=${body}`);
+    setEmailTo(client.email || '');
+    setEmailModal(true);
+  }
+
+  function handleSendEmail(e: React.FormEvent) {
+    e.preventDefault();
+    if (!client) return;
+    sendDocumentEmail.mutate({
+      to: emailTo,
+      subject: `${docTitle} — ${client.prenom} ${client.nom}`,
+      body: `<p>Veuillez trouver ci-dessous le résumé du document : <strong>${docTitle}</strong></p>
+             <p>Client : <strong>${client.prenom} ${client.nom}</strong><br>Date : ${today}</p>
+             <p>Ce document a été généré depuis Studio Manager by Intemporelle.</p>`,
+      documentTitle: docTitle,
+      clientNom: `${client.prenom} ${client.nom}`,
+    });
   }
 
   const renderForm = () => {
@@ -2706,6 +2723,68 @@ export default function DocumentForm() {
           </button>
         </div>
       </div>
+
+      {/* Modal envoi email */}
+      {emailModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.7)' }}
+          onClick={e => { if (e.target === e.currentTarget) setEmailModal(false); }}
+        >
+          <div className="w-full max-w-md rounded-2xl p-6" style={{ background: 'var(--brand-card)', border: '1px solid var(--brand-border)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Mail size={18} style={{ color: 'var(--brand-cyan)' }} />
+                <h3 className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>Envoyer par email</h3>
+              </div>
+              <button type="button" onClick={() => setEmailModal(false)} style={{ color: 'var(--brand-text-muted)' }}><X size={18} /></button>
+            </div>
+
+            <div className="mb-4 p-3 rounded-lg" style={{ background: 'rgba(131,208,245,0.06)', border: '1px solid rgba(131,208,245,0.15)' }}>
+              <p className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>Document : <strong style={{ color: 'var(--brand-text)' }}>{docTitle}</strong></p>
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>Client : <strong style={{ color: 'var(--brand-text)' }}>{client.prenom} {client.nom}</strong></p>
+            </div>
+
+            <form onSubmit={handleSendEmail} className="space-y-3">
+              <div>
+                <label className="block text-xs mb-1" style={{ color: 'var(--brand-text-muted)', fontWeight: 500 }}>Adresse email du destinataire</label>
+                <input
+                  type="email"
+                  required
+                  value={emailTo}
+                  onChange={e => setEmailTo(e.target.value)}
+                  placeholder="client@exemple.fr"
+                  className="w-full px-3 py-2 rounded-lg text-sm"
+                  style={{ background: 'var(--brand-navy)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)', outline: 'none' }}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEmailModal(false)}
+                  className="flex-1 py-2.5 rounded-lg text-sm"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={sendDocumentEmail.isPending}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-700"
+                  style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}
+                >
+                  <Send size={14} />
+                  {sendDocumentEmail.isPending ? 'Envoi...' : 'Envoyer'}
+                </button>
+              </div>
+            </form>
+
+            <p className="text-xs mt-3" style={{ color: 'var(--brand-text-muted)', opacity: 0.7 }}>
+              L'email est envoyé via votre serveur SMTP configuré dans Paramètres.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

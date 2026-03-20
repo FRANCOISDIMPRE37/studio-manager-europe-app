@@ -38,3 +38,8 @@
 - [x] Intégrer la valeur dans la colonne centrale du composant PrintFooter
 - [x] Intégrer section "Photos de traçabilité" dans fiche 04 — Fiche de Traçabilité Matériel Stérile (Piercing)
 - [x] Caméra (capture), import fichier, galerie avec lightbox, stockage base64 dans data de la fiche
+- [x] Ajouter section "Configuration Email (SMTP)" dans Paramètres avec champs hôte, port, utilisateur, mot de passe, SSL
+- [x] Persister la config SMTP dans la base de données (table salon_settings) côté serveur
+- [x] Installer nodemailer + @types/nodemailer côté serveur
+- [x] Créer procédure tRPC sendEmail avec génération PDF via puppeteer/html-pdf
+- [ ] Connecter bouton "Envoyer par email" dans DocumentForm à la procédure tRPC

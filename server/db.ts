@@ -1,7 +1,7 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, clients, prestations, documents, rendezVous, salonSettings } from "../drizzle/schema";
-import type { InsertClient, InsertPrestation, InsertDocument, InsertRendezVous, InsertSalonSettings } from "../drizzle/schema";
+import { InsertUser, users, clients, prestations, documents, rendezVous, salonSettings, smtpConfig } from "../drizzle/schema";
+import type { InsertClient, InsertPrestation, InsertDocument, InsertRendezVous, InsertSalonSettings, InsertSmtpConfig } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -221,6 +221,23 @@ export async function upsertSalonSettings(userId: number, data: Omit<InsertSalon
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(salonSettings)
+    .values({ userId, ...data })
+    .onDuplicateKeyUpdate({ set: data });
+}
+
+// ============ SMTP CONFIG ============
+
+export async function getSmtpConfig(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(smtpConfig).where(eq(smtpConfig.userId, userId)).limit(1);
+  return result[0];
+}
+
+export async function upsertSmtpConfig(userId: number, data: Omit<InsertSmtpConfig, 'id' | 'userId' | 'updatedAt'>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(smtpConfig)
     .values({ userId, ...data })
     .onDuplicateKeyUpdate({ set: data });
 }
