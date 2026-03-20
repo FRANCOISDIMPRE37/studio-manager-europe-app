@@ -102,6 +102,7 @@ export interface SalonInfo {
   nomPierceur: string;
   nomTatoueur?: string;
   nomDermographe?: string;
+  logo?: string; // base64 data URL
 }
 
 // Statistiques du tableau de bord

@@ -3,7 +3,7 @@
  */
 import { useState, useRef } from 'react';
 import { useApp } from '@/lib/app-context';
-import { Building2, Phone, Mail, MapPin, Hash, User, Shield, Lock, LogOut, Info, ExternalLink, Download, Upload, Users, Archive, Stethoscope, FileText, AlertTriangle } from 'lucide-react';
+import { Building2, Phone, Mail, MapPin, Hash, User, Shield, Lock, LogOut, Info, ExternalLink, Download, Upload, Users, Archive, Stethoscope, FileText, AlertTriangle, ImageIcon } from 'lucide-react';
 import { SalonInfo } from '@/lib/types';
 import { toast } from 'sonner';
 
@@ -12,8 +12,24 @@ export default function Parametres() {
   const [editingSalon, setEditingSalon] = useState(false);
   const [salonForm, setSalonForm] = useState<SalonInfo>(state.salonInfo || {
     nom: '', raisonSociale: '', adresse: '', codePostal: '', ville: '',
-    telephone: '', email: '', siret: '', nomPierceur: '', nomTatoueur: '', nomDermographe: '',
+    telephone: '', email: '', siret: '', nomPierceur: '', nomTatoueur: '', nomDermographe: '', logo: '',
   });
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Le logo ne doit pas dépasser 2 Mo');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setSalonForm(f => ({ ...f, logo: ev.target?.result as string }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
   const [newPin, setNewPin] = useState('');
   const [confirmNewPin, setConfirmNewPin] = useState('');
 
@@ -150,6 +166,40 @@ export default function Parametres() {
               <div><label style={labelStyle}>Nom du pierceur</label><input style={inputStyle} value={salonForm.nomPierceur} onChange={e => setSalonForm(f => ({ ...f, nomPierceur: e.target.value }))} /></div>
               <div><label style={labelStyle}>Nom du tatoueur</label><input style={inputStyle} value={salonForm.nomTatoueur || ''} onChange={e => setSalonForm(f => ({ ...f, nomTatoueur: e.target.value }))} /></div>
               <div><label style={labelStyle}>Nom du dermographe</label><input style={inputStyle} value={salonForm.nomDermographe || ''} onChange={e => setSalonForm(f => ({ ...f, nomDermographe: e.target.value }))} /></div>
+            </div>
+            {/* Logo du salon */}
+            <div>
+              <label style={labelStyle}>Logo du salon</label>
+              <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              <div className="flex items-center gap-3">
+                {salonForm.logo ? (
+                  <div className="relative">
+                    <img src={salonForm.logo} alt="Logo" className="w-16 h-16 rounded-lg object-contain" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid var(--brand-border)' }} />
+                    <button
+                      type="button"
+                      onClick={() => setSalonForm(f => ({ ...f, logo: '' }))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-xs"
+                      style={{ background: '#F44336', color: 'white' }}
+                    >✕</button>
+                  </div>
+                ) : (
+                  <div
+                    className="w-16 h-16 rounded-lg flex items-center justify-center"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '2px dashed var(--brand-border)' }}
+                  >
+                    <ImageIcon size={20} style={{ color: 'var(--brand-text-muted)' }} />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all hover:opacity-90"
+                  style={{ background: 'var(--brand-cyan-dim)', color: 'var(--brand-cyan)', border: '1px solid var(--brand-cyan)' }}
+                >
+                  <Upload size={12} /> {salonForm.logo ? 'Changer le logo' : 'Télécharger le logo'}
+                </button>
+              </div>
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>Format : PNG, JPG, SVG — max 2 Mo</p>
             </div>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setEditingSalon(false)} className="flex-1 py-2.5 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}>Annuler</button>

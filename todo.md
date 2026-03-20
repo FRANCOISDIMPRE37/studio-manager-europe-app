@@ -27,3 +27,5 @@
 - [x] Ajouter le type fiche_seance_dermographe dans types.ts et Documents.tsx
 - [x] Créer FormFicheSeanceDermographe dans DocumentForm.tsx avec sections pigments/machine/aiguilles/zones
 - [x] Réorganiser les fiches en 6 catégories logiques et mettre à jour la numérotation 01-12 + A-G
+- [x] Ajouter onglet "Photos de traçabilité" dans la ligne 3 du tableau de bord (Dashboard.tsx)
+- [x] Ajouter champ téléchargement logo du salon dans Paramètres — Informations Salon
