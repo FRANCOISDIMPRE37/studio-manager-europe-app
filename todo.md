@@ -26,3 +26,4 @@
 - [x] Rendre la signature obligatoire sur les fiches critiques (01, 03, 05, 06, 07) avec validation et message d'erreur
 - [x] Ajouter le type fiche_seance_dermographe dans types.ts et Documents.tsx
 - [x] Créer FormFicheSeanceDermographe dans DocumentForm.tsx avec sections pigments/machine/aiguilles/zones
+- [x] Réorganiser les fiches en 6 catégories logiques et mettre à jour la numérotation 01-12 + A-G

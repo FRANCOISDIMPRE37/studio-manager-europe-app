@@ -157,25 +157,31 @@ export const RDV_STATUT_COLORS: Record<RDVStatut, string> = {
 };
 
 export const DOCUMENT_LABELS: Record<DocumentType, string> = {
-  questionnaire_mineur: '01 — Questionnaire Médical Mineur',
+  // Piercing — Mineurs
+  questionnaire_mineur: '01 — Questionnaire Médical Mineur (Piercing)',
   autorisation_parentale: '02 — Autorisation Parentale',
-  questionnaire_majeur: '03 — Questionnaire Médical Majeur',
-  fiche_seance_piercing: '04 — Fiche de Traçabilité Matériel Stérile',
-  soins_oreilles: 'A — Fiche de Soins Oreilles',
-  soins_nez: 'B — Fiche de Soins Nez',
-  soins_bouche_levres: 'C — Fiche de Soins Bouche & Lèvres',
-  soins_nombril: 'D — Fiche de Soins Nombril',
-  soins_mamelons: 'E — Fiche de Soins Mamelons',
-  soins_arcade_sourcil: 'F — Fiche de Soins Arcade/Sourcil',
-  soins_surface_dermal: 'G — Fiche de Soins Surface/Dermal',
+  // Piercing — Majeurs
+  questionnaire_majeur: '03 — Questionnaire Médical Majeur (Piercing)',
+  fiche_seance_piercing: '04 — Fiche de Traçabilité Matériel Stérile (Piercing)',
+  // Soins Piercing
+  soins_oreilles: 'A — Soins Post-Piercing Oreilles',
+  soins_nez: 'B — Soins Post-Piercing Nez',
+  soins_bouche_levres: 'C — Soins Post-Piercing Bouche & Lèvres',
+  soins_nombril: 'D — Soins Post-Piercing Nombril',
+  soins_mamelons: 'E — Soins Post-Piercing Mamelons',
+  soins_arcade_sourcil: 'F — Soins Post-Piercing Arcade / Sourcil',
+  soins_surface_dermal: 'G — Soins Post-Piercing Surface / Dermal',
+  // Tatouage
   questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
-  questionnaire_dermographe: '06 — Questionnaire Médical Dermographe',
-  consentement_soins_tatouage: '07 — Consentement & Soins Post-Tatouage',
-  soins_dermographe: '08 — Soins Post-Dermographie (Maquillage Permanent)',
-  engagement_confidentialite: '09 — Engagement de Confidentialité (RGPD Art. 29)',
-  affichage_salon: '10 — Information Client — Protection des Données (RGPD)',
-  fiche_seance_tatouage: '11 — Fiche de Séance Tatouage',
-  fiche_seance_dermographe: '12 — Fiche de Séance Dermographe',
+  consentement_soins_tatouage: '06 — Consentement & Soins Post-Tatouage',
+  fiche_seance_tatouage: '07 — Fiche de Séance Tatouage',
+  // Dermographie
+  questionnaire_dermographe: '08 — Questionnaire Médical Dermographe',
+  soins_dermographe: '09 — Soins Post-Dermographie (Maquillage Permanent)',
+  fiche_seance_dermographe: '10 — Fiche de Séance Dermographe',
+  // RGPD
+  engagement_confidentialite: '11 — Engagement de Confidentialité (RGPD Art. 29)',
+  affichage_salon: '12 — Information Client — Protection des Données (RGPD)',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {
