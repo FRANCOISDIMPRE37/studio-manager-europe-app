@@ -1048,13 +1048,6 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
         <CheckboxField key={i} label={item} value={data[`apres${i}`] || false} onToggle={() => update(`apres${i}`, !data[`apres${i}`])} />
       ))}
 
-      <FormSection title="5 — GESTION DES DÉCHETS DASRI" />
-      <div className="grid grid-cols-3 gap-3">
-        <FormField label="Conteneur DASRI (n° ou réf.)" value={data.containerDasri || ''} onChange={v => update('containerDasri', v)} />
-        <RadioField label="Taux de remplissage" options={['< 75%', '75% - fermeture', 'Fermé']} value={data.tauxRemplissage || ''} onChange={v => update('tauxRemplissage', v)} />
-        <FormField label="Date dernier enlev. DASRI" value={data.dateDernierDasri || ''} onChange={v => update('dateDernierDasri', v)} />
-      </div>
-
       <FormSection title="6 — DOCUMENTS REMIS AU CLIENT" />
       <CheckboxField label="Fiche de soins post-piercing (zone concernée)" value={data.fichesSoinsRemise || false} onToggle={() => update('fichesSoinsRemise', !data.fichesSoinsRemise)} />
       <CheckboxField label="Informations sur les risques et contre-indications" value={data.infosRisques || false} onToggle={() => update('infosRisques', !data.infosRisques)} />
