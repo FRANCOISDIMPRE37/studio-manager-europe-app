@@ -608,6 +608,12 @@ function FormAutorisationParentale({ data, update, client, salonInfo }: { data: 
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdMineurNumero || ''} onChange={v => update('pieceIdMineurNumero', v)} />
       )}
 
+      <FormSection title="8b — PIÈCE D'IDENTITÉ DU REPRÉSENTANT LÉGAL" />
+      <RadioField label="Pièce d'identité du représentant légal (optionnel)" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} />
+      {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non présentée' && (
+        <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} />
+      )}
+
       <FormSection title="9 — SIGNATURES" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
