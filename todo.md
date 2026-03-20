@@ -52,3 +52,8 @@
 - [ ] Ajouter procédure tRPC smtp.sendRgpdAlert — envoyer email d'alerte au client
 - [ ] Ajouter panneau "Alertes RGPD" dans le Tableau de bord avec liste des clients concernés
 - [ ] Bouton "Envoyer l'alerte" par client et bouton "Tout envoyer"
+- [x] Refondre Agenda.tsx avec vue Jour (timeline horaire 8h-20h)
+- [x] Ajouter vue Semaine (grille 7 colonnes avec créneaux horaires)
+- [x] Ajouter vue Mois (calendrier mensuel avec badges RDV)
+- [x] Navigation précédent/suivant et bouton Aujourd'hui
+- [x] Clic sur créneau vide pour créer un RDV
