@@ -459,6 +459,95 @@ export const appRouter = router({
           throw new Error(`Échec d'envoi : ${err.message}`);
         }
       }),
+
+    // ─── Alertes RGPD : clients à supprimer dans <= 30 jours ───
+    getRgpdAlerts: protectedProcedure.query(async ({ ctx }) => {
+      const clients = await getClientsByUserId(ctx.user.id);
+      const now = Date.now();
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      return clients
+        .filter(c => !c.estArchive)
+        .map(c => {
+          const suppDate = new Date(c.dateSuppressionPrevue).getTime();
+          const diffDays = Math.floor((suppDate - now) / (1000 * 60 * 60 * 24));
+          return { ...c, diffDays };
+        })
+        .filter(c => c.diffDays <= 30)
+        .sort((a, b) => a.diffDays - b.diffDays);
+    }),
+
+    sendRgpdAlert: protectedProcedure
+      .input(z.object({
+        clientId: z.string(),
+        clientNom: z.string(),
+        clientPrenom: z.string(),
+        clientEmail: z.string().email(),
+        dateSuppressionPrevue: z.string(),
+        diffDays: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const config = await getSmtpConfig(ctx.user.id);
+        if (!config) throw new Error('Configuration SMTP non configurée. Rendez-vous dans Paramètres → Configuration Email.');
+        const salonSettings = await getSalonSettings(ctx.user.id);
+        const salonNom = salonSettings?.nom || 'Studio Manager';
+        const fromName = salonSettings?.nom || 'Studio Manager by Intemporelle';
+        const dateSupp = new Date(input.dateSuppressionPrevue).toLocaleDateString('fr-FR');
+        const urgencyColor = input.diffDays <= 7 ? '#dc2626' : input.diffDays <= 14 ? '#ea580c' : '#d97706';
+        const urgencyLabel = input.diffDays <= 0 ? 'IMMÉDIATE' : input.diffDays <= 7 ? 'URGENTE (moins de 7 jours)' : input.diffDays <= 14 ? 'Sous 14 jours' : 'Sous 30 jours';
+
+        const html = `
+          <div style="font-family:sans-serif;max-width:640px;margin:auto;color:#1a1a2e">
+            <div style="background:#0A1628;padding:24px 32px;border-radius:12px 12px 0 0">
+              <h1 style="color:#83D0F5;margin:0;font-size:20px">${salonNom}</h1>
+              <p style="color:#a0aec0;margin:4px 0 0;font-size:13px">Notification RGPD — Gestion de vos données personnelles</p>
+            </div>
+            <div style="background:#ffffff;padding:32px;border:1px solid #e2e8f0">
+              <p style="font-size:16px;margin-top:0">Bonjour <strong>${input.clientPrenom} ${input.clientNom}</strong>,</p>
+              <p style="font-size:14px;line-height:1.6;color:#374151">
+                Conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679),
+                nous vous informons que vos données personnelles conservées dans notre système
+                seront <strong>supprimées le ${dateSupp}</strong>.
+              </p>
+              <div style="margin:24px 0;padding:16px 20px;background:${urgencyColor}11;border-left:4px solid ${urgencyColor};border-radius:4px">
+                <p style="margin:0;font-size:14px;color:${urgencyColor}">
+                  <strong>⚠ Suppression ${urgencyLabel}</strong>
+                  ${input.diffDays > 0 ? ` — dans <strong>${input.diffDays} jour${input.diffDays > 1 ? 's' : ''}</strong>` : ' — date dépassée'}
+                </p>
+              </div>
+              <p style="font-size:13px;color:#6b7280;line-height:1.6">
+                Si vous souhaitez continuer à bénéficier de nos services et conserver votre dossier,
+                veuillez nous contacter avant cette date pour renouveler votre consentement.
+              </p>
+              <p style="font-size:13px;color:#6b7280;line-height:1.6">
+                Conformément aux articles 15, 17 et 21 du RGPD, vous disposez d'un droit d'accès,
+                de rectification, d'effacement et d'opposition sur vos données.
+              </p>
+            </div>
+            <div style="background:#f8fafc;padding:16px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px">
+              <p style="margin:0;font-size:12px;color:#94a3b8">${salonNom} — Notification automatique RGPD</p>
+              <p style="margin:4px 0 0;font-size:11px;color:#cbd5e1">Généré par Studio Manager by Intemporelle</p>
+            </div>
+          </div>`;
+
+        try {
+          const transporter = nodemailer.createTransport({
+            host: config.host,
+            port: config.port,
+            secure: config.secure,
+            auth: { user: config.user, pass: config.password },
+            tls: { rejectUnauthorized: false },
+          });
+          await transporter.sendMail({
+            from: `"${fromName}" <${config.user}>`,
+            to: input.clientEmail,
+            subject: `[RGPD] Suppression de vos données prévue le ${dateSupp} — ${salonNom}`,
+            html,
+          });
+          return { success: true };
+        } catch (err: any) {
+          throw new Error(`Échec d'envoi : ${err.message}`);
+        }
+      }),
   }),
 });
 

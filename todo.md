@@ -48,3 +48,7 @@
 - [ ] Modal de confirmation avec adresse email et aperçu des documents inclus
 - [ ] Ajouter retour visuel (toast succès/erreur + spinner) sur bouton Email dans DocumentForm
 - [ ] Ajouter état de chargement "Envoi en cours..." sur le bouton pendant l'envoi
+- [ ] Ajouter procédure tRPC smtp.getRgpdAlerts — détecter clients à supprimer dans 30 jours
+- [ ] Ajouter procédure tRPC smtp.sendRgpdAlert — envoyer email d'alerte au client
+- [ ] Ajouter panneau "Alertes RGPD" dans le Tableau de bord avec liste des clients concernés
+- [ ] Bouton "Envoyer l'alerte" par client et bouton "Tout envoyer"

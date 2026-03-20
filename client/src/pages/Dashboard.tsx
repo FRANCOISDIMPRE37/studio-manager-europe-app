@@ -8,9 +8,11 @@ import { useLocation } from 'wouter';
 import {
   Users, Calendar, AlertTriangle, Shield, ChevronRight,
   TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Search, X,
-  Camera, Image, Trash2, ZoomIn
+  Camera, Image, Trash2, ZoomIn, Mail, Send, Loader2
 } from 'lucide-react';
 import { RDV_TYPE_LABELS, RDV_STATUT_LABELS, RDV_STATUT_COLORS } from '@/lib/types';
+import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 
 function StatCard({ icon: Icon, label, value, color, sub }: {
   icon: React.ElementType; label: string; value: number | string;
@@ -131,6 +133,50 @@ export default function Dashboard() {
     state.clients.filter(c => !c.estArchive).slice(0, 5),
     [state.clients]
   );
+
+  // ─── Alertes RGPD 30 jours (calculé depuis le state local) ───
+  const [sentAlerts, setSentAlerts] = useState<Set<string>>(new Set());
+  const rgpdAlerts = useMemo(() => {
+    const now = Date.now();
+    return state.clients
+      .filter(c => !c.estArchive && c.dateSuppressionPrevue)
+      .map(c => {
+        const suppDate = new Date(c.dateSuppressionPrevue).getTime();
+        const diffDays = Math.floor((suppDate - now) / (1000 * 60 * 60 * 24));
+        return { ...c, diffDays };
+      })
+      .filter(c => c.diffDays <= 30)
+      .sort((a, b) => a.diffDays - b.diffDays);
+  }, [state.clients]);
+  const sendRgpdAlert = trpc.smtp.sendRgpdAlert.useMutation({
+    onSuccess: (_, vars) => {
+      toast.success(`Alerte RGPD envoyée à ${vars.clientPrenom} ${vars.clientNom}`);
+      setSentAlerts(prev => new Set(Array.from(prev).concat(vars.clientId)));
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const [sendingAll, setSendingAll] = useState(false);
+  const handleSendAllAlerts = async () => {
+    if (!rgpdAlerts || rgpdAlerts.length === 0) return;
+    const eligible = rgpdAlerts.filter(c => c.email && !sentAlerts.has(c.id));
+    if (eligible.length === 0) { toast.info('Toutes les alertes ont déjà été envoyées'); return; }
+    setSendingAll(true);
+    for (const c of eligible) {
+      if (!c.email) continue;
+      try {
+        await sendRgpdAlert.mutateAsync({
+          clientId: c.id,
+          clientNom: c.nom,
+          clientPrenom: c.prenom,
+          clientEmail: c.email,
+          dateSuppressionPrevue: c.dateSuppressionPrevue,
+          diffDays: c.diffDays,
+        });
+      } catch {}
+    }
+    setSendingAll(false);
+    toast.success(`${eligible.length} alerte${eligible.length > 1 ? 's' : ''} envoyée${eligible.length > 1 ? 's' : ''}`);
+  };
 
   const todayStr = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -441,6 +487,98 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* ─── Panneau Alertes RGPD 30 jours ─── */}
+      <div className="studio-card p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
+            <Mail size={14} className="inline mr-2" style={{ color: '#F44336' }} />
+            Alertes RGPD — Suppression dans 30 jours
+          </h2>
+          <button
+            onClick={handleSendAllAlerts}
+            disabled={sendingAll || !rgpdAlerts || rgpdAlerts.length === 0}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:opacity-90"
+            style={{
+              background: sendingAll ? 'rgba(244,67,54,0.1)' : 'rgba(244,67,54,0.15)',
+              color: '#F44336',
+              border: '1px solid rgba(244,67,54,0.4)',
+              opacity: (!rgpdAlerts || rgpdAlerts.length === 0) ? 0.5 : 1,
+              cursor: (!rgpdAlerts || rgpdAlerts.length === 0) ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {sendingAll
+              ? <><Loader2 size={12} className="animate-spin" />Envoi...</>
+              : <><Send size={12} />Tout envoyer</>}
+          </button>
+        </div>
+
+        {!rgpdAlerts || rgpdAlerts.length === 0 ? (
+          <div className="text-center py-6">
+            <CheckCircle size={28} className="mx-auto mb-2" style={{ color: '#4CAF50', opacity: 0.5 }} />
+            <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun client à alerter dans les 30 prochains jours</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {rgpdAlerts.map(client => {
+              const isExpired = client.diffDays <= 0;
+              const isUrgent = client.diffDays <= 7;
+              const color = isExpired ? '#9C27B0' : isUrgent ? '#F44336' : client.diffDays <= 14 ? '#ea580c' : '#d97706';
+              const alreadySent = sentAlerts.has(client.id);
+              const isSending = sendRgpdAlert.isPending && sendRgpdAlert.variables?.clientId === client.id;
+              return (
+                <div
+                  key={client.id}
+                  className="flex items-center gap-3 p-3 rounded-lg"
+                  style={{ border: `1px solid ${color}33`, background: `${color}08` }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-700"
+                    style={{ background: color + '22', color, fontWeight: 700 }}
+                  >
+                    {(client.prenom[0] || '') + (client.nom[0] || '')}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-500 truncate" style={{ color: 'var(--brand-text)', fontWeight: 500 }}>
+                      {client.prenom} {client.nom}
+                    </p>
+                    <p className="text-xs" style={{ color }}>
+                      {isExpired ? 'Suppression dépassée' : `Suppression dans ${client.diffDays}j`}
+                      {!client.email && <span style={{ color: '#94a3b8' }}> — pas d\'email</span>}
+                    </p>
+                  </div>
+                  {client.email ? (
+                    alreadySent ? (
+                      <span className="text-xs px-2 py-1 rounded" style={{ background: '#4CAF5022', color: '#4CAF50', border: '1px solid #4CAF5044' }}>
+                        <CheckCircle size={11} className="inline mr-1" />Envoyé
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => sendRgpdAlert.mutate({
+                          clientId: client.id,
+                          clientNom: client.nom,
+                          clientPrenom: client.prenom,
+                          clientEmail: client.email!,
+                          dateSuppressionPrevue: client.dateSuppressionPrevue,
+                          diffDays: client.diffDays,
+                        })}
+                        disabled={isSending || sendingAll}
+                        className="flex items-center gap-1 text-xs px-2 py-1 rounded transition-all hover:opacity-90"
+                        style={{ background: color + '22', color, border: `1px solid ${color}44`, cursor: isSending ? 'not-allowed' : 'pointer' }}
+                      >
+                        {isSending ? <Loader2 size={11} className="animate-spin" /> : <Mail size={11} />}
+                        {isSending ? 'Envoi...' : 'Alerter'}
+                      </button>
+                    )
+                  ) : (
+                    <span className="text-xs" style={{ color: '#94a3b8' }}>Pas d\'email</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Photos de traçabilité */}
