@@ -293,8 +293,6 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       <FormSection title="7 — CONSENTEMENT PARENTAL ÉCLAIRÉ" />
       <CheckboxField label="Exerce l'autorité parentale sur le mineur" value={data.exerceAutoriteParentale || false} onToggle={() => update('exerceAutoriteParentale', !data.exerceAutoriteParentale)} />
       <CheckboxField label="A répondu honnêtement au questionnaire" value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} />
-      <CheckboxField label="Informé(e) des risques liés au piercing" value={data.informeRisques || false} onToggle={() => update('informeRisques', !data.informeRisques)} />
-      <CheckboxField label="Reçu la fiche de soins post-piercing" value={data.recuFicheSoins || false} onToggle={() => update('recuFicheSoins', !data.recuFicheSoins)} />
       <CheckboxField label="Donne son consentement libre et éclairé" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} />
       <CheckboxField label="Assume la responsabilité du suivi des soins" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} />
       <CheckboxField label="Présent(e) physiquement pendant la séance" value={data.presencePhysique || false} onToggle={() => update('presencePhysique', !data.presencePhysique)} />
