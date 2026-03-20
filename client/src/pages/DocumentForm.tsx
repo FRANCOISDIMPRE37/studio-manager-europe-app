@@ -1440,7 +1440,164 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
   );
 }
 
-// ─── Formulaire Questionnaire Médical Dermographe ────────────────────────────
+// ─── Formulaire Fiche de Séance Dermographe ───────────────────────────────────────────
+
+function FormFicheSeanceDermographe({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  return (
+    <>
+      <LegalBox color="orange">
+        <strong>Cadre réglementaire :</strong> Arrêté du 3 décembre 2008 (maquillage permanent) • Règlement UE 2020/2081 (pigments) • Art. L.1311-1 CSP • RGPD Art. 9 (données santé) • Traitement des données conservé 5 ans minimum
+      </LegalBox>
+
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom" value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom" value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Date de naissance" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} type="date" />
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      </div>
+      <FormField label="Adresse" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+
+      <FormSection title="2 — INFORMATIONS SÉANCE" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Date de la séance" value={data.dateSeance || ''} onChange={v => update('dateSeance', v)} type="date" required />
+        <FormField label="Durée (minutes)" value={data.dureeSeance || ''} onChange={v => update('dureeSeance', v)} placeholder="ex : 90 min" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Heure de début" value={data.heureDebut || ''} onChange={v => update('heureDebut', v)} type="time" />
+        <FormField label="Heure de fin" value={data.heureFin || ''} onChange={v => update('heureFin', v)} type="time" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="N° de séance" value={data.numeroSeance || ''} onChange={v => update('numeroSeance', v)} placeholder="ex : Séance 1/2" />
+        <FormField label="Dermographe / Artiste" value={data.dermographe || ''} onChange={v => update('dermographe', v)} placeholder="Nom de l'artiste" required />
+      </div>
+
+      <FormSection title="3 — ZONE(S) TRAITÉE(S)" />
+      <LegalBox color="green">
+        <strong>Zones autorisées :</strong> Sourcils (microblading, powder brows, ombre brows) • Lèvres (contour, aquarelle) • Eye-liner (supérieur, inférieur) • Ailes du nez • Grain de beauté artificiel
+      </LegalBox>
+      {['sourcils', 'levres', 'eye_liner_superieur', 'eye_liner_inferieur', 'autre_zone'].map((zone, idx) => {
+        const labels: Record<string, string> = {
+          sourcils: 'Sourcils',
+          levres: 'Lèvres',
+          eye_liner_superieur: 'Eye-liner supérieur',
+          eye_liner_inferieur: 'Eye-liner inférieur',
+          autre_zone: 'Autre zone',
+        };
+        return (
+          <div key={zone} className="p-3 rounded-lg mb-2" style={{ background: 'rgba(255,152,0,0.04)', border: '1px solid rgba(255,152,0,0.15)' }}>
+            <CheckboxField label={labels[zone]} value={data[`zone_${zone}`] || false} onToggle={() => update(`zone_${zone}`, !data[`zone_${zone}`])} />
+            {data[`zone_${zone}`] && (
+              <>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <RadioField label="Technique" options={zone === 'sourcils' ? ['Microblading', 'Powder Brows', 'Ombre Brows', 'Combo Brows', 'Nano Brows'] : zone === 'levres' ? ['Contour lèvres', 'Aquarelle lèvres', 'Full lips', 'Neutralisation'] : ['Trait fin', 'Trait épais', 'Smoky', 'Cat eye']} value={data[`zone_${zone}_technique`] || ''} onChange={v => update(`zone_${zone}_technique`, v)} />
+                  <FormField label="Description / Forme" value={data[`zone_${zone}_description`] || ''} onChange={v => update(`zone_${zone}_description`, v)} multiline placeholder="Forme, épaisseur, longueur, notes..." />
+                </div>
+                <FormField label="Couleur / Teinte" value={data[`zone_${zone}_couleur`] || ''} onChange={v => update(`zone_${zone}_couleur`, v)} placeholder="ex : Brun clair, Brun foncé, Noir, Rose nude..." />
+                <FormField label="Observations séance précédente" value={data[`zone_${zone}_obs`] || ''} onChange={v => update(`zone_${zone}_obs`, v)} multiline placeholder="État de la cicatrisation, retouches nécessaires..." />
+              </>
+            )}
+          </div>
+        );
+      })}
+
+      <FormSection title="4 — TRAÇABILITÉ DES PIGMENTS (Règl. UE 2020/2081)" />
+      <LegalBox color="orange">
+        <strong>Obligation légale :</strong> Arrêté du 3 déc. 2008 + Règlement UE 2020/2081 entré en vigueur le 4 janvier 2022 — traitement obligatoire de chaque pigment utilisé (fabricant, référence, N° lot, date péremption). Conservation 5 ans minimum.
+      </LegalBox>
+      {[1, 2, 3].map(i => (
+        <div key={i} className="p-3 rounded-lg mb-2" style={{ background: 'rgba(255,152,0,0.04)', border: '1px solid rgba(255,152,0,0.15)' }}>
+          <p className="text-xs font-600 mb-2" style={{ color: '#FF9800', fontWeight: 600 }}>Pigment n°{i}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <FormField label="Couleur / Teinte" value={data[`pigment${i}_couleur`] || ''} onChange={v => update(`pigment${i}_couleur`, v)} placeholder="ex : Brun, Noir, Rose..." />
+            <FormField label="Fabricant" value={data[`pigment${i}_fabricant`] || ''} onChange={v => update(`pigment${i}_fabricant`, v)} placeholder="Marque" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <FormField label="Référence / Code" value={data[`pigment${i}_ref`] || ''} onChange={v => update(`pigment${i}_ref`, v)} placeholder="Réf. produit" />
+            <FormField label="N° de lot" value={data[`pigment${i}_lot`] || ''} onChange={v => update(`pigment${i}_lot`, v)} placeholder="N° lot" />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <FormField label="Date de péremption" value={data[`pigment${i}_peremption`] || ''} onChange={v => update(`pigment${i}_peremption`, v)} type="date" />
+            <FormField label="Quantité utilisée (ml)" value={data[`pigment${i}_quantite`] || ''} onChange={v => update(`pigment${i}_quantite`, v)} placeholder="ml" />
+          </div>
+          <RadioField label="Conforme UE 2020/2081" options={['Oui', 'Non']} value={data[`pigment${i}_conforme`] || 'Oui'} onChange={v => update(`pigment${i}_conforme`, v)} />
+        </div>
+      ))}
+
+      <FormSection title="5 — MACHINE & MATÉRIEL" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Machine utilisée" value={data.machine || ''} onChange={v => update('machine', v)} placeholder="ex : Cheyenne Hawk, Dragonhawk..." />
+        <FormField label="Vitesse (Hz)" value={data.vitesseMachine || ''} onChange={v => update('vitesseMachine', v)} placeholder="ex : 100 Hz" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Type d'aiguille" value={data.typeAiguille || ''} onChange={v => update('typeAiguille', v)} placeholder="ex : 1RL, 3RL, 5M1..." />
+        <FormField label="N° de lot aiguille" value={data.lotAiguille || ''} onChange={v => update('lotAiguille', v)} placeholder="N° lot" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Date de péremption aiguille" value={data.peremptionAiguille || ''} onChange={v => update('peremptionAiguille', v)} type="date" />
+        <FormField label="Fabricant aiguille" value={data.fabricantAiguille || ''} onChange={v => update('fabricantAiguille', v)} placeholder="Marque" />
+      </div>
+      <FormField label="Produit anesthésiant topique" value={data.anesthesiant || ''} onChange={v => update('anesthesiant', v)} placeholder="ex : EMLA, Hush, Dr. Numb... ou Aucun" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Lot anesthésiant" value={data.lotAnesthesiant || ''} onChange={v => update('lotAnesthesiant', v)} />
+        <FormField label="Péremption anesthésiant" value={data.peremptionAnesthesiant || ''} onChange={v => update('peremptionAnesthesiant', v)} type="date" />
+      </div>
+
+      <FormSection title="6 — DÉROULEMENT DE LA SÉANCE" />
+      <RadioField label="Préparation de la zone" options={['Nettoyage + désinfection', 'Nettoyage seul', 'Autre']} value={data.preparationZone || 'Nettoyage + désinfection'} onChange={v => update('preparationZone', v)} />
+      <RadioField label="Test de couleur préalable" options={['Oui', 'Non']} value={data.testCouleur || 'Non'} onChange={v => update('testCouleur', v)} />
+      <RadioField label="Dessin / gabarit préalable" options={['Oui', 'Non']} value={data.gabarit || 'Oui'} onChange={v => update('gabarit', v)} />
+      <RadioField label="Accord du client sur le dessin" options={['Oui', 'Non']} value={data.accordDessin || 'Oui'} onChange={v => update('accordDessin', v)} />
+      <RadioField label="Incident / réaction pendant la séance" options={['Aucun', 'Douleur intense', 'Malaise', 'Saignement excessif', 'Réaction allergique', 'Autre']} value={data.incident || 'Aucun'} onChange={v => update('incident', v)} />
+      {data.incident && data.incident !== 'Aucun' && (
+        <FormField label="Détails de l'incident" value={data.incidentDetail || ''} onChange={v => update('incidentDetail', v)} multiline />
+      )}
+      <FormField label="Observations générales" value={data.observations || ''} onChange={v => update('observations', v)} multiline placeholder="Notes sur le résultat, la réaction de la peau, les retouches prévues..." />
+
+      <FormSection title="7 — RETOUCHE & SUIVI" />
+      <RadioField label="Retouche prévue" options={['Oui', 'Non']} value={data.retouchePrevue || 'Oui'} onChange={v => update('retouchePrevue', v)} />
+      {data.retouchePrevue === 'Oui' && (
+        <FormField label="Date prévue de retouche" value={data.dateRetouche || ''} onChange={v => update('dateRetouche', v)} type="date" />
+      )}
+      <FormField label="Conseils post-séance donnés au client" value={data.conseilsPostSeance || ''} onChange={v => update('conseilsPostSeance', v)} multiline placeholder="Consignes de cicatrisation, produits recommandés, évictions..." />
+      <CheckboxField label="Fiche de soins post-dermographie remise au client" value={data.ficheSoinsRemise || false} onToggle={() => update('ficheSoinsRemise', !data.ficheSoinsRemise)} />
+
+      <FormSection title="8 — SIGNATURES" />
+      <div className="grid grid-cols-1 gap-6">
+        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || ''} onChange={v => update('nomClientSign', v)} />
+          <FormField label="Date" value={data.dateSignatureClient || ''} onChange={v => update('dateSignatureClient', v)} />
+          <div className="mt-3">
+            <SignaturePad
+              label="Signature du client"
+              value={data.signatureImageClient || ''}
+              onChange={v => update('signatureImageClient', v ?? '')}
+            />
+          </div>
+        </div>
+        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Nom du dermographe" value={data.nomDermographeSign || ''} onChange={v => update('nomDermographeSign', v)} />
+          <FormField label="Date" value={data.dateSignatureDermographe || ''} onChange={v => update('dateSignatureDermographe', v)} />
+          <div className="mt-3">
+            <SignaturePad
+              label="Signature du dermographe"
+              value={data.signatureImageDermographe || ''}
+              onChange={v => update('signatureImageDermographe', v ?? '')}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Formulaire Questionnaire Médical Dermographe ───────────────────────────────────────────
 
 function FormQuestionnaireDermographe({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
   return (
@@ -2205,6 +2362,8 @@ export default function DocumentForm() {
         return <FormSoinsDermographe data={formData} update={updateField} client={client} />;
       case 'fiche_seance_tatouage':
         return <FormFicheSeanceTatouage data={formData} update={updateField} client={client} />;
+      case 'fiche_seance_dermographe':
+        return <FormFicheSeanceDermographe data={formData} update={updateField} client={client} />;
       case 'engagement_confidentialite':
         return <FormEngagementConfidentialite data={formData} update={updateField} client={client} />;
       case 'affichage_salon':
