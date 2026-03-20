@@ -2445,11 +2445,62 @@ export default function DocumentForm() {
   useEffect(() => {
     if (client) {
       const existingDoc = client.documents?.find(d => d.type === docType);
+      const today = new Date().toLocaleDateString('fr-FR');
+
+      // Données d'identité du client à synchroniser automatiquement dans tous les formulaires
+      const clientIdentity: Record<string, any> = {
+        // Champs standards
+        nom: client.nom || '',
+        prenom: client.prenom || '',
+        dateNaissance: client.dateNaissance || '',
+        telephone: client.telephone || '',
+        email: client.email || '',
+        adresse: client.adresse || '',
+        codePostal: client.codePostal || '',
+        ville: client.ville || '',
+        // Variantes de noms utilisées dans certains formulaires
+        nomClient: client.nom || '',
+        prenomClient: client.prenom || '',
+        telephoneClient: client.telephone || '',
+        emailClient: client.email || '',
+        // Champs mineur (identité du mineur = identité du client)
+        nomMineur: client.nom || '',
+        prenomMineur: client.prenom || '',
+        dateNaissanceMineur: client.dateNaissance || '',
+        // Champs de signature client pré-remplis
+        nomClientSign: client.nom ? `${client.prenom || ''} ${client.nom}`.trim() : '',
+        dateSignatureClient: today,
+        dateSignaturePierceur: today,
+        dateSignatureTatoueur: today,
+        dateSignatureDermographe: today,
+        dateSignatureParent: today,
+      };
+
       if (existingDoc?.data) {
-        setFormData(existingDoc.data as Record<string, any>);
+        // Document existant : on fusionne en prioritisant les données sauvegardées,
+        // mais on met à jour les champs d'identité si le client a été modifié
+        const saved = existingDoc.data as Record<string, any>;
+        const merged: Record<string, any> = { ...clientIdentity };
+        // Pour chaque clé sauvegardée, on garde la valeur sauf si elle est vide
+        for (const key of Object.keys(saved)) {
+          if (saved[key] !== undefined && saved[key] !== null && saved[key] !== '') {
+            merged[key] = saved[key];
+          }
+        }
+        // Forcer la resynchronisation des champs d'identité depuis le client
+        const identityKeys = ['nom', 'prenom', 'dateNaissance', 'telephone', 'email', 'adresse', 'codePostal', 'ville',
+          'nomClient', 'prenomClient', 'telephoneClient', 'emailClient',
+          'nomMineur', 'prenomMineur', 'dateNaissanceMineur', 'nomClientSign'];
+        for (const key of identityKeys) {
+          if (clientIdentity[key]) merged[key] = clientIdentity[key];
+        }
+        setFormData(merged);
+      } else {
+        // Nouveau document : on pré-remplit avec toutes les données du client
+        setFormData(clientIdentity);
       }
     }
-  }, [client, docType]);
+  }, [client?.id, docType]);
 
   function updateField(key: string, value: any) {
     setFormData(prev => ({ ...prev, [key]: value }));
