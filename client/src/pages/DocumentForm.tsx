@@ -1270,6 +1270,258 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
   );
 }
 
+// ─── Formulaire Soins Post-Dermographie (Maquillage Permanent) ──────────────────────
+
+const CICATRISATION_DERMOGRAPHE = [
+  {
+    phase: 'Phase 1 — Inflammation & Croutes',
+    jours: 'J1 — J7',
+    couleur: '#E91E63',
+    etapes: [
+      { jour: 'J1', titre: 'Immédiatement après la séance', instructions: "La zone est rouge, légèrement gonflée et peut suinter un liquide lymphatique clair. C'est une réaction normale. Ne pas toucher, ne pas frotter. Appliquer délicatement la crème cicatrisante fournie par le praticien (Bepanthen, Cicalfate ou équivalent) en couche ultra-fine. Pour les lèvres : appliquer toutes les 2 heures. Pour les sourcils et eye-liner : 2 à 3 fois dans la journée." },
+      { jour: 'J2 — J3', titre: 'Assombrissement de la couleur', instructions: "La couleur apparaît plus foncée et plus intense qu'en fin de séance : c'est normal et temporaire. De fines croûtes commencent à se former. Continuer les applications de crème cicatrisante 2 à 3 fois par jour. Ne pas mouiller la zone (pas de douche directe sur la zone, pas de piscine, pas de mer). Pour les lèvres : éviter de manger des aliments acides, épicés ou très chauds." },
+      { jour: 'J4 — J5', titre: 'Formation des croûtes', instructions: "Les croûtes sont bien formées. Elles peuvent tirer et démanger : tapoter doucement, ne jamais gratter. Ne jamais arracher les croûtes — risque de dépigmentation irréversible et de cicatrice. Continuer la crème cicatrisante. Pour les sourcils : ne pas se mouiller le visage sous la douche. Pour les lèvres : ne pas embrasser, ne pas utiliser de rouge à lèvres." },
+      { jour: 'J6 — J7', titre: 'Chute des croûtes', instructions: "Les croûtes tombent naturellement. La couleur semble avoir presque disparu ou être très pâle : c'est normal, la pigmentation est encore sous la peau. Continuer à hydrater avec la crème cicatrisante. Protéger la zone du soleil avec SPF 50+." },
+    ],
+  },
+  {
+    phase: 'Phase 2 — Régénération',
+    jours: 'J8 — J21',
+    couleur: '#FF9800',
+    etapes: [
+      { jour: 'J8 — J14', titre: 'Réapparition de la couleur', instructions: "La couleur commence à réapparaître progressivement sous la nouvelle couche de peau. Elle peut sembler inégale ou par taches : c'est normal. La peau peut encore être légèrement sensible. Hydrater 1 à 2 fois par jour avec une crème neutre non parfumée. Appliquer SPF 50+ à chaque exposition solaire. Pour les lèvres : éviter les baisers et le rouge à lèvres encore 7 jours." },
+      { jour: 'J15 — J21', titre: 'Stabilisation de la pigmentation', instructions: "La couleur se stabilise et devient plus uniforme. Les légères irrégularités visibles à ce stade seront corrigées lors de la retouche. Continuer l'hydratation quotidienne. Protection solaire SPF 50+ obligatoire. Vous pouvez reprendre le maquillage classique sur la zone après J14 si la peau est complètement cicatrisée." },
+    ],
+  },
+  {
+    phase: 'Phase 3 — Cicatrisation profonde & Retouche',
+    jours: 'J22 — J42',
+    couleur: '#4CAF50',
+    etapes: [
+      { jour: 'J22 — J30', titre: 'Cicatrisation complète en surface', instructions: "La peau est cicatrisée en surface. La couleur définitive est presque visible. Hydrater quotidiennement. Protection solaire SPF 50+ à chaque exposition pendant encore 3 mois. Vous pouvez reprendre normalement vos activités (piscine, sport, maquillage)." },
+      { jour: 'J35 — J42', titre: 'Retouche recommandée', instructions: "La retouche est recommandée entre 4 et 6 semaines après la première séance. Elle permet de corriger les irrégularités, d'intensifier la couleur et d'assurer un résultat optimal. Sans retouche, le résultat peut être inégal. Contactez le salon pour planifier votre rendez-vous de retouche." },
+    ],
+  },
+];
+
+function FormSoinsDermographe({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  return (
+    <>
+      {/* Cadre légal */}
+      <LegalBox color="orange">
+        <strong>■ Cadre légal — Arrêté du 3 décembre 2008 (ARS) + Règlement UE 2020/2081</strong><br />
+        ■ La dermographie (maquillage permanent) est soumise à la réglementation sanitaire française.<br />
+        ■ Les pigments utilisés sont conformes au Règlement UE 2020/2081 (en vigueur depuis le 4 janvier 2022).<br />
+        ■ Conservation du dossier : <strong>5 ans</strong> minimum à compter de la dernière prestation.
+      </LegalBox>
+      <LegalBox color="cyan">
+        <em>VOS DROITS RGPD — Art. 15 Droit d'accès · Art. 16 Rectification · Art. 17 Effacement · Art. 21 Opposition.<br />
+        Pour exercer vos droits : francois-dimpre@intemporelle.eu — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
+      </LegalBox>
+
+      {/* Identité client */}
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nom || client.nom} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom(s)" value={data.prenom || client.prenom} onChange={v => update('prenom', v)} required />
+      </div>
+      <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
+        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
+      </div>
+
+      {/* Prestation réalisée */}
+      <FormSection title="2 — PRESTATION RÉALISÉE" />
+      <RadioField
+        label="Zone traitée"
+        options={['Sourcils', 'Lèvres', 'Eye-liner supérieur', 'Eye-liner inférieur', 'Eye-liner complet', 'Grain de beauté', 'Autre']}
+        value={data.zoneDermographe || ''}
+        onChange={v => update('zoneDermographe', v)}
+      />
+      {data.zoneDermographe === 'Autre' && (
+        <FormField label="Préciser la zone" value={data.zoneAutre || ''} onChange={v => update('zoneAutre', v)} />
+      )}
+      <RadioField
+        label="Technique utilisée"
+        options={['Microblading', 'Powder Brows / Ombré', 'Combo Brows', 'Nano Brows', 'Aquarelle lèvres', 'Contour lèvres', 'Liner classique', 'Liner smoky', 'Autre']}
+        value={data.techniqueDermographe || ''}
+        onChange={v => update('techniqueDermographe', v)}
+      />
+      <RadioField label="Type de séance" options={['Première séance', 'Retouche (< 6 semaines)', 'Retouche annuelle', 'Correction']} value={data.typeSeance || 'Première séance'} onChange={v => update('typeSeance', v)} />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Marque du pigment" value={data.marquePigment || ''} onChange={v => update('marquePigment', v)} />
+        <FormField label="Référence / couleur" value={data.refPigment || ''} onChange={v => update('refPigment', v)} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="N° de lot pigment" value={data.lotPigment || ''} onChange={v => update('lotPigment', v)} />
+        <FormField label="Date de péremption" value={data.perempPigment || ''} onChange={v => update('perempPigment', v)} />
+      </div>
+      <FormField label="Anesthésiant topique utilisé" value={data.anesthesiant || ''} onChange={v => update('anesthesiant', v)} />
+
+      {/* Protocole de soins J1-J42 */}
+      <FormSection title="3 — PROTOCOLE DE SOINS POST-DERMOGRAPHIE — J1 À J42" />
+      <LegalBox color="cyan">
+        <strong>Ce protocole est remis au client à l'issue de chaque séance.</strong> Il constitue la fiche de soins officielle conforme à l'Arrêté du 3 décembre 2008. Le respect strict de ces consignes conditionne la qualité du résultat et la tenue de la pigmentation dans le temps.
+      </LegalBox>
+
+      {CICATRISATION_DERMOGRAPHE.map((phase, pi) => (
+        <div key={pi} className="mb-4">
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px flex-1" style={{ background: phase.couleur + '44' }} />
+            <span className="text-xs font-700 px-3 py-1 rounded-full" style={{
+              color: phase.couleur,
+              background: phase.couleur + '18',
+              fontWeight: 700,
+              fontFamily: 'Outfit',
+              border: `1px solid ${phase.couleur}44`,
+            }}>
+              {phase.phase} — {phase.jours}
+            </span>
+            <div className="h-px flex-1" style={{ background: phase.couleur + '44' }} />
+          </div>
+          {phase.etapes.map((etape, ei) => (
+            <div key={ei} className="mb-3 p-3 rounded-xl" style={{
+              background: phase.couleur + '08',
+              border: `1px solid ${phase.couleur}28`,
+            }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-700 px-2 py-0.5 rounded" style={{
+                  background: phase.couleur + '22',
+                  color: phase.couleur,
+                  fontWeight: 700,
+                  fontFamily: 'Outfit',
+                }}>{etape.jour}</span>
+                <span className="text-xs font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{etape.titre}</span>
+              </div>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--brand-text-muted)', lineHeight: 1.7 }}>{etape.instructions}</p>
+            </div>
+          ))}
+        </div>
+      ))}
+
+      {/* Consignes spécifiques par zone */}
+      <FormSection title="4 — CONSIGNES SPÉCIFIQUES PAR ZONE" />
+
+      <div className="mb-3 p-3 rounded-xl" style={{ background: 'rgba(233,30,99,0.05)', border: '1px solid rgba(233,30,99,0.2)' }}>
+        <p className="text-xs font-700 mb-2" style={{ color: '#E91E63', fontWeight: 700 }}>SOURCILS (Microblading / Powder / Combo / Nano)</p>
+        {[
+          'Ne pas mouiller les sourcils pendant 7 jours (douche : protéger avec un film plastique)',
+          'Ne pas appliquer de fond de teint, BB crème ou maquillage sur la zone pendant 14 jours',
+          'Ne pas faire de sport intensif (transpiration) pendant 7 jours',
+          'Ne pas aller au sauna, hammam, jacuzzi pendant 4 semaines',
+          "Ne pas s'exposer au soleil sans SPF 50+ pendant 3 mois",
+          "Ne pas faire d'IPL, laser ou peeling sur la zone pendant 3 mois",
+          'Ne pas se teindre les sourcils pendant 4 semaines',
+          'Appliquer la crème cicatrisante 2 à 3 fois par jour en couche ultra-fine (pas épaisse)',
+        ].map((item, i) => (
+          <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>• {item}</p>
+        ))}
+      </div>
+
+      <div className="mb-3 p-3 rounded-xl" style={{ background: 'rgba(156,39,176,0.05)', border: '1px solid rgba(156,39,176,0.2)' }}>
+        <p className="text-xs font-700 mb-2" style={{ color: '#9C27B0', fontWeight: 700 }}>LÈVRES (Aquarelle / Contour)</p>
+        {[
+          'Appliquer la crème cicatrisante toutes les 2 heures les 3 premiers jours',
+          'Ne pas embrasser pendant 7 jours minimum',
+          'Ne pas utiliser de rouge à lèvres, gloss ou lip balm parfumé pendant 14 jours',
+          'Manger des aliments mous, tides ou froids (pas chauds, pas acides, pas épicés) pendant 5 jours',
+          'Ne pas boire à la paille pendant 5 jours',
+          "En cas d'herpes labial : prendre le traitement antiviral prescrit par votre médecin DES LE SOIR de la séance",
+          'Ne pas faire de soins dentaires invasifs pendant 2 semaines',
+          'Protéger les lèvres du soleil avec un stick lèvres SPF 50+ pendant 3 mois',
+        ].map((item, i) => (
+          <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>• {item}</p>
+        ))}
+      </div>
+
+      <div className="mb-3 p-3 rounded-xl" style={{ background: 'rgba(33,150,243,0.05)', border: '1px solid rgba(33,150,243,0.2)' }}>
+        <p className="text-xs font-700 mb-2" style={{ color: '#2196F3', fontWeight: 700 }}>EYE-LINER</p>
+        {[
+          'Ne pas porter de lentilles de contact pendant 5 jours',
+          'Ne pas appliquer de mascara, eye-liner ou fard à paupières pendant 14 jours',
+          'Ne pas se frotter les yeux',
+          'Ne pas utiliser de démaquillant huileux sur la zone pendant 14 jours',
+          'En cas de rougeur oculaire persistante : consulter un ophtalmologue',
+          'Appliquer la crème cicatrisante 2 à 3 fois par jour en couche ultra-fine',
+          'Ne pas faire de traitement laser ou IPL autour des yeux pendant 3 mois',
+        ].map((item, i) => (
+          <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>• {item}</p>
+        ))}
+      </div>
+
+      {/* Règles absolues communes */}
+      <FormSection title="5 — RÈGLES ABSOLUES — TOUTES ZONES" />
+      <div className="grid grid-cols-1 gap-3 mb-4">
+        <div className="p-3 rounded-xl" style={{ background: 'rgba(244,67,54,0.05)', border: '1px solid rgba(244,67,54,0.2)' }}>
+          <p className="text-xs font-700 mb-2" style={{ color: '#F44336', fontWeight: 700 }}>INTERDICTIONS ABSOLUES</p>
+          {[
+            "Ne jamais gratter, frotter ou arracher les croûtes — risque de dépigmentation irréversible",
+            "Ne jamais appliquer de crème parfumée, alcool, eau oxygénée ou bétadine sur la zone",
+            "Ne pas s'exposer au soleil sans SPF 50+ pendant toute la cicatrisation",
+            "Ne pas aller au sauna, hammam ou jacuzzi pendant 4 semaines",
+            "Ne pas faire de peeling chimique ou mécanique sur la zone pendant 3 mois",
+            "Ne pas faire de traitement laser ou IPL sur la zone pendant 3 mois",
+            "Ne pas nager en piscine chlorée ou en mer pendant 14 jours",
+          ].map((item, i) => (
+            <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>✗ {item}</p>
+          ))}
+        </div>
+        <div className="p-3 rounded-xl" style={{ background: 'rgba(76,175,80,0.05)', border: '1px solid rgba(76,175,80,0.2)' }}>
+          <p className="text-xs font-700 mb-2" style={{ color: '#4CAF50', fontWeight: 700 }}>BONNES PRATIQUES</p>
+          {[
+            "Appliquer la crème cicatrisante en couche ultra-fine (pas épaisse) selon la zone",
+            "Laver les mains avant tout contact avec la zone traitée",
+            "Hydrater quotidiennement après cicatrisation avec une crème neutre non parfumée",
+            "Appliquer SPF 50+ à chaque exposition solaire pendant 3 mois minimum",
+            "Planifier la retouche entre 4 et 6 semaines après la première séance",
+            "Contacter le salon en cas de doute sur la cicatrisation",
+          ].map((item, i) => (
+            <p key={i} className="text-xs mb-1" style={{ color: 'var(--brand-text-muted)' }}>✓ {item}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Signes d'alerte */}
+      <FormSection title="6 — SIGNES D'ALERTE — CONSULTER UN MÉDECIN" />
+      <WarningBox>
+        Consultez immédiatement un médecin si vous observez : fièvre &gt; 38°C · rougeur qui s'étend au-delà de la zone traitée · pus ou écoulement malodorant · douleur intense et croissante après J3 · gonflement important après J3 · éruption cutanée généralisée · difficultés respiratoires (choc allergique) · pour les lèvres : apparition de vésicules (herpas) dès J1.
+      </WarningBox>
+      <WarningBox>
+        <strong>Herpas labial :</strong> si vous avez des antécédents d'herpas labial, prenez immédiatement votre traitement antiviral (Aciclovir, Valaciclovir) prescrit par votre médecin dès le soir de la séance, sans attendre l'apparition des symptômes.
+      </WarningBox>
+      <FormField label="Contact d'urgence du praticien" value={data.contactUrgence || ''} onChange={v => update('contactUrgence', v)} type="tel" />
+
+      {/* Retouche */}
+      <FormSection title="7 — RETOUCHE & SUIVI" />
+      <LegalBox color="green">
+        La retouche est <strong>incluse dans la prestation</strong> et doit être réalisée entre <strong>4 et 6 semaines</strong> après la première séance. Passé ce délai, la retouche peut être facturée. La retouche annuelle est recommandée pour maintenir la qualité du résultat.
+      </LegalBox>
+      <RadioField label="RDV de retouche planifié" options={['Oui — dans 4 à 6 semaines', 'Non']} value={data.rdvRetouche || 'Oui — dans 4 à 6 semaines'} onChange={v => update('rdvRetouche', v)} />
+      <FormField label="Date du RDV de retouche (si planifié)" value={data.dateRdvRetouche || ''} onChange={v => update('dateRdvRetouche', v)} />
+      <FormField label="Observations post-séance" value={data.observationsPostseance || ''} onChange={v => update('observationsPostseance', v)} multiline />
+
+      {/* Documents remis */}
+      <FormSection title="8 — DOCUMENTS REMIS AU CLIENT" />
+      <CheckboxField label="Fiche de soins post-dermographie signée (ce document)" value={data.docSoins || false} onToggle={() => update('docSoins', !data.docSoins)} />
+      <CheckboxField label="Protocole de cicatrisation J1-J42 remis" value={data.docProtocole || false} onToggle={() => update('docProtocole', !data.docProtocole)} />
+      <CheckboxField label="Informations sur les pigments (conformité UE 2020/2081)" value={data.docPigments || false} onToggle={() => update('docPigments', !data.docPigments)} />
+      <CheckboxField label="Coordonnées du praticien remises" value={data.docCoordonnees || false} onToggle={() => update('docCoordonnees', !data.docCoordonnees)} />
+
+      <LegalBox color="cyan">
+        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
+      </LegalBox>
+    </>
+  );
+}
+
 export default function DocumentForm() {
   const params = useParams<{ clientId: string; docType: string }>();
   const [, navigate] = useLocation();
@@ -1350,6 +1602,8 @@ export default function DocumentForm() {
         return <FormQuestionnaireDermographe data={formData} update={updateField} client={client} />;
       case 'consentement_soins_tatouage':
         return <FormConsentementSoinsTatouage data={formData} update={updateField} client={client} />;
+      case 'soins_dermographe':
+        return <FormSoinsDermographe data={formData} update={updateField} client={client} />;
       default:
         if (docType.startsWith('soins_') || docType.startsWith('cicatrisation_')) {
           return <FormSoins docType={docType} data={formData} update={updateField} client={client} />;

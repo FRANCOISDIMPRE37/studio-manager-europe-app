@@ -4,3 +4,7 @@
 - [x] Ajouter le type consentement_soins_tatouage dans types.ts et DOCUMENT_LABELS
 - [x] Ajouter la fiche dans la catégorie Tatouage & Dermographie de Documents.tsx
 - [x] Ajouter le case dans le switch renderForm() de DocumentForm.tsx
+- [x] Ajouter le type soins_dermographe dans types.ts et DOCUMENT_LABELS
+- [x] Ajouter la fiche dans la catégorie Tatouage & Dermographie de Documents.tsx
+- [x] Créer FormSoinsDermographe avec consignes spécifiques maquillage permanent
+- [x] Ajouter le case dans le switch renderForm() de DocumentForm.tsx
