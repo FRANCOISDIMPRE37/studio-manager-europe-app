@@ -62,3 +62,5 @@
 - [ ] Créer procédure tRPC smtp.getRappelsStatus pour afficher l'état des rappels
 - [ ] Ajouter panneau "Rappels automatiques" dans l'Agenda avec toggle on/off
 - [ ] Ajouter option "Activer les rappels email" dans Paramètres
+- [x] Corriger impression partielle - ajouter page-break et avoid-break sur sections
+- [x] Corriger impression noir & blanc - forcer print-color-adjust: exact

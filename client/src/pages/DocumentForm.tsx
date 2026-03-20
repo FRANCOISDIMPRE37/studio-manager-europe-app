@@ -186,8 +186,8 @@ function PrintHeader({ salonInfo, docTitle, clientName, date }: {
   date: string;
 }) {
   return (
-    <div className="print-header" style={{ display: 'none' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderBottom: '2px solid #0A1628', paddingBottom: 12, marginBottom: 16 }}>
+    <div className="print-header" style={{ display: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as React.CSSProperties}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderBottom: '2px solid #0A1628', paddingBottom: 12, marginBottom: 16, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as React.CSSProperties}>
         {salonInfo?.logo && (
           <img
             src={salonInfo.logo}
@@ -230,7 +230,7 @@ function PrintFooter({ salonInfo, docTitle }: {
 }) {
   const year = new Date().getFullYear();
   return (
-    <div className="print-footer" style={{ display: 'none' }}>
+    <div className="print-footer" style={{ display: 'none', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as React.CSSProperties}>
       <div style={{
         borderTop: '1px solid #ccc',
         paddingTop: 8,
@@ -2516,36 +2516,125 @@ export default function DocumentForm() {
     style.id = '__print_style__';
     style.innerHTML = `
       @media print {
-        /* Masquer la sidebar, le header sticky et les boutons */
+        /* Mise en page A4 avec marges confortables */
+        @page {
+          size: A4 portrait;
+          margin: 12mm 15mm 20mm 15mm;
+          counter-increment: page;
+        }
+
+        /* Masquer la sidebar, le header sticky, les boutons et la navigation */
         body > div > aside,
+        aside,
+        nav,
         .sticky,
-        nav { display: none !important; }
-        /* Réinitialiser le fond et les couleurs pour l'impression */
-        body { background: white !important; color: black !important; margin: 0; padding: 0; }
-        * { color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        /* Cartes et champs */
-        .studio-card { border: 1px solid #ccc !important; box-shadow: none !important; background: white !important; }
-        input, textarea, select { border: 1px solid #ccc !important; color: black !important; background: white !important; }
-        /* Masquer tous les boutons sauf le contenu */
+        [data-sidebar],
+        .no-print { display: none !important; }
+
+        /* Réinitialiser le fond */
+        html, body {
+          background: white !important;
+          color: #111 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          font-size: 11pt !important;
+          width: 100% !important;
+        }
+
+        /* FORCER LES COULEURS À L'IMPRESSION */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+
+        /* Texte lisible */
+        p, span, label, td, th, li, h1, h2, h3, h4, h5, h6 {
+          color: #111 !important;
+        }
+
+        /* Champs de formulaire */
+        input, textarea, select {
+          border: 1px solid #999 !important;
+          color: #111 !important;
+          background: #fff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Cartes */
+        .studio-card, [class*='rounded'] {
+          border: 1px solid #ccc !important;
+          box-shadow: none !important;
+          background: white !important;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        /* Masquer les boutons */
         button { display: none !important; }
-        /* Afficher l'en-tête d'impression avec le logo */
-        .print-header { display: block !important; margin-bottom: 20px; }
-        /* Afficher le pied de page d'impression */
-        .print-footer { display: block !important; }
-        /* Numérotation des pages via CSS counter */
-        @page { counter-increment: page; }
+
+        /* En-tête et pied de page d'impression */
+        .print-header { display: block !important; margin-bottom: 16px; }
+        .print-footer { display: block !important; margin-top: 16px; }
+
+        /* Numérotation des pages */
         .page-num::after { content: counter(page); }
-        /* Supprimer les marges excessives */
-        .p-4 { padding: 8px !important; }
-        /* Assurer que les canvas de signature s'impriment */
-        canvas { display: block !important; border: 1px solid #ccc !important; }
-        /* Mise en page A4 */
-        @page { size: A4 portrait; margin: 15mm; }
+
+        /* Sections : éviter les coupures en milieu de section */
+        section,
+        .print-section,
+        fieldset,
+        [class*='space-y'] > div,
+        [class*='grid'] > div {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        /* Titres de section : ne jamais couper après un titre */
+        h2, h3, h4 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+
+        /* Tableaux : éviter les coupures */
+        table {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          width: 100% !important;
+        }
+        tr {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        /* Canvas de signature */
+        canvas {
+          display: block !important;
+          border: 1px solid #999 !important;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        /* Assurer que le contenu principal prend toute la largeur */
+        main, [role='main'], .p-4, .p-6 {
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+
+        /* Images */
+        img {
+          max-width: 100% !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
       }
     `;
     document.head.appendChild(style);
     window.print();
-    setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 1500);
+    setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 2000);
   }
 
   // ─── Email SMTP ───
