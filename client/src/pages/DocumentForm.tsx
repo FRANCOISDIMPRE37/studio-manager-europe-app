@@ -3,7 +3,7 @@
  * Palette: bleu marine #0A1628, cyan #83D0F5, rose #C0396A
  * Typographie: Outfit
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import { DocumentType, DOCUMENT_LABELS, Client } from '@/lib/types';
@@ -906,6 +906,30 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
 // ─── Fiche de Traçabilité Matériel Stérile ─────────────────────────────────────────────────
 
 function FormFicheSeance({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
+
+  const photos: string[] = data.photosTracabilite || [];
+
+  const addPhotos = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const b64 = e.target?.result as string;
+        update('photosTracabilite', [...(data.photosTracabilite || []), b64]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (idx: number) => {
+    const updated = [...photos];
+    updated.splice(idx, 1);
+    update('photosTracabilite', updated);
+  };
+
   return (
     <>
       <LegalBox>
@@ -939,6 +963,87 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       <WarningBox>Photographiez les étiquettes de traçabilité du matériel stérile. L'emballage stérile est ouvert devant le client. Conserver les photos 5 ans minimum.</WarningBox>
       <FormField label="Référence / N° de lot du matériel à usage unique" value={data.refMaterielsUnique || ''} onChange={v => update('refMaterielsUnique', v)} />
       <FormField label="Notes supplémentaires (optionnel)" value={data.notesMaterielsUnique || ''} onChange={v => update('notesMaterielsUnique', v)} multiline />
+
+      {/* ─── Section Photos de traçabilité ─── */}
+      <div className="studio-card p-4 rounded-xl mb-4" style={{ border: '1px solid var(--brand-border)', background: 'rgba(255,255,255,0.03)' }}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span style={{ fontSize: 16 }}>📷</span>
+            <span className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>Photos de traçabilité</span>
+          </div>
+          <div className="flex gap-2">
+            {/* Bouton caméra */}
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
+              style={{ background: 'var(--brand-cyan-dim)', color: 'var(--brand-cyan)', border: '1px solid var(--brand-cyan)' }}
+            >
+              📷 Prendre une photo
+            </button>
+            {/* Bouton import */}
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
+              style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--brand-text)', border: '1px solid var(--brand-border)' }}
+            >
+              ↗ Importer
+            </button>
+          </div>
+        </div>
+
+        {/* Inputs cachés */}
+        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" multiple onChange={e => addPhotos(e.target.files)} />
+        <input ref={photoInputRef} type="file" accept="image/*" className="hidden" multiple onChange={e => addPhotos(e.target.files)} />
+
+        {/* Galerie ou état vide */}
+        {photos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8" style={{ color: 'var(--brand-text-muted)' }}>
+            <span style={{ fontSize: 32, opacity: 0.3 }}>📷</span>
+            <p className="text-sm mt-2">Aucune photo de traçabilité</p>
+            <p className="text-xs mt-1" style={{ opacity: 0.6 }}>Prenez des photos de vos documents, bijoux, encres ou matériels</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {photos.map((src, idx) => (
+              <div key={idx} className="relative group rounded-lg overflow-hidden" style={{ aspectRatio: '1', background: 'rgba(0,0,0,0.2)' }}>
+                <img
+                  src={src}
+                  alt={`Photo ${idx + 1}`}
+                  className="w-full h-full object-cover cursor-pointer"
+                  onClick={() => setLightboxPhoto(src)}
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(idx)}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: 'rgba(192,57,106,0.9)', color: 'white' }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <img src={lightboxPhoto} alt="Agrandissement" className="max-w-full max-h-full rounded-xl" style={{ maxWidth: '90vw', maxHeight: '90vh' }} />
+          <button
+            type="button"
+            className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-lg"
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}
+            onClick={() => setLightboxPhoto(null)}
+          >×</button>
+        </div>
+      )}
 
       <FormSection title="4 — PROTOCOLE D'HYGIÈNE — CHECKLIST OPÉRATEUR" />
       <p className="text-xs mb-2" style={{ color: 'var(--brand-text-muted)', fontWeight: 600 }}>Avant la séance</p>

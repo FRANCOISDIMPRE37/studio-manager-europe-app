@@ -36,3 +36,5 @@
 - [x] Ajouter champ "Mentions légales personnalisées" dans Paramètres — section Informations du salon
 - [x] Persister ce champ dans salonInfo (localStorage via AppContext)
 - [x] Intégrer la valeur dans la colonne centrale du composant PrintFooter
+- [x] Intégrer section "Photos de traçabilité" dans fiche 04 — Fiche de Traçabilité Matériel Stérile (Piercing)
+- [x] Caméra (capture), import fichier, galerie avec lightbox, stockage base64 dans data de la fiche
