@@ -394,24 +394,13 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       <FormSection title="8 — SIGNATURES" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || data.representantNom || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureParent || ''} onChange={v => update('dateSignatureParent', v)} />
+          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} />
+          <FormField label="Date" value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
           <div className="mt-3">
             <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageParent || ''}
-              onChange={v => update('signatureImageParent', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du pierceur" value={data.nomPierceurSign || ''} onChange={v => update('nomPierceurSign', v)} />
-          <FormField label="Date" value={data.dateSignaturePierceur || ''} onChange={v => update('dateSignaturePierceur', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du pierceur"
-              value={data.signatureImagePierceur || ''}
-              onChange={v => update('signatureImagePierceur', v ?? '')}
+              label="Signature du client"
+              value={data.signatureImageClient || ''}
+              onChange={v => update('signatureImageClient', v ?? '')}
             />
           </div>
         </div>
