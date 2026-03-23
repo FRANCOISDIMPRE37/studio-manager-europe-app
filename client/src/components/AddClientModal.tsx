@@ -314,12 +314,27 @@ export default function AddClientModal({ onClose }: Props) {
                 </p>
               )}
               {isDateValid && (
-                <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: isMineur ? '#9C27B0' : 'var(--brand-text-muted)' }}>
-                  {isMineur
-                    ? <><AlertCircle size={11} /> Client mineur ({age} ans) — documents parentaux requis</>
-                    : <><CheckCircle2 size={11} style={{ color: 'var(--brand-cyan)' }} /> {age} ans</>
-                  }
-                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-700"
+                    style={{
+                      background: isMineur ? 'rgba(156,39,176,0.15)' : 'rgba(76,175,80,0.15)',
+                      color: isMineur ? '#CE93D8' : '#81C784',
+                      border: `1px solid ${isMineur ? 'rgba(156,39,176,0.5)' : 'rgba(76,175,80,0.5)'}`,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {isMineur
+                      ? <><AlertCircle size={12} /> MINEUR — {age} ans</>
+                      : <><CheckCircle2 size={12} /> MAJEUR — {age} ans</>
+                    }
+                  </span>
+                  {isMineur && (
+                    <span className="text-xs" style={{ color: '#CE93D8', opacity: 0.8 }}>
+                      Documents parentaux requis
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
