@@ -144,7 +144,7 @@ export default function ClientDetail() {
                 { icon: CreditCard, label: 'Né(e) le', value: new Date(client.dateNaissance).toLocaleDateString('fr-FR') + ` (${age} ans)` },
                 { icon: Phone, label: 'Téléphone', value: client.telephone },
                 { icon: Mail, label: 'Email', value: client.email || '—' },
-                { icon: CreditCard, label: 'Pièce d\'identité', value: client.pieceIdentiteType ? `${client.pieceIdentiteType} ${client.pieceIdentiteNumero || ''}` : '—' },
+
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <item.icon size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0, marginTop: 2 }} />
