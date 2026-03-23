@@ -88,6 +88,7 @@ export interface Client {
   estArchive: boolean;
   dateArchivage?: string;
   dateModification?: string;
+  notes?: string;
 }
 
 // Informations du salon

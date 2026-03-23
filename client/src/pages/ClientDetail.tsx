@@ -4,15 +4,12 @@
 import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import { useLocation, useParams } from 'wouter';
-import { ArrowLeft, Phone, Mail, MapPin, CreditCard, Calendar, FileText, Shield, Trash2, Archive, AlertTriangle, CheckCircle, Edit, PlusCircle, Send, X, Loader2, MessageSquare } from 'lucide-react';
-import { DOCUMENT_LABELS, RGPDStatus } from '@/lib/types';
+import { ArrowLeft, Phone, Mail, CreditCard, FileText, Trash2, Archive, Edit, PlusCircle, Send, X, Loader2, StickyNote } from 'lucide-react';
+import { DOCUMENT_LABELS } from '@/lib/types';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 
-const RGPD_COLORS: Record<RGPDStatus, string> = { ok: '#4CAF50', warning: '#FF9800', urgent: '#F44336', expired: '#9C27B0' };
-const RGPD_LABELS: Record<RGPDStatus, string> = { ok: 'Conforme', warning: 'Attention (90j)', urgent: 'Urgent (30j)', expired: 'Expiré' };
-
-type Tab = 'infos' | 'prestations' | 'documents' | 'rgpd';
+type Tab = 'infos' | 'documents';
 
 export default function ClientDetail() {
   const params = useParams<{ id: string }>();
@@ -21,13 +18,8 @@ export default function ClientDetail() {
   const [tab, setTab] = useState<Tab>('infos');
   const [showDossierModal, setShowDossierModal] = useState(false);
   const [dossierEmail, setDossierEmail] = useState('');
-  // ─── SMS ───
-  const [showSmsModal, setShowSmsModal] = useState(false);
-  const [smsMessage, setSmsMessage] = useState('');
-  const sendSms = trpc.sms.send.useMutation({
-    onSuccess: (r) => { toast.success(`SMS envoyé au ${r.phone}`); setShowSmsModal(false); setSmsMessage(''); },
-    onError: (e) => toast.error(e.message),
-  });
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState('');
   const sendDossier = trpc.smtp.sendClientDossier.useMutation({
     onSuccess: () => {
       toast.success('Dossier envoyé avec succès !');
@@ -48,9 +40,7 @@ export default function ClientDetail() {
   }
 
   const age = Math.floor((Date.now() - new Date(client.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-  const rgpdColor = RGPD_COLORS[client.rgpdStatus];
-  const suppDate = new Date(client.dateSuppressionPrevue);
-  const diffDays = Math.floor((suppDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
 
   const handleArchive = () => {
     updateClient({ ...client, estArchive: !client.estArchive, dateArchivage: client.estArchive ? undefined : new Date().toISOString().split('T')[0] });
@@ -152,6 +142,55 @@ export default function ClientDetail() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Bloc Notes */}
+            <div className="studio-card p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-600 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
+                  <StickyNote size={12} className="inline mr-1.5" />Notes
+                </p>
+                {!editingNotes ? (
+                  <button
+                    onClick={() => { setNotesValue(client.notes || ''); setEditingNotes(true); }}
+                    className="text-xs px-2 py-1 rounded transition-all"
+                    style={{ color: 'var(--brand-cyan)', background: 'var(--brand-cyan-dim)' }}
+                  >
+                    <Edit size={11} className="inline mr-1" />Modifier
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setEditingNotes(false)}
+                      className="text-xs px-2 py-1 rounded transition-all"
+                      style={{ color: 'var(--brand-text-muted)', background: 'rgba(255,255,255,0.05)' }}
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      onClick={() => { updateClient({ ...client, notes: notesValue }); setEditingNotes(false); toast.success('Notes sauvegardées'); }}
+                      className="text-xs px-2 py-1 rounded transition-all"
+                      style={{ color: 'var(--brand-navy)', background: 'var(--brand-cyan)', fontWeight: 600 }}
+                    >
+                      Sauvegarder
+                    </button>
+                  </div>
+                )}
+              </div>
+              {editingNotes ? (
+                <textarea
+                  value={notesValue}
+                  onChange={e => setNotesValue(e.target.value)}
+                  rows={4}
+                  placeholder="Allergies, préférences, observations post-séance..."
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)' }}
+                />
+              ) : (
+                <p className="text-sm whitespace-pre-wrap" style={{ color: client.notes ? 'var(--brand-text)' : 'var(--brand-text-muted)' }}>
+                  {client.notes || 'Aucune note — appuyez sur Modifier pour en ajouter.'}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-3">
