@@ -296,11 +296,6 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
@@ -436,13 +431,6 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <div className="grid grid-cols-2 gap-3">
-        <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-        <div>
-          <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-          <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
       </div>
@@ -564,7 +552,6 @@ function FormAutorisationParentale({ data, update, client, salonInfo }: { data: 
     <>
       <FormSection title="1 — IDENTITÉ DU SALON" />
       <FormField label="Nom du salon" value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
-      <FormField label="Adresse" value={data.adresseSalon || salonInfo?.adresse || ''} onChange={v => update('adresseSalon', v)} />
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
         <FormField label="N° SIRET" value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
@@ -1158,11 +1145,6 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
@@ -1374,12 +1356,6 @@ function FormFicheSeanceTatouage({ data, update, client }: { data: Record<string
         <FormField label="Date de naissance" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} type="date" />
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       </div>
-      <FormField label="Adresse" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
-
       <FormSection title="2 — INFORMATIONS SÉANCE" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Date de la séance" value={data.dateSeance || ''} onChange={v => update('dateSeance', v)} type="date" required />
@@ -1517,11 +1493,6 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
@@ -1647,12 +1618,6 @@ function FormFicheSeanceDermographe({ data, update, client }: { data: Record<str
         <FormField label="Date de naissance" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} type="date" />
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       </div>
-      <FormField label="Adresse" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
-
       <FormSection title="2 — INFORMATIONS SÉANCE" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Date de la séance" value={data.dateSeance || ''} onChange={v => update('dateSeance', v)} type="date" required />
@@ -1813,11 +1778,6 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
 
       <FormSection title="2 — PRESTATION DERMOGRAPHIQUE" />
@@ -1989,11 +1949,6 @@ function FormSoinsDermographe({ data, update, client }: { data: Record<string, a
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
