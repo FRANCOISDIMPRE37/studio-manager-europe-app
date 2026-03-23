@@ -10,7 +10,7 @@ import {
   TrendingUp, Clock, CheckCircle, XCircle, AlertCircle, Search, X,
   Camera, Image, Trash2, ZoomIn, Mail, Send, Loader2
 } from 'lucide-react';
-import { RDV_TYPE_LABELS, RDV_STATUT_LABELS, RDV_STATUT_COLORS } from '@/lib/types';
+
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 
@@ -38,36 +38,7 @@ function StatCard({ icon: Icon, label, value, color, sub }: {
   );
 }
 
-function RDVCard({ rdv, clientName, onClick }: { rdv: any; clientName: string; onClick: () => void }) {
-  const statutColor = RDV_STATUT_COLORS[rdv.statut as keyof typeof RDV_STATUT_COLORS];
-  return (
-    <div
-      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/5"
-      onClick={onClick}
-      style={{ border: '1px solid var(--brand-border)' }}
-    >
-      <div className="w-1 h-10 rounded-full flex-shrink-0" style={{ background: statutColor }} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
-            {rdv.heureDebut} – {rdv.heureFin}
-          </span>
-          <span
-            className="text-xs px-1.5 py-0.5 rounded"
-            style={{ background: statutColor + '22', color: statutColor, border: `1px solid ${statutColor}` }}
-          >
-            {RDV_STATUT_LABELS[rdv.statut as keyof typeof RDV_STATUT_LABELS]}
-          </span>
-        </div>
-        <p className="text-sm truncate" style={{ color: 'var(--brand-text)' }}>{clientName}</p>
-        <p className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>
-          {RDV_TYPE_LABELS[rdv.type as keyof typeof RDV_TYPE_LABELS]}{rdv.zone ? ` · ${rdv.zone}` : ''}
-        </p>
-      </div>
-      <ChevronRight size={14} style={{ color: 'var(--brand-text-muted)' }} />
-    </div>
-  );
-}
+
 
 export default function Dashboard() {
   const { state, getDashboardStats } = useApp();
@@ -113,16 +84,6 @@ export default function Dashboard() {
     if (!window.confirm('Supprimer cette photo ?')) return;
     savePhotos(photos.filter((p: PhotoItem) => p.id !== id));
   };
-
-  const today = useMemo(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }, []);
-
-  const todayRDV = useMemo(() =>
-    state.rendezVous.filter(r => r.date === today).sort((a, b) => a.heureDebut.localeCompare(b.heureDebut)),
-    [state.rendezVous, today]
-  );
 
   const urgentClients = useMemo(() =>
     state.clients.filter(c => !c.estArchive && (c.rgpdStatus === 'urgent' || c.rgpdStatus === 'expired')).slice(0, 5),
@@ -382,7 +343,6 @@ export default function Dashboard() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon={Users} label="Clients actifs" value={stats.clientsActifs} color="var(--brand-cyan)" />
-        <StatCard icon={Calendar} label="RDV aujourd'hui" value={todayRDV.length} color="#4CAF50" />
         <StatCard
           icon={AlertTriangle}
           label="Alertes RGPD"
@@ -394,44 +354,6 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* RDV du jour */}
-        <div className="studio-card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
-              <Clock size={14} className="inline mr-2" style={{ color: 'var(--brand-cyan)' }} />
-              Rendez-vous du jour
-            </h2>
-            <button
-              onClick={() => navigate('/agenda')}
-              className="text-xs hover:opacity-80 transition-opacity"
-              style={{ color: 'var(--brand-cyan)' }}
-            >
-              Voir l'agenda →
-            </button>
-          </div>
-          {todayRDV.length === 0 ? (
-            <div className="text-center py-8">
-              <Calendar size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
-              <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun rendez-vous aujourd'hui</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {todayRDV.map(rdv => {
-                const client = rdv.clientId ? state.clients.find(c => c.id === rdv.clientId) : null;
-                const name = client ? `${client.prenom} ${client.nom}` : (rdv.clientNom || 'Client inconnu');
-                return (
-                  <RDVCard
-                    key={rdv.id}
-                    rdv={rdv}
-                    clientName={name}
-                    onClick={() => navigate('/agenda')}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         {/* Alertes RGPD */}
         <div className="studio-card p-4">
           <div className="flex items-center justify-between mb-4">

@@ -6,14 +6,8 @@
 import { useState, useRef } from 'react';
 import { useApp } from '@/lib/app-context';
 import { X, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { DocumentType, PrestationType } from '@/lib/types';
+import { DocumentType } from '@/lib/types';
 import { toast } from 'sonner';
-
-const DOCS_PAR_PRESTATION: Record<PrestationType, DocumentType[]> = {
-  piercing: ['questionnaire_majeur', 'soins_oreilles'],
-  tatouage: ['questionnaire_tatouage_majeur'],
-  dermographie: ['questionnaire_tatouage_majeur'],
-};
 
 const DOCS_MINEURS: DocumentType[] = ['questionnaire_mineur', 'autorisation_parentale'];
 
@@ -47,9 +41,7 @@ export default function AddClientModal({ onClose }: Props) {
   const [dateAnnee, setDateAnnee] = useState('');
   const [telephone, setTelephone] = useState('');
   const [email, setEmail] = useState('');
-  const [pieceType, setPieceType] = useState('');
-  const [pieceNumero, setPieceNumero] = useState('');
-  const [prestation, setPrestation] = useState('');
+
 
   // Suivi des champs touchés (blur) — jamais true à l'initialisation
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -103,9 +95,6 @@ export default function AddClientModal({ onClose }: Props) {
     const dateNaissanceISO = `${dateAnnee}-${dateMois.padStart(2, '0')}-${dateJour.padStart(2, '0')}`;
 
     const docsAssocies: DocumentType[] = isMineur ? [...DOCS_MINEURS] : [];
-    if (prestation) {
-      docsAssocies.push(...(DOCS_PAR_PRESTATION[prestation as PrestationType] || []));
-    }
 
     const d = new Date();
     d.setFullYear(d.getFullYear() + 5);
@@ -120,8 +109,8 @@ export default function AddClientModal({ onClose }: Props) {
       adresse: '',
       codePostal: '',
       ville: '',
-      pieceIdentiteType: (pieceType as 'CNI' | 'Passeport' | 'Permis' | 'Autre') || undefined,
-      pieceIdentiteNumero: pieceNumero.trim() || undefined,
+      pieceIdentiteType: undefined,
+      pieceIdentiteNumero: undefined,
       estMineur: isMineur,
       prestations: [],
       documentsAssocies: docsAssocies,
@@ -352,55 +341,6 @@ export default function AddClientModal({ onClose }: Props) {
               </div>
 
             </div>
-          </div>
-
-          {/* PIÈCE D'IDENTITÉ */}
-          <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Pièce d'identité
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label style={labelStyle}>Type</label>
-                <select
-                  style={{ ...inputBase, cursor: 'pointer' }}
-                  value={pieceType}
-                  onChange={e => setPieceType(e.target.value)}
-                >
-                  <option value="">— Sélectionner —</option>
-                  <option value="CNI">CNI</option>
-                  <option value="Passeport">Passeport</option>
-                  <option value="Permis">Permis de conduire</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Numéro</label>
-                <input
-                  style={inputBase}
-                  value={pieceNumero}
-                  onChange={e => setPieceNumero(e.target.value)}
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PRESTATION */}
-          <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Prestation prévue
-            </p>
-            <select
-              style={{ ...inputBase, cursor: 'pointer' }}
-              value={prestation}
-              onChange={e => setPrestation(e.target.value)}
-            >
-              <option value="">— Sélectionner —</option>
-              <option value="piercing">Piercing</option>
-              <option value="tatouage">Tatouage</option>
-              <option value="dermographie">Dermographie</option>
-            </select>
           </div>
 
           {/* BOUTONS */}
