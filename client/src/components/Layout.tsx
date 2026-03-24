@@ -159,7 +159,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Export / Import clients CSV/Excel */}
         <div className="px-1 pb-1">
-          <p className="hidden md:block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>Clients</p>
+          <p className="block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>Clients</p>
           <input ref={importRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleImportFile} />
           <button
             onClick={handleExportCSV}
@@ -168,7 +168,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             title="Exporter clients CSV"
           >
             <FileDown size={15} className="flex-shrink-0" style={{ color: '#34d399', opacity: 0.8 }} />
-            <span className="hidden md:block text-xs truncate group-hover:text-white transition-colors">Exporter CSV</span>
+            <span className="block text-xs truncate group-hover:text-white transition-colors">Exporter CSV</span>
           </button>
           <button
             onClick={handleExportExcel}
@@ -177,7 +177,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             title="Exporter clients Excel"
           >
             <FileSpreadsheet size={15} className="flex-shrink-0" style={{ color: '#34d399', opacity: 0.8 }} />
-            <span className="hidden md:block text-xs truncate group-hover:text-white transition-colors">Exporter Excel</span>
+            <span className="block text-xs truncate group-hover:text-white transition-colors">Exporter Excel</span>
           </button>
           <button
             onClick={() => importRef.current?.click()}
@@ -186,13 +186,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             title="Importer clients CSV/Excel"
           >
             <FileUp size={15} className="flex-shrink-0" style={{ color: '#fb923c', opacity: 0.8 }} />
-            <span className="hidden md:block text-xs truncate group-hover:text-white transition-colors">Importer CSV/Excel</span>
+            <span className="block text-xs truncate group-hover:text-white transition-colors">Importer CSV/Excel</span>
           </button>
         </div>
 
         {/* Liens externes */}
         <div className="px-1 pb-2 space-y-1">
-          <p className="hidden md:block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>Ressources</p>
+          <p className="block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>Ressources</p>
           {[
             { href: 'https://www.intemporelle.eu/', label: 'Intemporelle' },
             { href: 'https://www.ars.sante.fr/', label: 'ARS Santé' },
@@ -207,7 +207,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               style={{ color: 'var(--brand-text-muted)' }}
             >
               <ExternalLink size={15} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.7 }} />
-              <span className="hidden md:block text-xs truncate group-hover:text-white transition-colors" style={{ fontWeight: 400 }}>{label}</span>
+              <span className="block text-xs truncate group-hover:text-white transition-colors" style={{ fontWeight: 400 }}>{label}</span>
             </a>
           ))}
         </div>
