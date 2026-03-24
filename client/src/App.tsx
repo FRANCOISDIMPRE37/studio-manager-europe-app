@@ -14,6 +14,7 @@ import Documents from "./pages/Documents";
 import Parametres from "./pages/Parametres";
 import NotFound from "./pages/NotFound";
 import DocumentForm from "./pages/DocumentForm";
+import AffichageSalon from '@/pages/AffichageSalon';
 import RgpdSalarie from "@/pages/RgpdSalarie";
 
 function AppRoutes() {
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="/parametres" component={Parametres} />
         <Route path="/archives" component={Archives} />
         <Route path="/rgpd-salarie" component={RgpdSalarie} />
+          <Route path="/info-client-rgpd" component={AffichageSalon} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
