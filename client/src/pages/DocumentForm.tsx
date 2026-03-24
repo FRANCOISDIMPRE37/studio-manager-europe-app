@@ -875,6 +875,16 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       <FormSection title="INFORMATIONS COMPLÉMENTAIRES" />
       <FormField label="Notes du professionnel" value={data.notes || ''} onChange={v => update('notes', v)} multiline />
 
+      {docType === 'soins_nombril' && (
+        <div className="mb-4">
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/produits_nombril_dcc61298.webp"
+            alt="Produits recommandés Nombril — Diaseptyl 2 semaines, Physiodose 6 semaines, compresses non-tissées"
+            style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
+          />
+        </div>
+      )}
+
       {['soins_oreilles', 'soins_mamelons', 'soins_arcade_sourcil'].includes(docType) && (
         <div className="mb-4 space-y-3">
           <img
