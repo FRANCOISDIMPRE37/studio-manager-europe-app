@@ -307,10 +307,7 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
+      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <RadioField label="Pièce d'identité du mineur (optionnel)" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdMineurType || ''} onChange={v => update('pieceIdMineurType', v)} />
       {data.pieceIdMineurType && data.pieceIdMineurType !== 'Non présentée' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdMineurNumero || ''} onChange={v => update('pieceIdMineurNumero', v)} />
@@ -441,10 +438,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
+      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <RadioField label="Pièce d'identité (CNI / Passeport)" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceId || ''} onChange={v => update('pieceId', v)} />
       {data.pieceId && data.pieceId !== 'Non présentée' && (
         <FormField label="Numéro de la pièce d'identité" value={data.numeroPiece || ''} onChange={v => update('numeroPiece', v)} />
@@ -796,11 +790,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
-
+      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <FormSection title="INFORMATIONS PRESTATION" />
       <FormField label="Zone percée / traitée" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
 
@@ -1125,10 +1115,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
+      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <RadioField label="Pièce d'identité présentée" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdType || ''} onChange={v => update('pieceIdType', v)} />
       {data.pieceIdType && data.pieceIdType !== 'Non présentée' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdNumero || ''} onChange={v => update('pieceIdNumero', v)} />
@@ -1473,10 +1460,7 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
+      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <RadioField label="Pièce d'identité" options={['CNI', 'Passeport', 'Titre de séjour']} value={data.pieceIdType || ''} onChange={v => update('pieceIdType', v)} />
       {data.pieceIdType && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdNumero || ''} onChange={v => update('pieceIdNumero', v)} />
@@ -1929,11 +1913,7 @@ function FormSoinsDermographe({ data, update, client }: { data: Record<string, a
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-        <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
-      </div>
-
+       <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       {/* Prestation réalisée */}
       <FormSection title="2 — PRESTATION RÉALISÉE" />
       <RadioField

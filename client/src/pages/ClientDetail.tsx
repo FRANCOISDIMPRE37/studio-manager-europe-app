@@ -153,7 +153,6 @@ export default function ClientDetail() {
                 ...(client.numeroClient ? [{ icon: CreditCard, label: 'N° client', value: client.numeroClient }] : []),
                 { icon: CreditCard, label: 'Né(e) le', value: new Date(client.dateNaissance).toLocaleDateString('fr-FR') + ` (${age} ans)` },
                 { icon: Phone, label: 'Téléphone', value: client.telephone },
-                { icon: Mail, label: 'Email', value: client.email || '—' },
 
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">

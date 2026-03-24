@@ -402,7 +402,6 @@ export default function AddClientModal({ onClose }: Props) {
                   style={getStyle('telephone')}
                   value={telephone}
                   onChange={e => setTelephone(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refEmail.current?.focus(); } }}
                   onBlur={() => touch('telephone')}
                   placeholder="06 XX XX XX XX"
                   autoComplete="off"
@@ -412,18 +411,6 @@ export default function AddClientModal({ onClose }: Props) {
                     <AlertCircle size={11} /> {errTel}
                   </p>
                 )}
-              </div>
-              <div>
-                <label style={labelStyle}>Email</label>
-                <input
-                  ref={refEmail}
-                  type="email"
-                  style={inputBase}
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="exemple@email.fr"
-                  autoComplete="off"
-                />
               </div>
 
             </div>
