@@ -31,7 +31,7 @@ const DOC_ORDER: DocumentType[] = [
   'fiche_seance_dermographe',
   // Divers
   'engagement_confidentialite',
-  'fiche_salarie',
+  'affichage_salon',
 ];
 function sortDocs(docs: DocumentType[]): DocumentType[] {
   return [...docs].sort((a, b) => {

@@ -2706,7 +2706,7 @@ export default function DocumentForm() {
         return <FormFicheSeanceDermographe data={formData} update={updateField} client={client} />;
       case 'engagement_confidentialite':
         return <FormEngagementConfidentialite data={formData} update={updateField} client={client} />;
-      case 'fiche_salarie':
+      case 'affichage_salon':
         return <FormAffichageSalon data={formData} update={updateField} client={client} />;
       default:
         if (docType.startsWith('soins_') || docType.startsWith('cicatrisation_')) {

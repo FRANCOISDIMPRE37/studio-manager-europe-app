@@ -47,7 +47,7 @@ const DOC_CATEGORIES = [
     title: 'RGPD & Confidentialité (11-12)',
     icon: Shield,
     color: '#E53935',
-    docs: ['engagement_confidentialite', 'fiche_salarie'] as DocumentType[],
+    docs: ['engagement_confidentialite', 'affichage_salon'] as DocumentType[],
     forMineur: null,
   },
 ];

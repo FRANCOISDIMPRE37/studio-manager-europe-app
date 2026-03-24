@@ -2,9 +2,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import Archives from '@/pages/Archives';
-import Rgpd from '@/pages/Rgpd';
-import RgpdSalarie from '@/pages/RgpdSalarie';
-import AffichageSalon from '@/pages/AffichageSalon';
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppProvider, useApp } from "./lib/app-context";
@@ -50,9 +47,6 @@ function AppRoutes() {
         <Route path="/documents" component={Documents} />
         <Route path="/parametres" component={Parametres} />
         <Route path="/archives" component={Archives} />
-        <Route path="/rgpd" component={Rgpd} />
-        <Route path="/rgpd-salarie" component={RgpdSalarie} />
-        <Route path="/affichage-salon" component={AffichageSalon} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
