@@ -17,6 +17,7 @@ import { nanoid } from 'nanoid';
 
 const NAV_ITEMS = [
   { path: '/', icon: LayoutDashboard, label: 'Tableau de bord' },
+  { path: '/rgpd-salarie', icon: Shield, label: 'RGPD & Confidentialité' },
   { path: '/clients', icon: Users, label: 'Clients' },
   { path: '/documents', icon: FileText, label: 'Documents' },
   { path: '/archives', icon: Archive, label: 'Archives' },
