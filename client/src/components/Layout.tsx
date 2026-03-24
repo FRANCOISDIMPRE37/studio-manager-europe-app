@@ -7,7 +7,7 @@ import { Link, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import {
   LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info,
-  LogOut, AlertTriangle, ExternalLink, FileSpreadsheet, FileDown, FileUp, RotateCcw
+  LogOut, AlertTriangle, ExternalLink, FileSpreadsheet, FileDown, FileUp, RotateCcw, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,8 @@ const NAV_ITEMS = [
   { path: '/archives', icon: Archive, label: 'Archives' },
   { path: '/parametres', icon: Settings, label: 'Paramètres' },
 ];
+
+const MODE_EMPLOI_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/mode_emploi_studio_manager_6b84fbf9.pdf';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -159,6 +161,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
+
+          {/* Mode d'emploi */}
+          <a
+            href={MODE_EMPLOI_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 hover:bg-white/5 group"
+            style={{ color: 'var(--brand-text-muted)' }}
+          >
+            <BookOpen size={18} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.85 }} />
+            <span className="block text-sm font-500 truncate group-hover:text-white transition-colors" style={{ fontWeight: 500 }}>Mode d'emploi</span>
+          </a>
         </nav>
 
         {/* Export / Import clients CSV/Excel */}
