@@ -2417,6 +2417,12 @@ export default function DocumentForm() {
         // Champs mineur (Questionnaire médical mineur piercing)
         pieceIdMineurType: client.pieceIdentiteType || '',
         pieceIdMineurNumero: client.pieceIdentiteNumero || '',
+        // Pré-remplissage de la zone à percer depuis les prestations souhaitées
+        zonePiercing: (() => {
+          const prestationsPiercing = ['Oreilles', 'Nez', 'Bouche & Lèvres', 'Nombril', 'Mamelons', 'Arcade / Sourcil', 'Surface / Dermal'];
+          const zones = (client.prestationsSouhaitees || []).filter(p => prestationsPiercing.includes(p));
+          return zones.length > 0 ? zones.join(', ') : '';
+        })(),
         // Champs de signature client pré-remplis
         nomClientSign: client.nom ? `${client.prenom || ''} ${client.nom}`.trim() : '',
         dateSignatureClient: today,
