@@ -2322,6 +2322,9 @@ export default function DocumentForm() {
   const clientId = params.clientId;
   const docType = params.docType as DocumentType;
 
+  // Détection du paramètre ?print=1 dans l'URL pour impression automatique
+  const autoPrint = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('print') === '1';
+
   const client = state.clients.find(c => c.id === clientId);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -2402,7 +2405,17 @@ export default function DocumentForm() {
         setFormData(clientIdentity);
       }
     }
-  }, [client?.id, docType]);
+   }, [client?.id, docType]);
+
+  // Impression automatique si ?print=1 dans l'URL (déclenché après chargement des données)
+  useEffect(() => {
+    if (autoPrint && Object.keys(formData).length > 0) {
+      const timer = setTimeout(() => {
+        handlePrint();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPrint, formData]);
 
   function updateField(key: string, value: any) {
     setFormData(prev => ({ ...prev, [key]: value }));

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
 import { useLocation, useParams } from 'wouter';
-import { ArrowLeft, Phone, Mail, CreditCard, FileText, Trash2, Archive, Edit, PlusCircle, Send, X, Loader2, StickyNote, ShieldCheck, Clock, AlertTriangle, CheckCircle2, Lock } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, CreditCard, FileText, Trash2, Archive, Edit, PlusCircle, Send, X, Loader2, StickyNote, ShieldCheck, Clock, AlertTriangle, CheckCircle2, Lock, Printer } from 'lucide-react';
 import { DOCUMENT_LABELS, DocumentType } from '@/lib/types';
 
 // Ordre canonique des documents (01 avant 02, etc.)
@@ -461,20 +461,36 @@ export default function ClientDetail() {
                   const status = doc?.status || 'empty';
                   const statusColors = { empty: '#FF9800', filled: 'var(--brand-cyan)', signed: '#4CAF50' };
                   const statusLabels = { empty: 'À remplir', filled: 'Rempli', signed: 'Signé' };
+                  const canPrint = status === 'filled' || status === 'signed';
                   return (
-                    <button
+                    <div
                       key={docType}
-                      onClick={() => navigate(`/clients/${client.id}/document/${docType}`)}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-white/5 text-left"
+                      className="w-full flex items-center gap-2 p-3 rounded-lg"
                       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}
                     >
-                      <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
-                      <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType]}</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColors[status] + '22', color: statusColors[status], border: `1px solid ${statusColors[status]}` }}>
-                        {statusLabels[status]}
-                      </span>
-                      <Edit size={12} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
-                    </button>
+                      <button
+                        onClick={() => navigate(`/clients/${client.id}/document/${docType}`)}
+                        className="flex items-center gap-3 flex-1 text-left transition-all hover:opacity-80"
+                      >
+                        <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
+                        <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType]}</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColors[status] + '22', color: statusColors[status], border: `1px solid ${statusColors[status]}` }}>
+                          {statusLabels[status]}
+                        </span>
+                        <Edit size={12} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
+                      </button>
+                      {canPrint && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(`/clients/${client.id}/document/${docType}?print=1`); }}
+                          title="Imprimer ce document"
+                          className="flex items-center gap-1 px-2 py-1.5 rounded-lg transition-all hover:opacity-80 flex-shrink-0"
+                          style={{ background: 'rgba(131,208,245,0.1)', border: '1px solid rgba(131,208,245,0.3)', color: 'var(--brand-cyan)' }}
+                        >
+                          <Printer size={13} />
+                          <span className="text-xs font-medium">Imprimer</span>
+                        </button>
+                      )}
+                    </div>
                   );
                 })}
               </div>
