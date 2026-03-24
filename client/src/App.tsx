@@ -14,6 +14,7 @@ import Documents from "./pages/Documents";
 import Parametres from "./pages/Parametres";
 import NotFound from "./pages/NotFound";
 import DocumentForm from "./pages/DocumentForm";
+import RgpdSalarie from "@/pages/RgpdSalarie";
 
 function AppRoutes() {
   const { state } = useApp();
@@ -47,6 +48,7 @@ function AppRoutes() {
         <Route path="/documents" component={Documents} />
         <Route path="/parametres" component={Parametres} />
         <Route path="/archives" component={Archives} />
+        <Route path="/rgpd-salarie" component={RgpdSalarie} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
