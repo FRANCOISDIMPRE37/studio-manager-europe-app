@@ -925,20 +925,11 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       <CheckboxField label="Questionnaire médical signé" value={data.questionnaireSigne || false} onToggle={() => update('questionnaireSigne', !data.questionnaireSigne)} />
 
       <FormSection title="2 — PRESTATION RÉALISÉE" />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Zone percée" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
-        <FormField label="Localisation précise" value={data.localisationPrecise || ''} onChange={v => update('localisationPrecise', v)} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <RadioField label="Côté" options={['Gauche', 'Droit', 'Centre']} value={data.cote || ''} onChange={v => update('cote', v)} />
-        <FormField label="Durée cicatrisation estimée" value={data.dureeCicatrisation || ''} onChange={v => update('dureeCicatrisation', v)} />
-      </div>
-      <FormField label="Observations pré-séance (contre-indications, remarques)" value={data.observationsPreseance || ''} onChange={v => update('observationsPreseance', v)} multiline />
+      <FormField label="Zone percée" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
 
       <FormSection title="3 — TRAÇABILITÉ DU MATÉRIEL À USAGE UNIQUE" />
       <WarningBox>Photographiez les étiquettes de traçabilité du matériel stérile. L'emballage stérile est ouvert devant le client. Conserver les photos 5 ans minimum.</WarningBox>
-      <FormField label="Référence / N° de lot du matériel à usage unique" value={data.refMaterielsUnique || ''} onChange={v => update('refMaterielsUnique', v)} />
-      <FormField label="Notes supplémentaires (optionnel)" value={data.notesMaterielsUnique || ''} onChange={v => update('notesMaterielsUnique', v)} multiline />
+
 
       {/* ─── Section Photos de traçabilité ─── */}
       <div className="studio-card p-4 rounded-xl mb-4" style={{ border: '1px solid var(--brand-border)', background: 'rgba(255,255,255,0.03)' }}>
@@ -1037,10 +1028,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       <CheckboxField label="Coordonnées du professionnel" value={data.coordonneesProf || false} onToggle={() => update('coordonneesProf', !data.coordonneesProf)} />
       <CheckboxField label="Numéro d'urgence en cas de réaction" value={data.numUrgence || false} onToggle={() => update('numUrgence', !data.numUrgence)} />
 
-      <FormSection title="7 — OBSERVATIONS POST-SÉANCE & SUIVI" />
-      <RadioField label="Réaction immédiate observée" options={['Aucune', 'Saignement léger', 'Rougeur locale', 'Malaise vasculaire', 'Autre']} value={data.reactionObservee || 'Aucune'} onChange={v => update('reactionObservee', v)} />
-      <RadioField label="RDV de contrôle proposé" options={['Oui', 'Non']} value={data.rdvControlePropose || 'Oui'} onChange={v => update('rdvControlePropose', v)} />
-      <FormField label="Commentaires / observations complémentaires" value={data.observationsPostseance || ''} onChange={v => update('observationsPostseance', v)} multiline />
+
 
       <LegalBox>
         <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
