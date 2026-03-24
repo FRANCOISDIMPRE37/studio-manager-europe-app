@@ -411,15 +411,7 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       <FormSection title="5 — AVIS DU MINEUR (obligatoire dès 12 ans)" />
       <CheckboxField label="Confirme vouloir ce piercing de son plein gré" value={data.avisMineur || false} onToggle={() => update('avisMineur', !data.avisMineur)} />
 
-      <FormSection title="6 — REPRÉSENTANT(S) LÉGAL/AUX" />
-      <div>
-        <FormField label="Représentant légal — Nom / Prénom" value={data.representantNom || ''} onChange={v => update('representantNom', v)} required />
-        <RadioField label="Lien" options={['Mère', 'Père', 'Tuteur légal', 'Autre']} value={data.representantLien || ''} onChange={v => update('representantLien', v)} />
-        <FormField label="Téléphone représentant" value={data.representantTelephone || ''} onChange={v => update('representantTelephone', v)} type="tel" />
-        <RadioField label="Pièce d'identité" options={['CNI', 'Passeport', 'Titre de séjour']} value={data.representantPieceId || ''} onChange={v => update('representantPieceId', v)} />
-      </div>
-
-      <FormSection title="7 — DECLARATION CLIENT" />
+      <FormSection title="6 — DECLARATION CLIENT" />
       <CheckboxField label="A répondu honnêtement au questionnaire" value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} />
 
       <RgpdMentions />
