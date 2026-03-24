@@ -90,7 +90,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--brand-navy)' }}>
+    <div className="flex h-screen overflow-hidden print:block print:h-auto print:overflow-visible" style={{ background: 'var(--brand-navy)' }}>
       {/* Sidebar */}
       <aside
         className="flex flex-col w-16 md:w-56 flex-shrink-0 border-r"
@@ -250,7 +250,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" style={{ background: 'var(--brand-navy)' }}>
+      <main className="flex-1 overflow-y-auto print:overflow-visible print:h-auto" style={{ background: 'var(--brand-navy)' }}>
         <div className="page-enter">
           {children}
         </div>

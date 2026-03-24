@@ -2540,12 +2540,17 @@ export default function DocumentForm() {
           height: auto !important;
         }
 
-        /* CRITIQUE : supprimer overflow sur tous les conteneurs scrollables */
-        main, [role='main'] {
+        /* CRITIQUE Safari iPad : supprimer overflow sur TOUS les conteneurs */
+        html, body, main, [role='main'],
+        div, section, article, aside, header, footer {
           overflow: visible !important;
           height: auto !important;
           max-height: none !important;
           min-height: 0 !important;
+        }
+        /* Remettre flex pour les grilles */
+        [class*='grid'] {
+          height: auto !important;
         }
 
         /* FORCER LES COULEURS À L'IMPRESSION */

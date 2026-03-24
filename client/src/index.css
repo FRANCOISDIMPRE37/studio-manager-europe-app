@@ -291,14 +291,12 @@
     size: A4 portrait;
     margin: 20mm 15mm 20mm 15mm;
   }
-  /* Supprimer overflow sur les conteneurs scrollables */
-  html, body {
-    overflow: visible !important;
-    height: auto !important;
-  }
-  main, [role='main'] {
+  /* Safari iPad : supprimer overflow sur TOUS les conteneurs */
+  html, body, main, [role='main'],
+  div, section, article, aside, header, footer {
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
+    min-height: 0 !important;
   }
 }
