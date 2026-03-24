@@ -2,8 +2,8 @@
  * DESIGN: Studio Nocturne — Sidebar gauche fixe, fond bleu nuit #0A1628
  * Navigation iconographique + labels, accent cyan sur élément actif
  */
+import React, { useRef } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useRef } from 'react';
 import { useApp } from '@/lib/app-context';
 import {
   LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info,
@@ -93,13 +93,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden print:block print:h-auto print:overflow-visible" style={{ background: 'var(--brand-navy)' }}>
+    <div className="flex overflow-hidden print:block print:h-auto print:overflow-visible" style={{ background: 'var(--brand-navy)', height: '100dvh' }}>
       {/* Sidebar */}
       <aside
-        className="flex flex-col w-44 md:w-56 flex-shrink-0 border-r overflow-y-auto"
+        className="flex flex-col w-44 md:w-56 flex-shrink-0 border-r"
         style={{
           background: 'linear-gradient(180deg, #0A1628 0%, #0D1E38 100%)',
           borderColor: 'var(--brand-border)',
+          height: '100dvh',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch' as any,
         }}
       >
         {/* Logo */}
@@ -253,7 +257,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto print:overflow-visible print:h-auto" style={{ background: 'var(--brand-navy)' }}>
+      <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto print:overflow-visible print:h-auto" style={{ background: 'var(--brand-navy)', height: '100dvh', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         <div className="page-enter">
           {children}
         </div>
