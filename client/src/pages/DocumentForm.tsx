@@ -31,11 +31,19 @@ function FormSection({ title }: { title: string }) {
 }
 
 function FormField({
-  label, value, onChange, placeholder, multiline, type, required
+  label, value, onChange, placeholder, multiline, type, required, inputRef, onNext
 }: {
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; multiline?: boolean; type?: string; required?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement>;
+  onNext?: () => void;
 }) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((e.key === 'Enter' || e.key === 'Tab') && onNext) {
+      e.preventDefault();
+      onNext();
+    }
+  };
   return (
     <div className="mb-3">
       <label className="block text-xs mb-1" style={{ color: 'var(--brand-text-muted)', fontWeight: 500 }}>
@@ -57,10 +65,13 @@ function FormField({
         />
       ) : (
         <input
+          ref={inputRef}
           type={type || 'text'}
           value={value}
           onChange={e => onChange(e.target.value)}
+          onKeyDown={onNext ? handleKeyDown : undefined}
           placeholder={placeholder}
+          enterKeyHint={onNext ? 'next' : 'done'}
           className="w-full px-3 py-2 rounded-lg text-sm outline-none"
           style={{
             background: 'rgba(255,255,255,0.04)',

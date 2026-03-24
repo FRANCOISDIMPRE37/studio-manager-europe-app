@@ -67,9 +67,13 @@ export default function AddClientModal({ onClose }: Props) {
   const { addClient, state } = useApp();
 
   // Champs du formulaire
+  const refPrenom = useRef<HTMLInputElement>(null);
+  const refNom = useRef<HTMLInputElement>(null);
+  const refJour = useRef<HTMLInputElement>(null);
   const refMois = useRef<HTMLInputElement>(null);
   const refAnnee = useRef<HTMLInputElement>(null);
   const refTelephone = useRef<HTMLInputElement>(null);
+  const refEmail = useRef<HTMLInputElement>(null);
 
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
@@ -259,14 +263,19 @@ export default function AddClientModal({ onClose }: Props) {
               <div>
                 <label style={labelStyle}>Prénom *</label>
                 <input
+                  ref={refPrenom}
                   style={getStyle('prenom')}
                   value={prenom}
-                  onChange={e => setPrenom(e.target.value)}
+                  onChange={e => {
+                    setPrenom(e.target.value);
+                  }}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refNom.current?.focus(); } }}
                   onBlur={() => touch('prenom')}
                   placeholder="Ex: Marie"
                   autoComplete="given-name"
                   autoCapitalize="words"
                   inputMode="text"
+                  autoFocus
                 />
                 {errPrenom && (
                   <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
@@ -279,9 +288,11 @@ export default function AddClientModal({ onClose }: Props) {
               <div>
                 <label style={labelStyle}>Nom *</label>
                 <input
+                  ref={refNom}
                   style={getStyle('nom')}
                   value={nom}
                   onChange={e => setNom(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refJour.current?.focus(); } }}
                   onBlur={() => touch('nom')}
                   placeholder="Ex: DUPUIS"
                   autoComplete="family-name"
@@ -301,6 +312,7 @@ export default function AddClientModal({ onClose }: Props) {
               <label style={labelStyle}>Date de naissance *</label>
               <div className="grid grid-cols-3 gap-2">
                 <input
+                  ref={refJour}
                   type="number"
                   style={dateInputStyle}
                   value={dateJour}
@@ -390,6 +402,7 @@ export default function AddClientModal({ onClose }: Props) {
                   style={getStyle('telephone')}
                   value={telephone}
                   onChange={e => setTelephone(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refEmail.current?.focus(); } }}
                   onBlur={() => touch('telephone')}
                   placeholder="06 XX XX XX XX"
                   autoComplete="off"
@@ -403,6 +416,7 @@ export default function AddClientModal({ onClose }: Props) {
               <div>
                 <label style={labelStyle}>Email</label>
                 <input
+                  ref={refEmail}
                   type="email"
                   style={inputBase}
                   value={email}
