@@ -1028,31 +1028,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       </LegalBox>
 
       <RgpdMentions />
-      <FormSection title="8 — SIGNATURES" />
-      <div className="grid grid-cols-1 gap-6">
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || ''} onChange={v => update('nomClientSign', v)} />
-          <FormField label="Date" value={data.dateSignatureClient || ''} onChange={v => update('dateSignatureClient', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du client"
-              value={data.signatureImageClient || ''}
-              onChange={v => update('signatureImageClient', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du pierceur" value={data.nomPierceurSign || ''} onChange={v => update('nomPierceurSign', v)} />
-          <FormField label="Date" value={data.dateSignaturePierceur || ''} onChange={v => update('dateSignaturePierceur', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du pierceur"
-              value={data.signatureImagePierceur || ''}
-              onChange={v => update('signatureImagePierceur', v ?? '')}
-            />
-          </div>
-        </div>
-      </div>
+
     </>
   );
 }
