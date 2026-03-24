@@ -15,7 +15,6 @@ const DOCS_MINEURS: DocumentType[] = ['questionnaire_mineur', 'autorisation_pare
 const PRESTATION_DOCS_MAJEUR: Record<string, DocumentType[]> = {
   'Oreilles':          ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_oreilles'],
   'Nez':               ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_nez'],
-  'Bouche & Lèvres':   ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_bouche_levres'],
   'Nombril':           ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_nombril'],
   'Mamelons':          ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_mamelons'],
   'Arcade / Sourcil':  ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_arcade_sourcil'],
@@ -27,7 +26,6 @@ const PRESTATION_DOCS_MAJEUR: Record<string, DocumentType[]> = {
 const PRESTATION_DOCS_MINEUR: Record<string, DocumentType[]> = {
   'Oreilles':          ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_oreilles'],
   'Nez':               ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_nez'],
-  'Bouche & Lèvres':   ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_bouche_levres'],
   'Nombril':           ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_nombril'],
   'Mamelons':          ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_mamelons'],
   'Arcade / Sourcil':  ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_arcade_sourcil'],
@@ -97,7 +95,6 @@ export default function AddClientModal({ onClose }: Props) {
   const PRESTATIONS_OPTIONS = [
     'Oreilles',
     'Nez',
-    'Bouche & Lèvres',
     'Nombril',
     'Mamelons',
     'Arcade / Sourcil',

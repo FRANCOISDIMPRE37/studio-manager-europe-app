@@ -17,7 +17,6 @@ const DOC_ORDER: DocumentType[] = [
   'fiche_seance_piercing',
   'soins_oreilles',
   'soins_nez',
-  'soins_bouche_levres',
   'soins_nombril',
   'soins_mamelons',
   'soins_arcade_sourcil',
@@ -62,7 +61,7 @@ export default function ClientDetail() {
   const [prestationsTemp, setPrestationsTemp] = useState<string[]>([]);
 
   const PRESTATIONS_OPTIONS = [
-    'Oreilles', 'Nez', 'Bouche & Lèvres', 'Nombril', 'Mamelons',
+    'Oreilles', 'Nez', 'Nombril', 'Mamelons',
     'Arcade / Sourcil', 'Surface / Dermal', 'Tatouage', 'Dermographie',
   ];
 
@@ -443,17 +442,7 @@ export default function ClientDetail() {
 
         {tab === 'documents' && (
           <div className="space-y-3">
-            {/* Bouton dossier complet */}
-            {client.documentsAssocies.length > 0 && (
-              <button
-                onClick={() => { setDossierEmail(client.email || ''); setShowDossierModal(true); }}
-                className="w-full py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-                style={{ background: 'rgba(131,208,245,0.1)', border: '1px solid rgba(131,208,245,0.4)', color: 'var(--brand-cyan)', fontWeight: 600 }}
-              >
-                <Send size={14} />
-                Envoyer le dossier complet par email
-              </button>
-            )}
+
             {client.documentsAssocies.length === 0 ? (
               <div className="text-center py-12">
                 <FileText size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />

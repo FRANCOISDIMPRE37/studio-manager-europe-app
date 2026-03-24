@@ -22,7 +22,6 @@ export type DocumentType =
   | 'fiche_seance_piercing'
   | 'soins_oreilles'
   | 'soins_nez'
-  | 'soins_bouche_levres'
   | 'soins_nombril'
   | 'soins_mamelons'
   | 'soins_arcade_sourcil'
@@ -173,7 +172,6 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   // Soins Piercing
   soins_oreilles: 'A — Soins Post-Piercing Oreilles',
   soins_nez: 'B — Soins Post-Piercing Nez',
-  soins_bouche_levres: 'C — Soins Post-Piercing Bouche & Lèvres',
   soins_nombril: 'D — Soins Post-Piercing Nombril',
   soins_mamelons: 'E — Soins Post-Piercing Mamelons',
   soins_arcade_sourcil: 'F — Soins Post-Piercing Arcade / Sourcil',

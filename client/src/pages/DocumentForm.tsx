@@ -699,28 +699,6 @@ const SOINS_DATA: Record<string, { title: string; zones: { zone: string; desc: s
       'Moucher violemment ou se frotter le nez.',
     ],
   },
-  soins_bouche_levres: {
-    title: 'BOUCHE & LÈVRES',
-    zones: [
-      { zone: 'Labret (central bas)', desc: 'Sous la lèvre inférieure, au centre. Bijou : Labret plat.', cica: '6 à 8 sem.' },
-      { zone: 'Monroe / Madonna', desc: 'Au-dessus de la lèvre supérieure, côté gauche ou droit. Bijou : Labret plat.', cica: '6 à 8 sem.' },
-      { zone: 'Méduse (Philtrum)', desc: 'Sous le sillon philtral, centre de la lèvre supérieure. Bijou : Labret plat.', cica: '6 à 8 sem.' },
-      { zone: 'Langue', desc: 'Centre de la langue. Bijou : Barbell droit.', cica: '4 à 6 sem.' },
-      { zone: 'Smiley (Frenulum)', desc: 'Frein de la lèvre supérieure. Bijou : Anneau.', cica: '4 à 8 sem.' },
-    ],
-    faire: [
-      'Rincer à l\'eau saline après chaque repas.',
-      'Utiliser un bain de bouche sans alcool 2×/jour.',
-      'Manger des aliments froids et mous les premiers jours.',
-      'Hydrater les lèvres avec un baume neutre.',
-    ],
-    eviter: [
-      'Alcool, tabac, épices, aliments trop chauds.',
-      'Embrasser ou contact buccal pendant la cicatrisation.',
-      'Toucher le bijou avec les mains non lavées.',
-      'Bain de bouche à l\'alcool (Listerine classique).',
-    ],
-  },
   soins_nombril: {
     title: 'NOMBRIL',
     zones: [
@@ -2416,7 +2394,7 @@ export default function DocumentForm() {
         pieceIdMineurNumero: client.pieceIdentiteNumero || '',
         // Pré-remplissage de la zone à percer depuis les prestations souhaitées
         zonePiercing: (() => {
-          const prestationsPiercing = ['Oreilles', 'Nez', 'Bouche & Lèvres', 'Nombril', 'Mamelons', 'Arcade / Sourcil', 'Surface / Dermal'];
+          const prestationsPiercing = ['Oreilles', 'Nez', 'Nombril', 'Mamelons', 'Arcade / Sourcil', 'Surface / Dermal'];
           const zones = (client.prestationsSouhaitees || []).filter(p => prestationsPiercing.includes(p));
           return zones.length > 0 ? zones.join(', ') : '';
         })(),
