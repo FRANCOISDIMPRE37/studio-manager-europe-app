@@ -352,8 +352,11 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
-
+       <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      <RadioField label="Pièce d'identité (CNI / Passeport)" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceId || ''} onChange={v => update('pieceId', v)} />
+      {data.pieceId && data.pieceId !== 'Non présentée' && (
+        <FormField label="Numéro de la pièce d'identité" value={data.numeroPiece || ''} onChange={v => update('numeroPiece', v)} />
+      )}
       <FormSection title="2 — PIERCING DEMANDÉ" />
       <FormField label="Zone à percer" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
 
