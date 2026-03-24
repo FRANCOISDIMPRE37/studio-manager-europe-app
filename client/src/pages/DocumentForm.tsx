@@ -796,11 +796,6 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       </div>
       <FormField label="Date de naissance (JJ/MM/AAAA)" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label="Adresse complète" value={data.adresse || client.adresse || ''} onChange={v => update('adresse', v)} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Code postal" value={data.codePostal || client.codePostal || ''} onChange={v => update('codePostal', v)} />
-        <FormField label="Ville" value={data.ville || client.ville || ''} onChange={v => update('ville', v)} />
-      </div>
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
         <FormField label="Email" value={data.email || client.email || ''} onChange={v => update('email', v)} type="email" />
@@ -808,9 +803,6 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
 
       <FormSection title="INFORMATIONS PRESTATION" />
       <FormField label="Zone percée / traitée" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
-      <FormField label="Type de bijou posé" value={data.typeBijou || ''} onChange={v => update('typeBijou', v)} />
-      <FormField label="Matériau" value={data.materiau || 'Titane implant-grade'} onChange={v => update('materiau', v)} />
-      <FormField label="N° de traçabilité / Lot" value={data.tracabilite || ''} onChange={v => update('tracabilite', v)} />
 
       <FormSection title={`ZONES DE PIERCING — ${soins.title}`} />
       <div className="overflow-x-auto mb-4">
