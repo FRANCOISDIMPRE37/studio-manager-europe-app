@@ -440,11 +440,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       )}
 
       <FormSection title="2 — PIERCING DEMANDÉ" />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Zone à percer" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
-        <FormField label="Premier piercing ?" value={data.premierPiercing || ''} onChange={v => update('premierPiercing', v)} />
-      </div>
-      <FormField label="Zone(s) de piercing(s) existant(s)" value={data.piercingsActuels || ''} onChange={v => update('piercingsActuels', v)} />
+      <FormField label="Zone à percer" value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
 
       <FormSection title="3 — ÉTAT DE SANTÉ" />
       <WarningBox>Toute réponse "Oui" dans les sections 3.1 et 3.2 peut suspendre la prestation jusqu'à avis médical</WarningBox>
