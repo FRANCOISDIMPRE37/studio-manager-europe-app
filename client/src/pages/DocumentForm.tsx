@@ -875,6 +875,17 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       <FormSection title="INFORMATIONS COMPLÉMENTAIRES" />
       <FormField label="Notes du professionnel" value={data.notes || ''} onChange={v => update('notes', v)} multiline />
 
+      {docType === 'soins_oreilles' && (
+        <div className="mb-4">
+          <p className="text-xs font-700 mb-2" style={{ color: 'var(--brand-cyan)', fontWeight: 700 }}>PROTOCOLE ANTISEPTIQUE RECOMMANDÉ</p>
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/protocole_antiseptique_oreilles_f9e680db.png"
+            alt="Protocole antiseptique — Après la douche : Diaseptyl 2×/jour pendant 15 jours"
+            style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
+          />
+        </div>
+      )}
+
       <LegalBox color="cyan">
         <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
