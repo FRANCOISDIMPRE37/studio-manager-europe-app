@@ -403,7 +403,7 @@ export default function AddClientModal({ onClose }: Props) {
             <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
               Contact
             </p>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label style={labelStyle}>Téléphone *</label>
                 <input
@@ -423,6 +423,18 @@ export default function AddClientModal({ onClose }: Props) {
                 )}
               </div>
 
+              <div>
+                <label style={labelStyle}>Adresse email</label>
+                <input
+                  ref={refEmail}
+                  type="email"
+                  style={getStyle('email')}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="exemple@email.com"
+                  autoComplete="off"
+                />
+              </div>
             </div>
           </div>
 
