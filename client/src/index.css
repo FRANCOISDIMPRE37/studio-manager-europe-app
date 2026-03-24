@@ -289,6 +289,16 @@
   /* Mise en page A4 */
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm 20mm 15mm;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+  /* Supprimer overflow sur les conteneurs scrollables */
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  main, [role='main'] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
   }
 }

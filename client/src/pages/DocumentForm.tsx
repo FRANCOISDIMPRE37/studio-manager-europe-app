@@ -2509,11 +2509,10 @@ export default function DocumentForm() {
     style.id = '__print_style__';
     style.innerHTML = `
       @media print {
-        /* Mise en page A4 avec marges confortables */
+        /* Mise en page A4 avec marges généreuses pour éviter les coupures */
         @page {
           size: A4 portrait;
-          margin: 12mm 15mm 20mm 15mm;
-          counter-increment: page;
+          margin: 20mm 15mm 20mm 15mm;
         }
 
         /* Masquer la sidebar, le header sticky, les boutons et la navigation */
@@ -2524,14 +2523,29 @@ export default function DocumentForm() {
         [data-sidebar],
         .no-print { display: none !important; }
 
-        /* Réinitialiser le fond */
-        html, body {
+        /* Réinitialiser le fond et supprimer les conteneurs scrollables */
+        html {
+          background: white !important;
+          overflow: visible !important;
+          height: auto !important;
+        }
+        body {
           background: white !important;
           color: #111 !important;
           margin: 0 !important;
           padding: 0 !important;
-          font-size: 11pt !important;
+          font-size: 10pt !important;
           width: 100% !important;
+          overflow: visible !important;
+          height: auto !important;
+        }
+
+        /* CRITIQUE : supprimer overflow sur tous les conteneurs scrollables */
+        main, [role='main'] {
+          overflow: visible !important;
+          height: auto !important;
+          max-height: none !important;
+          min-height: 0 !important;
         }
 
         /* FORCER LES COULEURS À L'IMPRESSION */
@@ -2577,9 +2591,7 @@ export default function DocumentForm() {
         /* Sections : éviter les coupures en milieu de section */
         section,
         .print-section,
-        fieldset,
-        [class*='space-y'] > div,
-        [class*='grid'] > div {
+        fieldset {
           break-inside: avoid;
           page-break-inside: avoid;
         }
@@ -2610,11 +2622,16 @@ export default function DocumentForm() {
         }
 
         /* Assurer que le contenu principal prend toute la largeur */
-        main, [role='main'], .p-4, .p-6 {
+        .p-4, .p-6, .max-w-3xl {
           padding: 0 !important;
-          margin: 0 !important;
+          margin: 0 auto !important;
           width: 100% !important;
           max-width: 100% !important;
+        }
+
+        /* Supprimer le padding-bottom */
+        .pb-16, .pb-24 {
+          padding-bottom: 0 !important;
         }
 
         /* Images */
