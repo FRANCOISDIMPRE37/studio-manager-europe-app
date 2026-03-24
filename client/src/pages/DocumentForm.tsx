@@ -879,7 +879,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         <div className="mb-4">
           <p className="text-xs font-700 mb-2" style={{ color: 'var(--brand-cyan)', fontWeight: 700 }}>PROTOCOLE ANTISEPTIQUE RECOMMANDÉ</p>
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/protocole_antiseptique_oreilles_f9e680db.png"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/protocole_antiseptique_v2_4c7edcf4.png"
             alt="Protocole antiseptique — Après la douche : Diaseptyl 2×/jour pendant 15 jours"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
