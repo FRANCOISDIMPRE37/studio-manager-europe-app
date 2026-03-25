@@ -944,8 +944,8 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       {docType === 'soins_surface_dermal' && (
         <div className="mb-4">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/surface_078104c2.jpg"
-            alt="Produits recommandés Surface — Physiodose sérum physiologique matin et soir pendant le dernier mois, compresses non-tissées"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_surface_dermal_7f31d33d.jpg"
+            alt="Soins post-piercing Surface/Dermal — Sérum Physiologique matin et soir 1 mois, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
           <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
