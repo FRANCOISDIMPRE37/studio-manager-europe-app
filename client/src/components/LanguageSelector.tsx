@@ -10,9 +10,9 @@ export const EUROPEAN_LANGUAGES = [
   { code: 'en', flag: '🇬🇧', name: 'English', native: 'English', complete: true },
   { code: 'de', flag: '🇩🇪', name: 'Allemand', native: 'Deutsch', complete: true },
   { code: 'nl', flag: '🇳🇱', name: 'Néerlandais', native: 'Nederlands', complete: true },
+  { code: 'es', flag: '🇪🇸', name: 'Espagnol', native: 'Español', complete: true },
+  { code: 'it', flag: '🇮🇹', name: 'Italien', native: 'Italiano', complete: true },
   // Langues avec traduction partielle (fallback FR)
-  { code: 'es', flag: '🇪🇸', name: 'Espagnol', native: 'Español', complete: false },
-  { code: 'it', flag: '🇮🇹', name: 'Italien', native: 'Italiano', complete: false },
   { code: 'pt', flag: '🇵🇹', name: 'Portugais', native: 'Português', complete: false },
   { code: 'pl', flag: '🇵🇱', name: 'Polonais', native: 'Polski', complete: false },
   { code: 'ro', flag: '🇷🇴', name: 'Roumain', native: 'Română', complete: false },

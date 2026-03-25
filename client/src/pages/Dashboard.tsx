@@ -3,6 +3,7 @@
  * Cartes avec élévation au hover, badges colorés, typographie Outfit
  */
 import { useMemo, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '@/lib/app-context';
 import { useLocation } from 'wouter';
 import {
@@ -38,6 +39,7 @@ function StatCard({ icon: Icon, label, value, color }: {
 
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { state, getDashboardStats } = useApp();
   const [, navigate] = useLocation();
   const stats = getDashboardStats();
@@ -198,13 +200,13 @@ export default function Dashboard() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-700" style={{ color: 'var(--brand-text)', fontFamily: 'Outfit', fontWeight: 700 }}>
-            Tableau de bord
+            {t('dashboard.title')}
           </h1>
           <p className="text-sm capitalize" style={{ color: 'var(--brand-text-muted)' }}>{todayStr}</p>
         </div>
-        {state.isDemo && (
+          {state.isDemo && (
           <span className="text-xs px-2 py-1 rounded" style={{ background: 'var(--brand-rose-dim)', color: 'var(--brand-rose)', border: '1px solid var(--brand-rose)' }}>
-            MODE DÉMO
+            {t('auth.mode_demo')}
           </span>
         )}
       </div>
@@ -215,7 +217,7 @@ export default function Dashboard() {
           <Search size={16} style={{ color: 'var(--brand-cyan)', flexShrink: 0 }} />
           <input
             type="text"
-            placeholder="Rechercher un client, un rendez-vous ou un document..."
+            placeholder={t('dashboard.search_placeholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm"
@@ -237,7 +239,7 @@ export default function Dashboard() {
             {searchResults.clients.length > 0 && (
               <>
                 <div className="px-4 py-2" style={{ background: 'rgba(131,208,245,0.06)', borderBottom: '1px solid var(--brand-border)' }}>
-                  <span className="text-xs font-600" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>Clients</span>
+                  <span className="text-xs font-600" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>{t('dashboard.section_clients')}</span>
                 </div>
                 {searchResults.clients.map(client => (
                   <div
@@ -269,11 +271,11 @@ export default function Dashboard() {
             {searchResults.rdv.length > 0 && (
               <>
                 <div className="px-4 py-2" style={{ background: 'rgba(76,175,80,0.06)', borderBottom: '1px solid var(--brand-border)', borderTop: searchResults.clients.length > 0 ? '1px solid var(--brand-border)' : undefined }}>
-                  <span className="text-xs font-600" style={{ color: '#4CAF50', fontWeight: 600 }}>Rendez-vous</span>
+                  <span className="text-xs font-600" style={{ color: '#4CAF50', fontWeight: 600 }}>{t('dashboard.section_rdv')}</span>
                 </div>
                 {searchResults.rdv.map(rdv => {
                   const rdvClient = rdv.clientId ? state.clients.find(c => c.id === rdv.clientId) : null;
-                  const rdvName = rdvClient ? `${rdvClient.prenom} ${rdvClient.nom}` : (rdv.clientNom || 'Client inconnu');
+                  const rdvName = rdvClient ? `${rdvClient.prenom} ${rdvClient.nom}` : (rdv.clientNom || t('dashboard.unknown_client'));
                   return (
                     <div
                       key={rdv.id}
@@ -302,7 +304,7 @@ export default function Dashboard() {
             {searchResults.documents.length > 0 && (
               <>
                 <div className="px-4 py-2" style={{ background: 'rgba(255,152,0,0.06)', borderBottom: '1px solid var(--brand-border)', borderTop: '1px solid var(--brand-border)' }}>
-                  <span className="text-xs font-600" style={{ color: '#FF9800', fontWeight: 600 }}>Documents</span>
+                  <span className="text-xs font-600" style={{ color: '#FF9800', fontWeight: 600 }}>{t('dashboard.section_documents')}</span>
                 </div>
                 {searchResults.documents.map((doc, idx) => (
                   <div
@@ -332,16 +334,16 @@ export default function Dashboard() {
             className="absolute top-full left-0 right-0 mt-1 rounded-xl px-4 py-3 z-50"
             style={{ background: '#0D1E38', border: '1px solid var(--brand-border)' }}
           >
-            <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun résultat pour « {searchQuery} »</p>
+            <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>{t('dashboard.search_no_results')} « {searchQuery} »</p>
           </div>
         )}
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-3 gap-3">
-        <StatCard icon={Users} label="Clients actifs" value={stats.clientsActifs} color="var(--brand-cyan)" />
-        <StatCard icon={Users} label="Majeurs" value={stats.clientsMajeurs} color="#34d399" />
-        <StatCard icon={Shield} label="Mineurs" value={stats.clientsMineurs} color="#9C27B0" />
+        <StatCard icon={Users} label={t('dashboard.clients_active')} value={stats.clientsActifs} color="var(--brand-cyan)" />
+        <StatCard icon={Users} label={t('dashboard.clients_adults')} value={stats.clientsMajeurs} color="#34d399" />
+        <StatCard icon={Shield} label={t('dashboard.clients_minors')} value={stats.clientsMineurs} color="#9C27B0" />
       </div>
 
 
@@ -353,25 +355,25 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
             <Users size={14} className="inline mr-2" style={{ color: 'var(--brand-cyan)' }} />
-            Clients récents
+            {t('dashboard.recent_clients')}
           </h2>
           <button
             onClick={() => navigate('/clients')}
             className="text-xs hover:opacity-80 transition-opacity"
             style={{ color: 'var(--brand-cyan)' }}
           >
-            Voir tous →
+            {t('clients.view_detail')} →
           </button>
         </div>
         {recentClients.length === 0 ? (
           <div className="text-center py-6">
-            <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun client enregistré</p>
+            <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>{t('clients.no_clients')}</p>
             <button
               onClick={() => navigate('/clients')}
               className="mt-3 text-sm px-4 py-2 rounded-lg transition-all"
               style={{ background: 'var(--brand-cyan-dim)', color: 'var(--brand-cyan)', border: '1px solid var(--brand-cyan)' }}
             >
-              Ajouter un client
+              {t('clients.add')}
             </button>
           </div>
         ) : (
@@ -399,14 +401,14 @@ export default function Dashboard() {
                       </p>
                       {client.estMineur && (
                         <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#9C27B022', color: '#9C27B0', border: '1px solid #9C27B0' }}>
-                          Mineur
+                          {t('clients.minor')}
                         </span>
                       )}
                     </div>
                     <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>
                       {lastPrestation
                         ? `${lastPrestation.type.charAt(0).toUpperCase() + lastPrestation.type.slice(1)} · ${lastPrestation.zone}`
-                        : 'Aucune prestation'}
+                        : t('common.no_data')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

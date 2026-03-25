@@ -2,6 +2,7 @@
  * DESIGN: Studio Nocturne — Liste clients avec recherche, filtres RGPD, cartes
  */
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '@/lib/app-context';
 import { useLocation } from 'wouter';
 import { Search, Plus, Filter, ChevronRight, UserX, Archive } from 'lucide-react';
@@ -18,8 +19,10 @@ const RGPD_COLORS: Record<RGPDStatus, string> = {
 const RGPD_LABELS: Record<RGPDStatus, string> = {
   ok: 'OK', warning: '90j', urgent: '30j', expired: 'Expiré'
 };
+// Labels will be translated in component using t()
 
 function ClientCard({ client, onClick }: { client: Client; onClick: () => void }) {
+  const { t } = useTranslation();
   const initials = (client.prenom[0] || '') + (client.nom[0] || '');
   const lastPrestation = client.prestations[client.prestations.length - 1];
   const rgpdColor = RGPD_COLORS[client.rgpdStatus];
@@ -48,12 +51,12 @@ function ClientCard({ client, onClick }: { client: Client; onClick: () => void }
             </span>
             {client.estMineur && (
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: '#9C27B022', color: '#9C27B0', border: '1px solid #9C27B0' }}>
-                Mineur
+                {t('clients.minor')}
               </span>
             )}
             {client.estArchive && (
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--brand-text-muted)', border: '1px solid var(--brand-border)' }}>
-                Archivé
+                {t('clients.archived')}
               </span>
             )}
           </div>
@@ -75,6 +78,7 @@ function ClientCard({ client, onClick }: { client: Client; onClick: () => void }
 }
 
 export default function Clients() {
+  const { t } = useTranslation();
   const { state, deleteClient } = useApp();
   const [, navigate] = useLocation();
   const [search, setSearch] = useState('');
@@ -95,8 +99,8 @@ export default function Clients() {
   }, [state.clients, search, filter]);
 
   const FILTERS: { key: FilterType; label: string; count: number }[] = [
-    { key: 'mineurs', label: 'Mineurs', count: state.clients.filter(c => c.estMineur && !c.estArchive).length },
-    { key: 'majeurs', label: 'Majeurs', count: state.clients.filter(c => !c.estMineur && !c.estArchive).length },
+    { key: 'mineurs', label: t('clients.minor') + 's', count: state.clients.filter(c => c.estMineur && !c.estArchive).length },
+    { key: 'majeurs', label: t('clients.adult') + 's', count: state.clients.filter(c => !c.estMineur && !c.estArchive).length },
   ];
 
   return (
@@ -104,7 +108,7 @@ export default function Clients() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-700" style={{ color: 'var(--brand-text)', fontFamily: 'Outfit', fontWeight: 700 }}>
-          Clients
+          {t('clients.title')}
         </h1>
         <button
           onClick={() => setShowAddModal(true)}
@@ -116,7 +120,7 @@ export default function Clients() {
           }}
         >
           <Plus size={16} />
-          <span className="hidden md:inline">Nouveau client</span>
+          <span className="hidden md:inline">{t('clients.add')}</span>
         </button>
       </div>
 
@@ -125,7 +129,7 @@ export default function Clients() {
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--brand-text-muted)' }} />
         <input
           type="text"
-          placeholder="Rechercher un client..."
+          placeholder={t('clients.search')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
@@ -174,7 +178,7 @@ export default function Clients() {
         <div className="text-center py-16">
           <UserX size={40} className="mx-auto mb-3 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
           <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>
-            {search ? 'Aucun client trouvé' : 'Aucun client dans cette catégorie'}
+            {search ? t('common.no_data') : t('clients.no_clients')}
           </p>
         </div>
       ) : (

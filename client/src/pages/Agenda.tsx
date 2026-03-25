@@ -2,6 +2,7 @@
  * DESIGN: Studio Nocturne — Agenda avec vues Jour / Semaine / Mois
  */
 import { useState, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApp } from '@/lib/app-context';
 import { ChevronLeft, ChevronRight, Plus, Clock, X, Calendar, CalendarDays, CalendarRange, Bell, CheckCircle, AlertCircle, MinusCircle } from 'lucide-react';
 import { RendezVous, RDVType, RDVStatut, RDV_TYPE_LABELS, RDV_STATUT_LABELS, RDV_STATUT_COLORS } from '@/lib/types';
@@ -21,6 +22,7 @@ function timeToMinutes(t: string) {
 
 // ─── Modal Ajout RDV ───────────────────────────────────────────────────────────
 function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => void; defaultDate: string; defaultHeure?: string }) {
+  const { t } = useTranslation();
   const { addRDV, state } = useApp();
   const [form, setForm] = useState({
     date: defaultDate,
@@ -48,7 +50,7 @@ function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => vo
       clientTelephone: form.clientTelephone || undefined,
       type: form.type, zone: form.zone || undefined, notes: form.notes || undefined, statut: form.statut,
     });
-    toast.success('Rendez-vous créé');
+    toast.success(t('agenda.new_appointment'));
     onClose();
   };
 
@@ -60,15 +62,15 @@ function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => vo
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full md:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-xl" style={{ background: 'var(--brand-navy-light)', border: '1px solid var(--brand-border)' }}>
         <div className="flex items-center justify-between p-4 border-b sticky top-0" style={{ borderColor: 'var(--brand-border)', background: 'var(--brand-navy-light)' }}>
-          <h2 className="text-base font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>Nouveau rendez-vous</h2>
+          <h2 className="text-base font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>{t('agenda.new_appointment')}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10"><X size={18} style={{ color: 'var(--brand-text-muted)' }} /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-3"><label style={lbl}>Date</label><input type="date" style={inp} value={form.date} onChange={e => set('date', e.target.value)} required /></div>
-            <div><label style={lbl}>Début</label><input type="time" style={inp} value={form.heureDebut} onChange={e => set('heureDebut', e.target.value)} /></div>
-            <div><label style={lbl}>Fin</label><input type="time" style={inp} value={form.heureFin} onChange={e => set('heureFin', e.target.value)} /></div>
-            <div><label style={lbl}>Statut</label>
+            <div className="col-span-3"><label style={lbl}>{t('agenda.date')}</label><input type="date" style={inp} value={form.date} onChange={e => set('date', e.target.value)} required /></div>
+            <div><label style={lbl}>{t('agenda.start')}</label><input type="time" style={inp} value={form.heureDebut} onChange={e => set('heureDebut', e.target.value)} /></div>
+            <div><label style={lbl}>{t('agenda.end')}</label><input type="time" style={inp} value={form.heureFin} onChange={e => set('heureFin', e.target.value)} /></div>
+            <div><label style={lbl}>{t('common.actions')}</label>
               <select style={inp} value={form.statut} onChange={e => set('statut', e.target.value)}>
                 <option value="confirme">Confirmé</option>
                 <option value="en_attente">En attente</option>
@@ -77,9 +79,9 @@ function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => vo
             </div>
           </div>
           <div>
-            <label style={lbl}>Client (optionnel)</label>
+            <label style={lbl}>{t('agenda.client')} ({t('common.optional')})</label>
             <select style={inp} value={form.clientId} onChange={e => handleClientChange(e.target.value)}>
-              <option value="">— Nouveau client / Sans client —</option>
+              <option value="">— {t('clients.add')} / {t('dashboard.unknown_client')} —</option>
               {state.clients.filter(c => !c.estArchive).map(c => (
                 <option key={c.id} value={c.id}>{c.prenom} {c.nom}</option>
               ))}
@@ -87,23 +89,23 @@ function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => vo
           </div>
           {!form.clientId && (
             <div className="grid grid-cols-2 gap-3">
-              <div><label style={lbl}>Nom du client</label><input style={inp} value={form.clientNom} onChange={e => set('clientNom', e.target.value)} /></div>
-              <div><label style={lbl}>Téléphone</label><input type="tel" style={inp} value={form.clientTelephone} onChange={e => set('clientTelephone', e.target.value)} /></div>
+              <div><label style={lbl}>{t('common.name')}</label><input style={inp} value={form.clientNom} onChange={e => set('clientNom', e.target.value)} /></div>
+              <div><label style={lbl}>{t('common.phone')}</label><input type="tel" style={inp} value={form.clientTelephone} onChange={e => set('clientTelephone', e.target.value)} /></div>
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label style={lbl}>Type</label>
+              <label style={lbl}>{t('agenda.type')}</label>
               <select style={inp} value={form.type} onChange={e => set('type', e.target.value)}>
                 {Object.entries(RDV_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </div>
-            <div><label style={lbl}>Zone</label><input style={inp} value={form.zone} onChange={e => set('zone', e.target.value)} placeholder="ex: Hélix, Avant-bras..." /></div>
+            <div><label style={lbl}>{t('agenda.zone')}</label><input style={inp} value={form.zone} onChange={e => set('zone', e.target.value)} placeholder="ex: Hélix, Avant-bras..." /></div>
           </div>
-          <div><label style={lbl}>Notes</label><textarea style={{ ...inp, resize: 'vertical', minHeight: '60px' }} value={form.notes} onChange={e => set('notes', e.target.value)} /></div>
+          <div><label style={lbl}>{t('agenda.notes')}</label><textarea style={{ ...inp, resize: 'vertical', minHeight: '60px' }} value={form.notes} onChange={e => set('notes', e.target.value)} /></div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)', fontWeight: 600 }}>Annuler</button>
-            <button type="submit" className="flex-1 py-3 rounded-lg text-sm" style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}>Créer</button>
+            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)', fontWeight: 600 }}>{t('common.cancel')}</button>
+            <button type="submit" className="flex-1 py-3 rounded-lg text-sm" style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}>{t('common.save')}</button>
           </div>
         </form>
       </div>
@@ -113,6 +115,7 @@ function AddRDVModal({ onClose, defaultDate, defaultHeure }: { onClose: () => vo
 
 // ─── Carte RDV compacte ────────────────────────────────────────────────────────
 function RDVCard({ rdv, onDelete, onDone, compact = false }: { rdv: RendezVous; onDelete: () => void; onDone: () => void; compact?: boolean }) {
+  const { t } = useTranslation();
   const color = RDV_STATUT_COLORS[rdv.statut];
   return (
     <div className="rounded-lg p-2 text-xs overflow-hidden" style={{ background: color + '18', border: `1px solid ${color}55`, borderLeft: `3px solid ${color}` }}>
@@ -125,7 +128,7 @@ function RDVCard({ rdv, onDelete, onDone, compact = false }: { rdv: RendezVous; 
           <button onClick={onDelete} className="px-1.5 py-0.5 rounded text-xs" style={{ background: '#F4433622', color: '#F44336', border: '1px solid #F4433655' }}>✕</button>
         </div>
       </div>
-      <p className="truncate mt-0.5" style={{ color: 'var(--brand-text)' }}>{rdv.clientNom || 'Sans client'}</p>
+      <p className="truncate mt-0.5" style={{ color: 'var(--brand-text)' }}>{rdv.clientNom || t('dashboard.unknown_client')}</p>
       {!compact && rdv.zone && <p className="truncate" style={{ color: 'var(--brand-text-muted)' }}>{rdv.zone}</p>}
     </div>
   );
@@ -138,6 +141,7 @@ function VueJour({ date, rdvs, onAdd, onDelete, onDone }: {
   date: Date; rdvs: RendezVous[];
   onAdd: (h: string) => void; onDelete: (id: string) => void; onDone: (rdv: RendezVous) => void;
 }) {
+  const { t } = useTranslation();
   const dayRdvs = rdvs.filter(r => r.date === fmt(date)).sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
 
   return (
@@ -146,7 +150,7 @@ function VueJour({ date, rdvs, onAdd, onDelete, onDone }: {
         <p className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>
           {date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--brand-cyan)' }}>{dayRdvs.length} rendez-vous</p>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--brand-cyan)' }}>{dayRdvs.length} {t('agenda.title').toLowerCase()}</p>
       </div>
       <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
         {HOURS.map(h => {
@@ -344,6 +348,7 @@ function VueMois({ currentDate, rdvs, today, onDayClick, onAdd }: {
 
 // ─── Composant principal ───────────────────────────────────────────────────────
 export default function Agenda() {
+  const { t } = useTranslation();
   const { state, deleteRDV, updateRDV } = useApp();
   const [view, setView] = useState<View>('semaine');
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -396,8 +401,8 @@ export default function Agenda() {
     setShowAdd(true);
   };
 
-  const handleDelete = (id: string) => { deleteRDV(id); toast.success('RDV supprimé'); };
-  const handleDone = (rdv: RendezVous) => { updateRDV({ ...rdv, statut: 'termine' }); toast.success('RDV marqué terminé'); };
+  const handleDelete = (id: string) => { deleteRDV(id); toast.success(t('agenda.delete_appointment')); };
+  const handleDone = (rdv: RendezVous) => { updateRDV({ ...rdv, statut: 'termine' }); toast.success(t('common.success')); };
 
   return (
     <div className="p-4 md:p-6 space-y-4">
@@ -406,9 +411,9 @@ export default function Agenda() {
         {/* Sélecteur de vue */}
         <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--brand-border)' }}>
           {([
-            { key: 'jour', label: 'Jour', icon: CalendarDays },
-            { key: 'semaine', label: 'Semaine', icon: CalendarRange },
-            { key: 'mois', label: 'Mois', icon: Calendar },
+            { key: 'jour', label: t('agenda.day'), icon: CalendarDays },
+            { key: 'semaine', label: t('agenda.week'), icon: CalendarRange },
+            { key: 'mois', label: t('agenda.month'), icon: Calendar },
           ] as { key: View; label: string; icon: React.ElementType }[]).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setView(key)}
               className="flex items-center gap-1.5 px-3 py-2 text-sm transition-all"
@@ -430,7 +435,7 @@ export default function Agenda() {
           </button>
           <button onClick={goToday} className="px-3 py-1.5 rounded-lg text-xs transition-all"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}>
-            Aujourd'hui
+            {t('agenda.today')}
           </button>
           <button onClick={next} className="p-2 rounded-lg hover:bg-white/10 transition-all">
             <ChevronRight size={18} style={{ color: 'var(--brand-text-muted)' }} />
@@ -445,7 +450,7 @@ export default function Agenda() {
         <button onClick={() => handleAdd(today)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm active:scale-95"
           style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}>
-          <Plus size={16} /><span className="hidden sm:inline">Nouveau RDV</span>
+          <Plus size={16} /><span className="hidden sm:inline">{t('agenda.new_appointment')}</span>
         </button>
       </div>
 
