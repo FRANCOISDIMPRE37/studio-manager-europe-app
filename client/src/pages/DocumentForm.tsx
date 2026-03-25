@@ -882,6 +882,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés Labret — Diaseptyl 15j, Eludrilpro après chaque repas 15 premiers jours, Physiodose 15 derniers jours, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -892,6 +893,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés Nez — Diaseptyl 0,5% 15 jours, Physiodose 15 derniers jours, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -902,6 +904,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés Nombril — Diaseptyl 2 semaines, Physiodose 6 semaines, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -912,6 +915,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés — Diaseptyl 0,5%, Physiodose sérum physiologique, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -922,6 +926,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés — Diaseptyl 0,5%, Physiodose sérum physiologique, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -932,6 +937,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés — Diaseptyl 0,5%, Physiodose sérum physiologique, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
@@ -942,6 +948,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
             alt="Produits recommandés Surface — Physiodose sérum physiologique matin et soir pendant le dernier mois, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
+          <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
         </div>
       )}
 
