@@ -900,8 +900,8 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       {docType === 'soins_nombril' && (
         <div className="mb-4">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/produits_nombril_dcc61298.webp"
-            alt="Produits recommandés Nombril — Diaseptyl 2 semaines, Physiodose 6 semaines, compresses non-tissées"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/nombril_soins_post_221b2786.webp"
+            alt="Soins Post Nombril — Chlorhexidine matin et soir 2 semaines, Sérum Physiologique matin et soir 6 semaines, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
           <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>Marque déposée — usage descriptif uniquement, sans affiliation commerciale</p>
