@@ -8,7 +8,7 @@ import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info,
-  LogOut, AlertTriangle, ExternalLink, FileSpreadsheet, FileDown, FileUp, RotateCcw, BookOpen, PlayCircle
+  LogOut, AlertTriangle, ExternalLink, FileSpreadsheet, FileDown, FileUp, RotateCcw, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -34,7 +34,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { path: '/documents', icon: FileText, labelKey: 'nav.documents' },
     { path: '/archives', icon: Archive, labelKey: 'nav.archives' },
     { path: '/parametres', icon: Settings, labelKey: 'nav.settings' },
-    { path: '/videos-demo', icon: PlayCircle, labelKey: 'nav.videos' },
   ];
 
   const handleLogout = () => {
