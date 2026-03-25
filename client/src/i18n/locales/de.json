@@ -194,5 +194,34 @@
     "no_archived": "Keine archivierten Kunden",
     "archived": "Archiviert",
     "auto_archive": "Kunden werden nach 3 Jahren automatisch archiviert"
+  },
+  "doc_labels": {
+    "questionnaire_mineur": "01 — Medizinischer Fragebogen Minderjährige (Piercing)",
+    "autorisation_parentale": "02 — Elterliche Genehmigung",
+    "questionnaire_majeur": "03 — Medizinischer Fragebogen Erwachsene (Piercing)",
+    "fiche_seance_piercing": "04 — Sterilmaterial-Rückverfolgungsblatt (Piercing)",
+    "soins_oreilles": "A — Nachsorge Ohren",
+    "soins_nez": "B — Nachsorge Nase",
+    "soins_bouche_levres": "C — Nachsorge Labret (Mund & Lippen)",
+    "soins_nombril": "D — Nachsorge Bauchnabel",
+    "soins_mamelons": "E — Nachsorge Brustwarzen",
+    "soins_arcade_sourcil": "F — Nachsorge Augenbraue",
+    "soins_surface_dermal": "G — Nachsorge Surface / Dermal",
+    "questionnaire_tatouage_majeur": "05 — Medizinischer Fragebogen Tätowierung",
+    "consentement_soins_tatouage": "06 — Einwilligung & Nachsorge Tätowierung",
+    "fiche_seance_tatouage": "07 — Tätowierungsprotokoll",
+    "questionnaire_dermographe": "08 — Medizinischer Fragebogen Dermographie",
+    "soins_dermographe": "09 — Nachsorge Dermographie (Permanent-Make-up)",
+    "fiche_seance_dermographe": "10 — Dermographie-Sitzungsprotokoll",
+    "engagement_confidentialite": "11 — Vertraulichkeitsverpflichtung (DSGVO Art. 29)",
+    "affichage_salon": "12 — Kundeninformation — Datenschutz (DSGVO)"
+  },
+  "doc_categories": {
+    "piercing_mineurs": "Piercing — Minderjährige (01-02)",
+    "piercing_majeurs": "Piercing — Erwachsene (03-04)",
+    "soins_piercing": "Piercing-Nachsorge (A, B, C, D–G)",
+    "tatouage": "Tätowierung (05-07)",
+    "dermographie": "Dermographie (08-10)",
+    "rgpd": "DSGVO & Vertraulichkeit (11-12)"
   }
 }

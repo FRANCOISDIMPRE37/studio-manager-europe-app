@@ -8,44 +8,44 @@ import { DOCUMENT_LABELS, DocumentType } from '@/lib/types';
 import { useApp } from '@/lib/app-context';
 import { useLocation } from 'wouter';
 
-const DOC_CATEGORIES = [
+const DOC_CATEGORY_KEYS = [
   {
-    title: 'Piercing — Mineurs (01-02)',
+    titleKey: 'doc_categories.piercing_mineurs',
     icon: Baby,
     color: '#9C27B0',
     docs: ['questionnaire_mineur', 'autorisation_parentale'] as DocumentType[],
     forMineur: true,
   },
   {
-    title: 'Piercing — Majeurs (03-04)',
+    titleKey: 'doc_categories.piercing_majeurs',
     icon: User,
     color: 'var(--brand-cyan)',
     docs: ['questionnaire_majeur', 'fiche_seance_piercing'] as DocumentType[],
     forMineur: false,
   },
   {
-    title: 'Soins Post-Piercing (A, B, C, D–G)',
+    titleKey: 'doc_categories.soins_piercing',
     icon: Shield,
     color: '#4CAF50',
     docs: ['soins_oreilles', 'soins_nez', 'soins_bouche_levres', 'soins_nombril', 'soins_mamelons', 'soins_arcade_sourcil', 'soins_surface_dermal'] as DocumentType[],
     forMineur: null,
   },
   {
-    title: 'Tatouage (05-07)',
+    titleKey: 'doc_categories.tatouage',
     icon: FileText,
     color: '#FF5722',
     docs: ['questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'fiche_seance_tatouage'] as DocumentType[],
     forMineur: null,
   },
   {
-    title: 'Dermographie (08-10)',
+    titleKey: 'doc_categories.dermographie',
     icon: FileText,
     color: '#FF9800',
     docs: ['questionnaire_dermographe', 'soins_dermographe', 'fiche_seance_dermographe'] as DocumentType[],
     forMineur: null,
   },
   {
-    title: 'RGPD & Confidentialité (11-12)',
+    titleKey: 'doc_categories.rgpd',
     icon: Shield,
     color: '#E53935',
     docs: ['engagement_confidentialite', 'affichage_salon'] as DocumentType[],
@@ -58,6 +58,12 @@ export default function Documents() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const [selectedDoc, setSelectedDoc] = useState<DocumentType | null>(null);
+
+  // Catégories avec titres traduits dynamiquement
+  const DOC_CATEGORIES = DOC_CATEGORY_KEYS.map(cat => ({
+    ...cat,
+    title: t(cat.titleKey),
+  }));
   const [clientSearch, setClientSearch] = useState('');
 
   const activeClients = state.clients.filter(c => !c.estArchive);
@@ -128,7 +134,7 @@ export default function Documents() {
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}
               >
                 <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
-                <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[doc]}</span>
+                <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{t(`doc_labels.${doc}`, DOCUMENT_LABELS[doc])}</span>
                 <button
                   onClick={() => handlePreview(doc)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-600 transition-all hover:opacity-80"
@@ -173,7 +179,7 @@ export default function Documents() {
                   {t('documents.open_doc', 'Ouvrir le document')}
                 </h3>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--brand-text-muted)' }}>
-                  {DOCUMENT_LABELS[selectedDoc]}
+                  {t(`doc_labels.${selectedDoc}`, DOCUMENT_LABELS[selectedDoc])}
                 </p>
               </div>
               <button

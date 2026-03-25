@@ -330,5 +330,34 @@
     "nl": "Nederlands",
     "es": "Español",
     "it": "Italiano"
+  },
+  "doc_labels": {
+    "questionnaire_mineur": "01 — Cuestionario Médico Menor (Piercing)",
+    "autorisation_parentale": "02 — Autorización Parental",
+    "questionnaire_majeur": "03 — Cuestionario Médico Adulto (Piercing)",
+    "fiche_seance_piercing": "04 — Hoja de Trazabilidad Material Estéril (Piercing)",
+    "soins_oreilles": "A — Cuidados Post-Piercing Orejas",
+    "soins_nez": "B — Cuidados Post-Piercing Nariz",
+    "soins_bouche_levres": "C — Cuidados Post Labret (Boca y Labios)",
+    "soins_nombril": "D — Cuidados Post-Piercing Ombligo",
+    "soins_mamelons": "E — Cuidados Post-Piercing Pezones",
+    "soins_arcade_sourcil": "F — Cuidados Post-Piercing Ceja",
+    "soins_surface_dermal": "G — Cuidados Post-Piercing Surface / Dermal",
+    "questionnaire_tatouage_majeur": "05 — Cuestionario Médico Tatuaje Adulto",
+    "consentement_soins_tatouage": "06 — Consentimiento & Cuidados Post-Tatuaje",
+    "fiche_seance_tatouage": "07 — Hoja de Sesión Tatuaje",
+    "questionnaire_dermographe": "08 — Cuestionario Médico Dermografía",
+    "soins_dermographe": "09 — Cuidados Post-Dermografía (Maquillaje Permanente)",
+    "fiche_seance_dermographe": "10 — Hoja de Sesión Dermografía",
+    "engagement_confidentialite": "11 — Compromiso de Confidencialidad (RGPD Art. 29)",
+    "affichage_salon": "12 — Información al Cliente — Protección de Datos (RGPD)"
+  },
+  "doc_categories": {
+    "piercing_mineurs": "Piercing — Menores (01-02)",
+    "piercing_majeurs": "Piercing — Adultos (03-04)",
+    "soins_piercing": "Cuidados Post-Piercing (A, B, C, D–G)",
+    "tatouage": "Tatuaje (05-07)",
+    "dermographie": "Dermografía (08-10)",
+    "rgpd": "RGPD & Confidencialidad (11-12)"
   }
 }

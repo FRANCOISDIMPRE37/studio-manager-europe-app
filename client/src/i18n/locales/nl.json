@@ -194,5 +194,34 @@
     "no_archived": "Geen gearchiveerde klanten",
     "archived": "Gearchiveerd",
     "auto_archive": "Klanten worden na 3 jaar automatisch gearchiveerd"
+  },
+  "doc_labels": {
+    "questionnaire_mineur": "01 — Medische Vragenlijst Minderjarige (Piercing)",
+    "autorisation_parentale": "02 — Ouderlijke Toestemming",
+    "questionnaire_majeur": "03 — Medische Vragenlijst Volwassene (Piercing)",
+    "fiche_seance_piercing": "04 — Traceerbaarheidsblad Steriel Materiaal (Piercing)",
+    "soins_oreilles": "A — Nazorg Oren",
+    "soins_nez": "B — Nazorg Neus",
+    "soins_bouche_levres": "C — Nazorg Labret (Mond & Lippen)",
+    "soins_nombril": "D — Nazorg Navel",
+    "soins_mamelons": "E — Nazorg Tepels",
+    "soins_arcade_sourcil": "F — Nazorg Wenkbrauw",
+    "soins_surface_dermal": "G — Nazorg Surface / Dermal",
+    "questionnaire_tatouage_majeur": "05 — Medische Vragenlijst Tatoeage",
+    "consentement_soins_tatouage": "06 — Toestemming & Nazorg Tatoeage",
+    "fiche_seance_tatouage": "07 — Tatoeage Sessieblad",
+    "questionnaire_dermographe": "08 — Medische Vragenlijst Dermografie",
+    "soins_dermographe": "09 — Nazorg Dermografie (Permanente Make-up)",
+    "fiche_seance_dermographe": "10 — Dermografie Sessieblad",
+    "engagement_confidentialite": "11 — Vertrouwelijkheidsovereenkomst (AVG Art. 29)",
+    "affichage_salon": "12 — Klantinformatie — Gegevensbescherming (AVG)"
+  },
+  "doc_categories": {
+    "piercing_mineurs": "Piercing — Minderjarigen (01-02)",
+    "piercing_majeurs": "Piercing — Volwassenen (03-04)",
+    "soins_piercing": "Piercing Nazorg (A, B, C, D–G)",
+    "tatouage": "Tatoeage (05-07)",
+    "dermographie": "Dermografie (08-10)",
+    "rgpd": "AVG & Vertrouwelijkheid (11-12)"
   }
 }
