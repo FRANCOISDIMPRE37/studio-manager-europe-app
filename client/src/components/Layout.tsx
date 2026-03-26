@@ -244,7 +244,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <p className="block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>{t('nav.resources')}</p>
           {[
             { href: 'https://www.intemporelle.eu/', label: 'Intemporelle' },
-            { href: 'https://www.ars.sante.fr/', label: 'ARS Santé' },
+            { href: 'https://www.ars.sante.fr/recherche-globale?search_ars=tatouage%20et%20piercing&ars_site=&submit_search=Filtrer&sort_by=date_desc', label: 'ARS Santé' },
             { href: 'https://www.cnil.fr/fr', label: 'CNIL' },
           ].map(({ href, label }) => (
             <a
