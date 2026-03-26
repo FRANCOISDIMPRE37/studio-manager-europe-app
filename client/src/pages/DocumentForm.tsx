@@ -901,7 +901,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       {docType === 'soins_bouche_levres' && (
         <div className="mb-4">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/labret_soins_post_3b42e4a4.jpg"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_labret_new_3c0b91d9.jpg"
             alt="Soins Post Labret — Chlorhexidine matin et soir 15j, Eludril après chaque repas 15 premiers jours, Sérum Physiologique + compresses matin et soir derniers 15j"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
