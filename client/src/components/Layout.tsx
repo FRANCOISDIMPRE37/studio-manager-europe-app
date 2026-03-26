@@ -16,7 +16,7 @@ import { exportClientsCSV, exportClientsExcel, importClientsFromFile } from '@/l
 import { nanoid } from 'nanoid';
 import LanguageSelector from '@/components/LanguageSelector';
 
-const MODE_EMPLOI_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/mode_emploi_studio_manager_v2_f2cdc092.pdf';
+const MODE_EMPLOI_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/mode_emploi_studio_manager_v3_048e713f.pdf';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
