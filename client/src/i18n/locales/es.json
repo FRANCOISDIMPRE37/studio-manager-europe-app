@@ -342,7 +342,7 @@
     "soins_nez": "B — Cuidados Post-Piercing Nariz",
     "soins_bouche_levres": "C — Cuidados Post Labret (Boca y Labios)",
     "soins_nombril": "D — Cuidados Post-Piercing Ombligo",
-    "soins_mamelons": "E — Cuidados Post-Piercing Pezones",
+    "soins_mamelons": "E — Cuidados Post-Piercing Pezón / Téton",
     "soins_arcade_sourcil": "F — Cuidados Post-Piercing Ceja",
     "soins_surface_dermal": "G — Cuidados Post-Piercing Surface / Dermal",
     "questionnaire_tatouage_majeur": "05 — Cuestionario Médico Tatuaje Adulto",
@@ -504,7 +504,7 @@
       ]
     },
     "mamelons": {
-      "title": "PEZONES",
+      "title": "CUIDADOS POST-PIERCING PEZÓN / TÉTON",
       "zones": [
         {
           "zone": "Pezón horizontal",

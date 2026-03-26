@@ -342,7 +342,7 @@
     "soins_nez": "B — Cure Post-Piercing Naso",
     "soins_bouche_levres": "C — Cure Post Labret (Bocca e Labbra)",
     "soins_nombril": "D — Cure Post-Piercing Ombelico",
-    "soins_mamelons": "E — Cure Post-Piercing Capezzoli",
+    "soins_mamelons": "E — Cure Post-Piercing Capezzolo / Téton",
     "soins_arcade_sourcil": "F — Cure Post-Piercing Sopracciglio",
     "soins_surface_dermal": "G — Cure Post-Piercing Surface / Dermal",
     "questionnaire_tatouage_majeur": "05 — Questionario Medico Tatuaggio Adulto",
@@ -504,7 +504,7 @@
       ]
     },
     "mamelons": {
-      "title": "CAPEZZOLI",
+      "title": "CURE POST-PIERCING CAPEZZOLO / TÉTON",
       "zones": [
         {
           "zone": "Capezzolo orizzontale",

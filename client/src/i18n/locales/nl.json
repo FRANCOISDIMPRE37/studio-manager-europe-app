@@ -206,7 +206,7 @@
     "soins_nez": "B — Nazorg Neus",
     "soins_bouche_levres": "C — Nazorg Labret (Mond & Lippen)",
     "soins_nombril": "D — Nazorg Navel",
-    "soins_mamelons": "E — Nazorg Tepels",
+    "soins_mamelons": "E — Nazorg Tepel / Téton",
     "soins_arcade_sourcil": "F — Nazorg Wenkbrauw",
     "soins_surface_dermal": "G — Nazorg Surface / Dermal",
     "questionnaire_tatouage_majeur": "05 — Medische Vragenlijst Tatoeage",
@@ -368,7 +368,7 @@
       ]
     },
     "mamelons": {
-      "title": "TEPELS",
+      "title": "NAZORG TEPEL / TÉTON",
       "zones": [
         {
           "zone": "Horizontale tepel",

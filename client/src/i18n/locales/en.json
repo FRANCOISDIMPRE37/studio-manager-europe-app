@@ -206,7 +206,7 @@
     "soins_nez": "B — Post-Piercing Care Nose",
     "soins_bouche_levres": "C — Post Labret Care (Mouth & Lips)",
     "soins_nombril": "D — Post-Piercing Care Navel",
-    "soins_mamelons": "E — Post-Piercing Care Nipples",
+    "soins_mamelons": "E — Post-Piercing Care Nipple / Téton",
     "soins_arcade_sourcil": "F — Post-Piercing Care Eyebrow / Arcade",
     "soins_surface_dermal": "G — Post-Piercing Care Surface / Dermal",
     "questionnaire_tatouage_majeur": "05 — Medical Questionnaire Tattoo Adult",
@@ -368,7 +368,7 @@
       ]
     },
     "mamelons": {
-      "title": "NIPPLES",
+      "title": "POST-PIERCING CARE — NIPPLE / TÉTON",
       "zones": [
         {
           "zone": "Horizontal nipple",

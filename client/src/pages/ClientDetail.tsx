@@ -62,7 +62,7 @@ export default function ClientDetail() {
   const [prestationsTemp, setPrestationsTemp] = useState<string[]>([]);
 
   const PRESTATIONS_OPTIONS = [
-    'Oreilles', 'Nez', 'Nombril', 'Mamelons',
+    'Oreilles', 'Nez', 'Nombril', 'Téton',
     'Arcade / Sourcil', 'Surface / Dermal', 'Tatouage', 'Dermographie',
   ];
 

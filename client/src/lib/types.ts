@@ -174,7 +174,7 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_oreilles: 'A — Soins Post-Piercing Oreilles',
   soins_nez: 'B — Soins Post-Piercing Nez',
   soins_nombril: 'D — Soins Post-Piercing Nombril',
-  soins_mamelons: 'E — Soins Post-Piercing Mamelons',
+  soins_mamelons: 'E — Soins Post-Piercing Téton',
   soins_arcade_sourcil: 'F — Soins Post-Piercing Arcade / Sourcil',
   soins_surface_dermal: 'G — Soins Post-Piercing Surface / Dermal',
   soins_bouche_levres: 'C — Soins Post Labret',

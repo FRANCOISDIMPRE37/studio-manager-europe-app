@@ -722,7 +722,7 @@ const SOINS_DATA: Record<string, { title: string; zones: { zone: string; desc: s
     ],
   },
   soins_mamelons: {
-    title: 'MAMELONS',
+    title: 'TÉTON',
     zones: [
       { zone: 'Mamelon horizontal', desc: 'Traversée horizontale du mamelon. Bijou : Barbell droit.', cica: '6 à 12 mois' },
       { zone: 'Mamelon vertical', desc: 'Traversée verticale du mamelon. Bijou : Barbell droit.', cica: '6 à 12 mois' },
@@ -950,7 +950,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_oreilles_mamelons_arcade_d6fa385b.webp"
-            alt="Soins post-piercing Mamelons — Chlorhexidine matin et soir 15 jours, Sérum Physiologique matin et soir derniers 15 jours, compresses non-tissées"
+            alt="Soins post-piercing Téton — Chlorhexidine matin et soir 15 jours, Sérum Physiologique matin et soir derniers 15 jours, compresses non-tissées"
             style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--brand-border)' }}
           />
           <p className="text-xs mt-1 text-center italic" style={{ color: 'var(--brand-text-muted)', opacity: 0.7, fontSize: '10px' }}>{t('soins.trademark', 'Marque déposée — usage descriptif uniquement, sans affiliation commerciale')}</p>
@@ -2539,7 +2539,7 @@ export default function DocumentForm() {
         pieceIdMineurNumero: client.pieceIdentiteNumero || '',
         // Pré-remplissage de la zone à percer depuis les prestations souhaitées
         zonePiercing: (() => {
-          const prestationsPiercing = ['Oreilles', 'Nez', 'Nombril', 'Mamelons', 'Arcade / Sourcil', 'Surface / Dermal'];
+          const prestationsPiercing = ['Oreilles', 'Nez', 'Nombril', 'Téton', 'Arcade / Sourcil', 'Surface / Dermal'];
           const zones = (client.prestationsSouhaitees || []).filter(p => prestationsPiercing.includes(p));
           return zones.length > 0 ? zones.join(', ') : '';
         })(),

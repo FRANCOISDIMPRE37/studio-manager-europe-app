@@ -206,7 +206,7 @@
     "soins_nez": "B — Nachsorge Nase",
     "soins_bouche_levres": "C — Nachsorge Labret (Mund & Lippen)",
     "soins_nombril": "D — Nachsorge Bauchnabel",
-    "soins_mamelons": "E — Nachsorge Brustwarzen",
+    "soins_mamelons": "E — Nachsorge Brustwarze / Téton",
     "soins_arcade_sourcil": "F — Nachsorge Augenbraue",
     "soins_surface_dermal": "G — Nachsorge Surface / Dermal",
     "questionnaire_tatouage_majeur": "05 — Medizinischer Fragebogen Tätowierung",
@@ -368,7 +368,7 @@
       ]
     },
     "mamelons": {
-      "title": "BRUSTWARZEN",
+      "title": "NACHSORGE BRUSTWARZE / TÉTON",
       "zones": [
         {
           "zone": "Horizontale Brustwarze",
