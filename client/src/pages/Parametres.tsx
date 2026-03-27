@@ -4,7 +4,8 @@
 import { useState, useRef } from 'react';
 import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
-import { Building2, Phone, Mail, MapPin, Hash, User, Shield, Lock, LogOut, Info, ExternalLink, Download, Upload, Users, Archive, Stethoscope, FileText, AlertTriangle, ImageIcon } from 'lucide-react';
+import { Building2, Phone, Mail, MapPin, Hash, User, Shield, Lock, LogOut, Info, ExternalLink, Download, Upload, Users, Archive, Stethoscope, FileText, AlertTriangle, ImageIcon, ChevronRight } from 'lucide-react';
+import { Link } from 'wouter';
 import GestionUtilisateurs from './GestionUtilisateurs';
 import { SalonInfo } from '@/lib/types';
 import { toast } from 'sonner';
@@ -270,31 +271,20 @@ export default function Parametres() {
       </div>
 
       {/* À propos */}
-      <div className="studio-card p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Info size={16} style={{ color: 'var(--brand-cyan)' }} />
-          <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{t('settings.about')}</h2>
-        </div>
-        <div className="flex items-center gap-3 mb-4">
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg" alt="Intemporelle" className="w-10 h-10" />
-          <div>
-            <p className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>Studio Manager</p>
-            <p className="text-xs" style={{ color: 'var(--brand-cyan)' }}>by Intemporelle v1.0</p>
+      <Link href="/a-propos">
+        <div className="studio-card p-4 cursor-pointer transition-all hover:border-cyan-400/40" style={{ borderColor: 'var(--brand-border)' }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg" alt="Intemporelle" className="w-9 h-9" />
+              <div>
+                <p className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>À propos — Intemporelle</p>
+                <p className="text-xs" style={{ color: 'var(--brand-cyan)' }}>Propriété, support & informations légales</p>
+              </div>
+            </div>
+            <ChevronRight size={16} style={{ color: 'var(--brand-text-muted)' }} />
           </div>
         </div>
-        <div className="space-y-2 text-xs" style={{ color: 'var(--brand-text-muted)' }}>
-          <p>Application de gestion de studio de piercing, tatouage et dermographie.</p>
-          <p>Conforme RGPD — Données stockées localement sur votre appareil.</p>
-          <div className="pt-2 space-y-1">
-            <p><span style={{ color: 'var(--brand-text)' }}>Éditeur :</span> Intemporelle — RGPD & Cybersécurité</p>
-            <p><span style={{ color: 'var(--brand-text)' }}>Adresse :</span> Tours (37)</p>
-            <p><span style={{ color: 'var(--brand-text)' }}>Email :</span> contact@intemporelle.eu</p>
-            <a href="https://www.intemporelle.eu" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:opacity-80" style={{ color: 'var(--brand-cyan)' }}>
-              www.intemporelle.eu <ExternalLink size={10} />
-            </a>
-          </div>
-        </div>
-      </div>
+      </Link>
 
       {/* Export / Import */}
       <div className="studio-card p-4">

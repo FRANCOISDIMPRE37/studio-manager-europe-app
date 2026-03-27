@@ -19,6 +19,8 @@ import RgpdSalarie from "@/pages/RgpdSalarie";
 import PolitiqueConfidentialite from "@/pages/PolitiqueConfidentialite";
 import MentionsLegales from "@/pages/MentionsLegales";
 import VideosDemoPage from "@/pages/VideosDemoPage";
+import Onboarding from "@/pages/Onboarding";
+import APropos from "@/pages/APropos";
 
 function AppRoutes() {
   const { state } = useApp();
@@ -35,6 +37,12 @@ function AppRoutes() {
         </div>
       </div>
     );
+  }
+
+  // Premier lancement : aucun PIN configuré → onboarding guidé
+  const hasPin = !!localStorage.getItem('sm_pin');
+  if (!hasPin) {
+    return <Onboarding />;
   }
 
   if (!state.isAuthenticated) {
@@ -58,6 +66,7 @@ function AppRoutes() {
         <Route path="/confidentialite" component={PolitiqueConfidentialite} />
         <Route path="/mentions-legales" component={MentionsLegales} />
         <Route path="/videos-demo" component={VideosDemoPage} />
+        <Route path="/a-propos" component={APropos} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
