@@ -8,6 +8,7 @@ import de from "./locales/de.json";
 import nl from "./locales/nl.json";
 import es from "./locales/es.json";
 import it from "./locales/it.json";
+import pt from "./locales/pt.json";
 
 i18n
   .use(LanguageDetector)
@@ -20,9 +21,10 @@ i18n
       nl: { translation: nl },
       es: { translation: es },
       it: { translation: it },
+      pt: { translation: pt },
     },
     fallbackLng: "fr",
-    supportedLngs: ["fr", "en", "de", "nl", "es", "it"],
+    supportedLngs: ["fr", "en", "de", "nl", "es", "it", "pt"],
     detection: {
       order: ["localStorage", "navigator", "htmlTag"],
       caches: ["localStorage"],
