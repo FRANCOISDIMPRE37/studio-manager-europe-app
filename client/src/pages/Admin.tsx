@@ -1,17 +1,17 @@
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function Admin() {
-  const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  const { data: studios, isLoading } = trpc.admin.listStudios.useQuery();
+  const { data: studios, isLoading, error } = trpc.admin.listStudios.useQuery(undefined, {
+    retry: false,
+  });
 
-  // Seul l'admin peut accéder à cette page
-  if (user && user.role !== "admin") {
+  // Accès refusé si erreur de permission
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--brand-navy)" }}>
         <p className="text-white text-lg">Accès refusé — réservé aux administrateurs.</p>
