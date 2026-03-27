@@ -102,16 +102,14 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg"
-            alt="Intemporelle"
-            className="w-20 h-20 mb-4"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
+            alt="Intemporelle RGPD & Cybersécurité"
+            className="rounded-lg mb-4"
+            style={{ width: '220px', objectFit: 'contain' }}
           />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
             Studio Manager
           </h1>
-          <p className="text-sm mt-1 text-center" style={{ color: 'var(--brand-cyan)' }}>
-            by Intemporelle — RGPD & Cybersécurité
-          </p>
         </div>
 
         {/* PIN Card */}

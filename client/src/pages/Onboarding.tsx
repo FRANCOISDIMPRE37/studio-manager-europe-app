@@ -160,9 +160,10 @@ export default function Onboarding() {
         {/* Logo + titre */}
         <div className="flex flex-col items-center">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg"
-            alt="Intemporelle"
-            className="w-14 h-14 mb-3"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
+            alt="Intemporelle RGPD & Cybersécurité"
+            className="rounded-lg mb-3"
+            style={{ width: '200px', objectFit: 'contain' }}
           />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
             Studio Manager

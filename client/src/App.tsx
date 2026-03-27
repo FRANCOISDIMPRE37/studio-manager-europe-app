@@ -29,9 +29,10 @@ function AppRoutes() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
         <div className="flex flex-col items-center gap-4">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg"
-            alt="Intemporelle"
-            className="w-16 h-16 animate-pulse"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
+            alt="Intemporelle RGPD & Cybersécurité"
+            className="rounded-lg animate-pulse"
+            style={{ width: '180px', objectFit: 'contain' }}
           />
           <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Chargement...</p>
         </div>
