@@ -69,20 +69,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-3 py-4 border-b flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
+        <div className="flex flex-col items-center px-3 py-3 border-b flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg"
-            alt="Intemporelle"
-            className="w-8 h-8 flex-shrink-0"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
+            alt="Intemporelle RGPD & Cybersécurité"
+            className="w-full rounded-md"
+            style={{ maxHeight: '52px', objectFit: 'contain' }}
           />
-          <div className="block min-w-0">
-            <p className="text-xs font-700 text-white leading-tight truncate" style={{ fontFamily: 'Outfit', fontWeight: 700 }}>
-              Studio Manager
-            </p>
-            <p className="text-xs leading-tight truncate" style={{ color: 'var(--brand-cyan)', fontSize: '10px' }}>
-              by Intemporelle
-            </p>
-          </div>
+          <p className="text-xs mt-2 text-center leading-tight" style={{ color: 'var(--brand-cyan)', fontSize: '10px', fontFamily: 'Outfit' }}>
+            Studio Manager
+          </p>
         </div>
 
         {/* Demo badge */}
