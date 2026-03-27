@@ -102,7 +102,6 @@ export default function PolitiqueConfidentialite() {
               {[
                 ["Questionnaires médicaux adultes", "3 ans actifs + 5 ans archives"],
                 ["Autorisations parentales mineurs", "Jusqu'à la majorité + 3 ans"],
-                ["Données de rendez-vous", "1 an"],
                 ["Données de facturation", "10 ans (obligation légale)"],
                 ["Données de connexion", "12 mois"],
               ].map(([c, d], i) => (
