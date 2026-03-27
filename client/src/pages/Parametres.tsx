@@ -294,7 +294,7 @@ export default function Parametres() {
             <Download size={16} style={{ color: 'var(--brand-cyan)' }} />
             <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{t('settings.export_data')}</h2>
           </div>
-          <p className="text-xs mb-4" style={{ color: 'var(--brand-text-muted)' }}>Télécharge un fichier de sauvegarde complet (clients, soins, questionnaires, autorisations)</p>
+          <p className="text-xs mb-4" style={{ color: 'var(--brand-text-muted)' }}>Exportez l'intégralité de vos données (clients, soins, questionnaires, autorisations) dans un fichier sécurisé. Sauvegardez-le sur votre cloud personnel (iCloud, Google Drive…), une clé USB ou tout autre support de votre choix.</p>
 
           {/* 4 compteurs */}
           <div className="grid grid-cols-4 gap-2 mb-4">
@@ -321,7 +321,7 @@ export default function Parametres() {
             {t('settings.export_data')}
           </button>
           <p className="text-xs mt-2" style={{ color: 'var(--brand-text-muted)' }}>
-            ⚠️ Le fichier s'appelle <em>studio-backup-[date].json</em> — gardez-le précieusement !
+            💾 Le fichier généré s'appelle <em>studio-backup-[date].json</em>. Conservez-le sur votre cloud (iCloud, Google Drive, Dropbox…) ou une clé USB. Il vous permettra de restaurer toutes vos données en cas de changement de tablette ou de réinitialisation.
           </p>
         </div>
 
@@ -334,12 +334,12 @@ export default function Parametres() {
             <Upload size={16} style={{ color: 'var(--brand-cyan)' }} />
             <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{t('settings.import_data')}</h2>
           </div>
-          <p className="text-xs mb-3" style={{ color: 'var(--brand-text-muted)' }}>Restaurez vos données depuis un fichier de sauvegarde précédent</p>
+          <p className="text-xs mb-3" style={{ color: 'var(--brand-text-muted)' }}>Restaurez votre base de données depuis un fichier de sauvegarde précédemment exporté. Idéal lors d'un changement de tablette, d'une réinitialisation ou d'une migration vers une nouvelle installation.</p>
 
           <div className="flex items-start gap-2 p-3 rounded-lg mb-3" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.3)' }}>
             <AlertTriangle size={14} style={{ color: '#fb923c', flexShrink: 0, marginTop: 1 }} />
             <p className="text-xs" style={{ color: '#fb923c' }}>
-              <strong>L'import remplace toutes les données actuelles.</strong> Faites d'abord un export si nécessaire.
+              <strong>L'import remplace toutes les données actuelles.</strong> Effectuez d'abord un export de sauvegarde avant d'importer, afin de ne perdre aucune donnée existante.
             </p>
           </div>
 
