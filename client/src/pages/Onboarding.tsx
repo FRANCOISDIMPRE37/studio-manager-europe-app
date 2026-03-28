@@ -166,7 +166,7 @@ export default function Onboarding() {
             style={{ width: '200px', objectFit: 'contain' }}
           />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
-            Studio Manager
+            studio.intemporelle.eu
           </h1>
           <p className="text-xs mt-1" style={{ color: 'var(--brand-cyan)' }}>Configuration initiale</p>
         </div>
@@ -200,7 +200,7 @@ export default function Onboarding() {
         {step === 'bienvenue' && (
           <div style={cardStyle}>
             <h2 className="text-lg font-700 mb-2" style={{ color: 'var(--brand-text)', fontFamily: 'Outfit', fontWeight: 700 }}>
-              Bienvenue dans Studio Manager
+              Bienvenue sur studio.intemporelle.eu
             </h2>
             <p className="text-sm mb-4" style={{ color: 'var(--brand-text-muted)', lineHeight: 1.7 }}>
               Cet assistant va vous guider pour configurer votre application en <strong style={{ color: 'var(--brand-cyan)' }}>2 minutes</strong>.

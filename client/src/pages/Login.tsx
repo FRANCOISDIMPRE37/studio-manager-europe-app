@@ -141,7 +141,7 @@ export default function Login() {
             style={{ width: '220px', objectFit: 'contain' }}
           />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
-            Studio Manager
+            studio.intemporelle.eu
           </h1>
         </div>
 
