@@ -5,8 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-  schedule:
-    - cron: '0 7 * * 1' # Tous les lundis à 07h00 UTC
 
 jobs:
   deploy:
@@ -24,18 +22,27 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            echo "🔄 Mise à jour du code..."
+            echo "🔄 Mise à jour du code principal..."
             cd ~/app
             git pull origin main
-
-            echo "📦 Installation des dépendances..."
             pnpm install --frozen-lockfile
-
-            echo "🔨 Build de l'application..."
             pnpm build
+            pm2 restart studio-manager
+            echo "✅ Studio Manager mis à jour !"
 
-            echo "♻️ Redémarrage du serveur..."
-            pm2 restart studio-manager --update-env
+            echo "🔄 Mise à jour de tous les clients..."
+            for dir in /var/www/*/; do
+              if [ -f "$dir/package.json" ]; then
+                name=$(basename "$dir")
+                echo "→ Mise à jour de $name..."
+                cd "$dir"
+                git pull origin main
+                pnpm install --frozen-lockfile
+                pnpm build
+                pm2 restart "$name" 2>/dev/null || echo "PM2: $name non trouvé"
+                echo "✅ $name mis à jour !"
+              fi
+            done
 
-            echo "✅ Déploiement terminé !"
+            echo "🎉 Tous les sites mis à jour !"
             pm2 status
