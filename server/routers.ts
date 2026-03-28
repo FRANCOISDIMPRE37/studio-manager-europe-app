@@ -860,6 +860,22 @@ export const appRouter = router({
       }).from(users).orderBy(users.createdAt);
       return result;
     }),
+    // Supprimer un compte studio (et toutes ses données)
+    deleteUser: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await import('./db').then(m => m.getDb());
+        if (!db) throw new Error('DB non disponible');
+        const { users, clients, salonSettings, prestations } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        // Supprimer les données liées
+        try { await db.delete(clients).where(eq(clients.userId, input.userId)); } catch {}
+        try { await db.delete(salonSettings).where(eq(salonSettings.userId, input.userId)); } catch {}
+        try { await db.delete(prestations).where(eq(prestations.userId, input.userId)); } catch {}
+        // Supprimer le compte
+        await db.delete(users).where(eq(users.id, input.userId));
+        return { success: true };
+      }),
   }),
   rappels: router({
     getStatus: protectedProcedure.query(async ({ ctx }) => {

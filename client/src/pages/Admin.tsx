@@ -2,18 +2,29 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Admin() {
   const [, setLocation] = useLocation();
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const utils = trpc.useUtils();
 
-  const { data: studios, isLoading, error } = trpc.admin.listStudios.useQuery(undefined, {
+  const { data: studios, isLoading } = trpc.admin.listStudios.useQuery(undefined, {
     retry: false,
   });
 
-  // Afficher l'erreur si la session n'est pas valide
-  if (error) {
-    console.error('[Admin] Erreur:', error.message);
-  }
+  const deleteUser = trpc.admin.deleteUser.useMutation({
+    onSuccess: () => {
+      toast.success("Compte supprimé avec succès");
+      setConfirmDelete(null);
+      utils.admin.listStudios.invalidate();
+    },
+    onError: (err) => {
+      toast.error("Erreur : " + err.message);
+      setConfirmDelete(null);
+    },
+  });
 
   return (
     <div className="min-h-screen p-6" style={{ background: "var(--brand-navy)" }}>
@@ -78,6 +89,7 @@ export default function Admin() {
                       <th className="text-left py-2 px-3 text-white">Méthode</th>
                       <th className="text-left py-2 px-3 text-white">Rôle</th>
                       <th className="text-left py-2 px-3 text-white">Inscrit le</th>
+                      <th className="text-left py-2 px-3 text-white">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -119,6 +131,33 @@ export default function Admin() {
                         </td>
                         <td className="py-2 px-3" style={{ color: "var(--brand-text-muted)" }}>
                           {new Date(studio.createdAt).toLocaleDateString("fr-FR")}
+                        </td>
+                        <td className="py-2 px-3">
+                          {confirmDelete === studio.id ? (
+                            <div className="flex gap-2 items-center">
+                              <span className="text-red-400 text-xs">Confirmer ?</span>
+                              <button
+                                onClick={() => deleteUser.mutate({ userId: studio.id })}
+                                disabled={deleteUser.isPending}
+                                className="text-xs px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                              >
+                                {deleteUser.isPending ? "..." : "Oui"}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDelete(null)}
+                                className="text-xs px-2 py-1 rounded bg-gray-600 text-white hover:bg-gray-700"
+                              >
+                                Non
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDelete(studio.id)}
+                              className="text-xs px-2 py-1 rounded border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition-colors"
+                            >
+                              Supprimer
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
