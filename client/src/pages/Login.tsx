@@ -143,6 +143,11 @@ export default function Login() {
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
             studio.intemporelle.eu
           </h1>
+          {state.salonInfo?.nom && (
+            <p className="text-sm mt-1 font-600 text-center" style={{ color: 'var(--brand-cyan)', fontFamily: 'Outfit', fontWeight: 600 }}>
+              {state.salonInfo.nom}
+            </p>
+          )}
         </div>
 
         {/* PIN Card */}
