@@ -745,14 +745,18 @@
     "professional_notes": "Notes du professionnel",
     "salon_name": "Nom du salon",
     "siret": "N° SIRET",
-    "age": "Âge"
+    "age": "Âge",
+    "legal_rep_name": "Nom du représentant légal",
+    "tattoo_artist_name": "Nom du tatoueur"
   },
   "legal": {
     "rgpd_minor": "Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).",
     "rgpd_adult": "Conservation : 3 ans minimum à compter de la dernière prestation (Art. L1110-4 CSP). Copie conservée par le salon. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).",
     "minor_legal_frame": "■ Cadre légal — Art. 371-1 et suivants du Code civil ■ Toute prestation de piercing sur un mineur est soumise au consentement écrit du ou des titulaires de l'autorité parentale. ■ La présence physique d'un représentant légal est obligatoire pendant toute la durée de la séance. Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP).",
     "ink_regulation": "▪ Règlement UE 2020/2081 — Encres de tatouage ▪ Les encres utilisées sont conformes au Règlement UE 2020/2081 en vigueur depuis le 4 janvier 2022. ▪ La traçabilité des encres est conservée 5 ans (Art. R 1311-7 CSP + Arrêté 13/03/2009).",
-    "support_line": "Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil)."
+    "support_line": "Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).",
+    "rgpd_tattoo": "Conformément au RGPD et à l'Arrêté du 3 décembre 2008, vos données sont conservées 5 ans minimum.",
+    "eu_ink_regulation": "Règlement UE 2020/2081 — Les encres utilisées sont conformes et traçables. Conservation 5 ans minimum."
   },
   "q01": {
     "section_minor_identity": "1 — IDENTITÉ DU MINEUR",
@@ -811,7 +815,18 @@
     "section_authorization": "4 — AUTORISATION PARENTALE",
     "section_signatures": "5 — SIGNATURES",
     "rep_signature": "Signature du représentant légal",
-    "rep_name_signed": "Nom du représentant légal — Lu et approuvé"
+    "rep_name_signed": "Nom du représentant légal — Lu et approuvé",
+    "section_declarations": "DÉCLARATIONS DU REPRÉSENTANT LÉGAL",
+    "legal_rep_intro": "En tant que représentant légal du mineur, je déclare :",
+    "decl_authority": "Avoir l'autorité parentale ou la tutelle légale du mineur",
+    "decl_authorize": "Autoriser expressément la réalisation de cette prestation sur le mineur",
+    "decl_no_contraindication": "Qu'il n'existe pas de contre-indication médicale connue à cette prestation",
+    "decl_care_protocol": "M'engager à superviser le protocole de soins post-prestation du mineur",
+    "section_presence": "PRÉSENCE LORS DE LA SÉANCE",
+    "presence_physical": "Je serai physiquement présent(e) lors de la séance",
+    "presence_written": "Je fournis une autorisation écrite (si absence exceptionnelle autorisée)",
+    "section_rep_id": "PIÈCE D'IDENTITÉ DU REPRÉSENTANT LÉGAL",
+    "rep_id_label": "Pièce d'identité du représentant légal"
   },
   "q03": {
     "section_client_identity": "1 — IDENTITÉ DU CLIENT",
@@ -923,7 +938,10 @@
     "consent_care": "Assume la responsabilité du suivi des soins post-tatouage",
     "consent_adult": "Confirme être majeur(e) et ne pas être sous tutelle",
     "section_signatures": "6 — SIGNATURES",
-    "client_name_signed": "Nom du client — Lu et approuvé"
+    "client_name_signed": "Nom du client — Lu et approuvé",
+    "ink_warning": "Conformément au Règlement UE 2020/2081, les encres utilisées doivent être conformes et traçables.",
+    "ink_colors": "Couleurs utilisées",
+    "ink_cert": "Encres conformes UE 2020/2081 vérifiées"
   },
   "q08": {
     "section_client_identity": "1 — IDENTITÉ DU CLIENT",
