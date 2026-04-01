@@ -173,30 +173,30 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   autorisation_parentale: '02 — Autorisation Parentale',
   // Piercing — Majeurs
   questionnaire_majeur: '03 — Questionnaire Médical Majeur (Piercing)',
-  fiche_seance_piercing: '07 — Fiche de Traçabilité Matériel Stérile',
+  fiche_seance_piercing: '04 — Fiche de Traçabilité Matériel Stérile',
   // Soins Piercing
   soins_oreilles: 'A — Soins Post-Piercing Oreilles',
   soins_nez: 'B — Soins Post-Piercing Nez',
+  soins_bouche_levres: 'C — Soins Post Labret (Bouche & Lèvres)',
   soins_nombril: 'D — Soins Post-Piercing Nombril',
   soins_mamelons: 'E — Soins Post-Piercing Téton',
   soins_arcade_sourcil: 'F — Soins Post-Piercing Arcade / Sourcil',
   soins_surface_dermal: 'G — Soins Post-Piercing Surface / Dermal',
-  soins_bouche_levres: 'C — Soins Post Labret',
   // Tatouage
-  questionnaire_tatouage_mineur: '02 — Questionnaire Médical Tatouage Mineur',
-  autorisation_parentale_tatouage: '03 — Autorisation Parentale',
-  questionnaire_tatouage_majeur: '04 — Questionnaire Médical Tatouage Majeur',
-  consentement_soins_tatouage: '06 — Soins Post-Tatouage',
-  fiche_seance_tatouage: '05 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
+  questionnaire_tatouage_mineur: '05 — Questionnaire Médical Tatouage Mineur',
+  autorisation_parentale_tatouage: '06 — Autorisation Parentale',
+  questionnaire_tatouage_majeur: '07 — Questionnaire Médical Tatouage Majeur',
+  fiche_seance_tatouage: '08 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
+  consentement_soins_tatouage: '09 — Soins Post-Tatouage',
   // Dermographie
-  questionnaire_dermographe_mineur: '07b — Questionnaire Médical Dermographie Mineur',
-  autorisation_parentale_dermographie: '07c — Autorisation Parentale Soins Post-Dermographie',
-  questionnaire_dermographe: '08 — Questionnaire Médical Dermographe',
-  soins_dermographe: '09 — Soins Post-Dermographie (Maquillage Permanent)',
-  fiche_seance_dermographe: '10 — Fiche de Séance Dermographe',
+  questionnaire_dermographe_mineur: '10 — Questionnaire Médical Dermographie Mineur',
+  autorisation_parentale_dermographie: '11 — Autorisation Parentale',
+  questionnaire_dermographe: '12 — Questionnaire Médical Dermographie Majeur',
+  fiche_seance_dermographe: '13 — Fiche de Traçabilité Matériel Stérile (Dermographie)',
+  soins_dermographe: '14 — Soins Post-Dermographie',
   // RGPD
-  engagement_confidentialite: '11 — Engagement de Confidentialité (RGPD Art. 29)',
-  affichage_salon: '12 — Information Client — Protection des Données (RGPD)',
+  engagement_confidentialite: '15 — Engagement de Confidentialité (RGPD Art. 29)',
+  affichage_salon: '16 — Information Client — Protection des Données (RGPD)',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {

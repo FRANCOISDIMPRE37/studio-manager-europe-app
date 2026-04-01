@@ -382,10 +382,10 @@
   "doc_categories": {
     "piercing_mineurs": "Piercing — Mineurs (01-02)",
     "piercing_majeurs": "Piercing — Majeurs (03-04)",
-    "soins_piercing": "Soins Post-Piercing (A, B, C, D–G)",
-    "tatouage": "Tatouage (05-07)",
-    "dermographie": "Dermographie (08-10)",
-    "rgpd": "RGPD & Confidentialité (11-12)"
+    "soins_piercing": "Soins Post-Piercing (A, B, C, D, E, F, G)",
+    "tatouage": "Tatouage (05-09)",
+    "dermographie": "Dermographie (10-14)",
+    "rgpd": "RGPD & Confidentialité (15-16)"
   },
   "soins": {
     "fiche_title": "FICHE DE SOINS",

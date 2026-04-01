@@ -221,10 +221,10 @@
   "doc_categories": {
     "piercing_mineurs": "Piercing — Minors (01-02)",
     "piercing_majeurs": "Piercing — Adults (03-04)",
-    "soins_piercing": "Post-Piercing Care (A, B, C, D–G)",
-    "tatouage": "Tattoo (05-07)",
-    "dermographie": "Dermography (08-10)",
-    "rgpd": "GDPR & Confidentiality (11-12)"
+    "soins_piercing": "Post-Piercing Care (A, B, C, D, E, F, G)",
+    "tatouage": "Tattoo (05-09)",
+    "dermographie": "Dermography (10-14)",
+    "rgpd": "GDPR & Confidentiality (15-16)"
   },
   "soins": {
     "fiche_title": "CARE SHEET",
