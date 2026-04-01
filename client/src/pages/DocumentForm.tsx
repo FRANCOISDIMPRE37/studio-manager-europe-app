@@ -1900,7 +1900,7 @@ function FormAutorisationParentaleTatouage({ data, update, client }: { data: Rec
       <FormField label="Nom du tatoueur" value={data.nomTatoueur || ''} onChange={v => update('nomTatoueur', v)} />
 
       <FormSection title="Instructions de soins post-tatouage" />
-      <LegalBox color="blue">
+      <LegalBox color="cyan">
         <strong>Soins à effectuer durant les 2 premières semaines :</strong>
         <ul style={{ marginTop: 8, paddingLeft: 16 }}>
           <li>Laver délicatement le tatouage 2 à 3 fois par jour avec un savon doux</li>
