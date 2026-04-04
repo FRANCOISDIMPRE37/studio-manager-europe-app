@@ -166,7 +166,9 @@ export const studioUsers = mysqlTable("studio_users", {
   prenom: varchar("prenom", { length: 100 }).notNull(),
   nom: varchar("nom", { length: 100 }).notNull(),
   login: varchar("login", { length: 100 }).notNull(), // identifiant de connexion
-  passwordHash: text("passwordHash").notNull(), // bcrypt hash
+  passwordHash: text("passwordHash").notNull(),
+  pinHash: text("pinHash"), // bcrypt hash
+  specialite: varchar("specialite", { length: 100 }), // piercing, tatouage, dermographie
   role: mysqlEnum("role", ["admin", "employe", "stagiaire"]).default("employe").notNull(),
   actif: boolean("actif").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -363,3 +365,22 @@ export const sharedServices = mysqlTable("shared_services", {
 
 export type SharedService = typeof sharedServices.$inferSelect;
 export type InsertSharedService = typeof sharedServices.$inferInsert;
+
+/**
+ * Table des documents salariés (RGPD Art. 29, engagement confidentialité)
+ */
+export const documentsSalaries = mysqlTable("documents_salaries", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  studioUserId: int("studioUserId").notNull(),
+  ownerId: int("ownerId").notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
+  titre: varchar("titre", { length: 300 }).notNull(),
+  contenu: text("contenu"),
+  status: mysqlEnum("status", ["draft", "signe"]).default("draft").notNull(),
+  signatureSalarie: text("signatureSalarie"),
+  dateSigne: varchar("dateSigne", { length: 10 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type DocumentSalarie = typeof documentsSalaries.$inferSelect;
+export type InsertDocumentSalarie = typeof documentsSalaries.$inferInsert;

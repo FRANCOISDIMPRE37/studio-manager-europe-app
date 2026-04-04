@@ -788,6 +788,7 @@ export const appRouter = router({
         login: z.string().min(3, 'Le login doit faire au moins 3 caractères').regex(/^[a-zA-Z0-9._-]+$/, 'Login invalide (lettres, chiffres, . _ - uniquement)'),
         password: z.string().min(6, 'Le mot de passe doit faire au moins 6 caractères'),
         role: z.enum(['admin', 'employe', 'stagiaire']).default('employe'),
+        specialite: z.string().optional(),
         actif: z.boolean().default(true),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -801,8 +802,9 @@ export const appRouter = router({
           login: input.login,
           passwordHash,
           role: input.role,
+          specialite: input.specialite || null,
           actif: input.actif,
-        });
+        } as any);
         return { success: true };
       }),
 
@@ -815,6 +817,7 @@ export const appRouter = router({
         login: z.string().min(3).regex(/^[a-zA-Z0-9._-]+$/).optional(),
         password: z.string().min(6).optional(), // vide = ne pas changer
         role: z.enum(['admin', 'employe', 'stagiaire']).optional(),
+        specialite: z.string().optional(),
         actif: z.boolean().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1353,6 +1356,33 @@ export const appRouter = router({
       } catch { return { rappels: [], total: 0 }; }
     }),
   }),
+
+  // ========== EMPLOYÉS ==========
+  createEmployee: protectedProcedure
+    .input(z.object({
+      prenom: z.string(),
+      nom: z.string(),
+      email: z.string().optional(),
+      pin: z.string().length(4),
+      password: z.string()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new Error('Database error');
+      const passwordHash = await bcrypt.hash(input.password, 10);
+      await db.query(
+        'INSERT INTO employees (prenom, nom, email, pin, passwordHash, typeContrat, ownerId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [input.prenom, input.nom, input.email, input.pin, passwordHash, 'employe', ctx.ownerId]
+      );
+      return { success: true };
+    }),
+
+  listEmployees: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error('Database error');
+    return await db.query('SELECT id, prenom, nom, email, pin FROM employees WHERE ownerId = ?', [ctx.ownerId]);
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;
