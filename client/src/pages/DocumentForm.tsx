@@ -564,17 +564,6 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageRepresentant || ''}
-              onChange={v => update('signatureImageRepresentant', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || ''} onChange={v => update('nomPierceurSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignaturePierceur || ''} onChange={v => update('dateSignaturePierceur', v)} />
           <div className="mt-3">
