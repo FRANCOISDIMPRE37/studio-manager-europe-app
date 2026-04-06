@@ -1873,6 +1873,13 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
 
       <RgpdMentions />
       <FormSection title={t('q05.section_signatures')} />
+        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || ''} onChange={v => update('nomClientSign', v)} />
+          <FormField label="Date" value={data.dateSignatureClient || ''} onChange={v => update('dateSignatureClient', v)} />
+          <div className="mt-3">
+            <SignaturePad label="Signature du client" value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} />
+          </div>
+        </div>
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueurSign || ''} onChange={v => update('nomTatoueurSign', v)} />
