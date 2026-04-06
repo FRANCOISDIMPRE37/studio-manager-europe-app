@@ -1010,17 +1010,6 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageRepresentant || ''}
-              onChange={v => update('signatureImageRepresentant', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label="Nom du pierceur" value={data.nomPierceurSign || ''} onChange={v => update('nomPierceurSign', v)} />
           <FormField label="Date" value={data.dateSignaturePierceur || ''} onChange={v => update('dateSignaturePierceur', v)} />
           <div className="mt-3">
@@ -1420,17 +1409,6 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageRepresentant || ''}
-              onChange={v => update('signatureImageRepresentant', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label="Nom du tatoueur" value={data.nomTatoueurSign || ''} onChange={v => update('nomTatoueurSign', v)} />
           <FormField label="Date" value={data.dateSignatureTatoueur || ''} onChange={v => update('dateSignatureTatoueur', v)} />
           <div className="mt-3">
@@ -1568,17 +1546,6 @@ function FormFicheSeanceTatouage({ data, update, client }: { data: Record<string
               label="Signature du client"
               value={data.signatureImageClient || ''}
               onChange={v => update('signatureImageClient', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageRepresentant || ''}
-              onChange={v => update('signatureImageRepresentant', v ?? '')}
             />
           </div>
         </div>
