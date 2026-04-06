@@ -2267,17 +2267,6 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label="Date" value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du représentant légal"
-              value={data.signatureImageRepresentant || ''}
-              onChange={v => update('signatureImageRepresentant', v ?? '')}
-            />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label={t('q08.dermographer_name')} value={data.nomDermographeSign || ''} onChange={v => update('nomDermographeSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignatureDermographe || ''} onChange={v => update('dateSignatureDermographe', v)} />
           <div className="mt-3">
