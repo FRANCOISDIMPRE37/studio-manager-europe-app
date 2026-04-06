@@ -1875,22 +1875,6 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
       <FormSection title={t('q05.section_signatures')} />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <p className="text-xs mb-3" style={{ color: '#374151' }}>Signature du mineur</p>
-          <FormField label="Nom du mineur" value={data.nomMineurSign || ''} onChange={v => update('nomMineurSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureMineur || ''} onChange={v => update('dateSignatureMineur', v)} />
-          <div className="mt-3">
-            <SignaturePad label="Signature du mineur" value={data.signatureImageMineur || ''} onChange={v => update('signatureImageMineur', v ?? '')} />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-          <p className="text-xs mb-3" style={{ color: '#374151' }}>Signature du représentant légal</p>
-          <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || ''} onChange={v => update('dateSignatureRepresentant', v)} />
-          <div className="mt-3">
-            <SignaturePad label="Signature du représentant légal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} />
-          </div>
-        </div>
-        <div className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
           <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueurSign || ''} onChange={v => update('nomTatoueurSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignatureTatoueur || ''} onChange={v => update('dateSignatureTatoueur', v)} />
           <div className="mt-3">
