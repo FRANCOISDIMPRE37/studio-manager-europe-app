@@ -1,0 +1,49 @@
+const express = require('express');
+const { execSync } = require('child_process');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+const SECRET = 'IntemporelleAdmin2026';
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'Admin2026';
+function auth(req, res, next) {
+  const t = req.headers['authorization']?.split(' ')[1];
+  if (!t) return res.status(401).json({ error: 'Non autorise' });
+  try { jwt.verify(t, SECRET); next(); }
+  catch { res.status(401).json({ error: 'Token invalide' }); }
+}
+app.post('/api/login', (req, res) => {
+  if (req.body.username === ADMIN_USER && req.body.password === ADMIN_PASS) {
+    res.json({ token: jwt.sign({ role: 'admin' }, SECRET, { expiresIn: '24h' }) });
+  } else {
+    res.status(401).json({ error: 'Identifiants incorrects' });
+  }
+});
+app.get('/api/pm2', auth, (req, res) => {
+  try {
+    const list = JSON.parse(execSync('pm2 jlist').toString());
+    res.json(list.map(p => ({
+      name: p.name,
+      status: p.pm2_env.status,
+      port: p.pm2_env.env?.PORT || '-',
+      memory: Math.round(p.monit?.memory / 1024 / 1024) + 'mb',
+      cpu: p.monit?.cpu + '%',
+      restarts: p.pm2_env.restart_time
+    })));
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/pm2/:name/restart', auth, (req, res) => {
+  try { execSync('pm2 restart ' + req.params.name); res.json({ ok: true }); }
+  catch(e) { res.status(500).json({ error: e.message }); }
+});
+app.get('/api/system', auth, (req, res) => {
+  try {
+    res.json({
+      uptime: execSync('uptime -p').toString().trim(),
+      mem: execSync('free -m').toString()
+    });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+app.listen(8090, () => console.log('Admin on 8090'));
