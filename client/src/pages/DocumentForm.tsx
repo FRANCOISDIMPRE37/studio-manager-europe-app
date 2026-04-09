@@ -121,8 +121,8 @@ function DateSlashField({ label, value, onChange, required }: { label: string; v
   const dd = (parts[0] || '').trim();
   const mm = (parts[1] || '').trim();
   const yyyy = (parts[2] || '').trim();
-  const refMM = React.useRef<HTMLInputElement>(null);
-  const refYYYY = React.useRef<HTMLInputElement>(null);
+  const refMM = useRef<HTMLInputElement>(null);
+  const refYYYY = useRef<HTMLInputElement>(null);
   const update = (newDd: string, newMm: string, newYyyy: string) => {
     const joined = [newDd, newMm, newYyyy].filter(Boolean).join(' / ');
     onChange(joined);

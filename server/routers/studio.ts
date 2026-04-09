@@ -1,3 +1,24 @@
+
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+
+function encryptSmtp(text: string): string {
+  const key = Buffer.from(process.env.JWT_SECRET!.padEnd(32).substring(0, 32));
+  const iv = randomBytes(16);
+  const cipher = createCipheriv("aes-256-cbc", key, iv);
+  const encrypted = Buffer.concat([cipher.update(text, "utf8"), cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+export function decryptSmtp(text: string): string {
+  try {
+    const [ivHex, encHex] = text.split(":");
+    if (!ivHex || !encHex) return text;
+    const key = Buffer.from(process.env.JWT_SECRET!.padEnd(32).substring(0, 32));
+    const decipher = createDecipheriv("aes-256-cbc", Buffer.from(ivHex, "hex"), Buffer.from(key));
+    const dec = Buffer.concat([decipher.update(Buffer.from(encHex, "hex")), decipher.final()]);
+    return dec.toString("utf8");
+  } catch { return text; }
+}
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getDb } from "../db";

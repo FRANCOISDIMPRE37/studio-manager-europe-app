@@ -5,7 +5,6 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { RotateCcw, PenLine, CheckCircle } from 'lucide-react';
 import { ConfidentialityEngagement } from './ConfidentialityEngagement';
 import { trpc } from '@/lib/trpc';
-import { trpc } from '@/lib/trpc';
 
 interface SignaturePadProps {
   documentId?: string;
@@ -85,7 +84,7 @@ export default function SignaturePad({
     } else {
       clearCanvas();
     }
-  }, [value, clearCanvas]);
+  }, [value]);
 
   const getCoordinates = useCallback((e: MouseEvent | TouchEvent) => {
     const canvas = canvasRef.current;

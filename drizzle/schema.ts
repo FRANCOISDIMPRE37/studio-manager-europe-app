@@ -385,3 +385,16 @@ export const documentsSalaries = mysqlTable("documents_salaries", {
 });
 export type DocumentSalarie = typeof documentsSalaries.$inferSelect;
 export type InsertDocumentSalarie = typeof documentsSalaries.$inferInsert;
+
+export const auditLogs = mysqlTable("audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  studioUserId: int("studioUserId"),
+  action: varchar("action", { length: 100 }).notNull(),
+  ip: varchar("ip", { length: 45 }),
+  userAgent: varchar("userAgent", { length: 500 }),
+  success: boolean("success").default(true).notNull(),
+  details: text("details"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AuditLog = typeof auditLogs.$inferSelect;
