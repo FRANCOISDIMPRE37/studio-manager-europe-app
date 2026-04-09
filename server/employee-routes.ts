@@ -54,11 +54,12 @@ router.post('/api/employees', authMiddleware, async (req, res) => {
   }
   
   const passwordHash = await bcrypt.hash(password, 10);
+  const pinHash = await bcrypt.hash(pin, 10);
   
   try {
     const result = await db.query(
       'INSERT INTO employees (prenom, nom, adresse, codePostal, ville, email, pin, passwordHash, typeContrat, ownerId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [prenom, nom, adresse, codePostal, ville, email, pin, passwordHash, typeContrat || 'employe', ownerId]
+      [prenom, nom, adresse, codePostal, ville, email, pinHash, passwordHash, typeContrat || 'employe', ownerId]
     );
     
     res.json({ success: true, id: result.insertId });
