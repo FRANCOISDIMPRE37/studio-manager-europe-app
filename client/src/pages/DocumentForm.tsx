@@ -224,7 +224,7 @@ function RgpdMentions() {
         Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants :{' '}
         <span style={{ fontWeight: 600, color: '#1b5e20' }}>Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition</span>{' '}
         — Conservation : données de santé 3 ans — Pour exercer vos droits :{' '}
-        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>francois-dimpre@intemporelle.eu</span>
+        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>{salonInfo?.email || "contact@votresalon.fr"}</span>
       </div>
       <div>
         <span style={{ fontWeight: 600, color: '#1b5e20' }}>Support :</span>{' '}
@@ -338,7 +338,7 @@ function PrintFooter({ salonInfo, docTitle }: {
           <span style={{ fontWeight: 700, color: '#0A1628' }}>VOS DROITS RGPD</span>{' '}
           Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants :
           {' '}Art. 15 — Droit d’accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l’effacement · Art. 21 — Droit d’opposition
-          {' '}Conservation : données de santé 3 ans — Pour exercer vos droits : <span style={{ fontWeight: 600 }}>francois-dimpre@intemporelle.eu</span>
+          {' '}Conservation : données de santé 3 ans — Pour exercer vos droits : <span style={{ fontWeight: 600 }}>{salonInfo?.email || "contact@votresalon.fr"}</span>
         </div>
         {/* Ligne 3 : Support + engagement */}
         <div style={{ marginBottom: 6, lineHeight: 1.4 }}>
@@ -1035,7 +1035,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       )}
 
       <LegalBox color="cyan">
-        <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
       </LegalBox>
 
@@ -1247,7 +1247,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
 
 
       <LegalBox>
-        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
       </LegalBox>
 
@@ -1307,7 +1307,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       </LegalBox>
       <LegalBox color="cyan">
         <em>VOS DROITS RGPD — Art. 15 Droit d'accès · Art. 16 Rectification · Art. 17 Effacement · Art. 21 Opposition.<br />
-        Pour exercer vos droits : francois-dimpre@intemporelle.eu — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
+        Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"} — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
       </LegalBox>
 
       {/* Identité client */}
@@ -1434,7 +1434,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       <CheckboxField label="Coordonnées du professionnel remises" value={data.docCoordonnees || false} onToggle={() => update('docCoordonnees', !data.docCoordonnees)} />
 
       <LegalBox color="cyan">
-        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
       </LegalBox>
 
@@ -2371,7 +2371,7 @@ function FormSoinsDermographe({ data, update, client }: { data: Record<string, a
       </LegalBox>
       <LegalBox color="cyan">
         <em>VOS DROITS RGPD — Art. 15 Droit d'accès · Art. 16 Rectification · Art. 17 Effacement · Art. 21 Opposition.<br />
-        Pour exercer vos droits : francois-dimpre@intemporelle.eu — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
+        Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"} — L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 Code civil).</em>
       </LegalBox>
 
       {/* Identité client */}
@@ -2561,7 +2561,7 @@ function FormSoinsDermographe({ data, update, client }: { data: Record<string, a
       <CheckboxField label="Coordonnées du praticien remises" value={data.docCoordonnees || false} onToggle={() => update('docCoordonnees', !data.docCoordonnees)} />
 
       <LegalBox color="cyan">
-        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : francois-dimpre@intemporelle.eu<br />
+        <em>Conservation : 5 ans minimum à compter de la dernière prestation (Art. R 1311-7 CSP + Arrêté 13/03/2009). Copie conservée par le salon. VOS DROITS RGPD — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
       </LegalBox>
 
