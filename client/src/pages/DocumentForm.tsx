@@ -2960,6 +2960,21 @@ export default function DocumentForm() {
       toast.error('Le nom et le prénom du client sont obligatoires pour sauvegarder.');
       return;
     }
+    // Validation cases consentement obligatoires
+    const fichesMineurs = ['questionnaire_mineur', 'questionnaire_tatouage_mineur', 'questionnaire_dermographe_mineur'];
+    const fichesAutorisations = ['autorisation_parentale', 'autorisation_parentale_tatouage', 'autorisation_parentale_dermographie'];
+    if (fichesMineurs.includes(docType)) {
+      if (!formData.reponduHonnetement) {
+        toast.error('Veuillez cocher toutes les cases de déclaration obligatoires.');
+        return;
+      }
+    }
+    if (fichesAutorisations.includes(docType)) {
+      if (!formData.reponduHonnetement || !formData.presencePhysique) {
+        toast.error('Veuillez cocher toutes les cases de consentement du représentant légal.');
+        return;
+      }
+    }
     setIsSaving(true);
     try {
       const existingDocIdx = (client.documents || []).findIndex(d => d.type === docType);
@@ -3304,6 +3319,11 @@ export default function DocumentForm() {
           date={today}
           numeroClient={effectiveClient.numeroClient}
         />
+        {/* Message champs obligatoires */}
+        <div className="no-print mb-3 px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)' }}>
+          <span style={{ color: '#F59E0B', fontSize: 14 }}>⚠️</span>
+          <span style={{ color: '#92400E', fontSize: 12 }}>Les champs marqués <strong style={{ color: '#DC2626' }}>*</strong> sont obligatoires. Veuillez les remplir avant de sauvegarder.</span>
+        </div>
         {renderForm()}
 
         {/* Pied de page visible uniquement à l'impression */}
