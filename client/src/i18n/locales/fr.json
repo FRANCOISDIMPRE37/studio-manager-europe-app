@@ -357,7 +357,7 @@
     "tr": "Türkçe"
   },
   "doc_labels": {
-    "questionnaire_mineur": "01 — Questionnaire Médical Mineur (Piercing)",
+    "questionnaire_mineur": "01 — Dossier Complet Mineur Piercing",
     "autorisation_parentale": "02 — Autorisation Parentale",
     "questionnaire_majeur": "03 — Questionnaire Médical Majeur (Piercing)",
     "fiche_seance_piercing": "04 — Fiche de Traçabilité Matériel Stérile",
@@ -382,7 +382,7 @@
     "affichage_salon": "16 — Information Client — Protection des Données (RGPD)"
   },
   "doc_categories": {
-    "piercing_mineurs": "Piercing — Mineurs (01-02)",
+    "piercing_mineurs": "Piercing — Mineurs (01)",
     "piercing_majeurs": "Piercing — Majeurs (03-04)",
     "soins_piercing": "Soins Post-Piercing (A, B, C, D, E, F, G)",
     "tatouage": "Tatouage (05-09)",
