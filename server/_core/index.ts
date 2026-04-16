@@ -6,7 +6,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes, registerBypassLogin } from "./oauth";
 import { registerAuthRoutes } from "./auth-routes";
 import adminRoutes from "../admin-routes";
-import adminRoutes from "../admin-routes";
+
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
