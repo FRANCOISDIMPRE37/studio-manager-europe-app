@@ -5,6 +5,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { RotateCcw, PenLine, CheckCircle } from 'lucide-react';
 import { ConfidentialityEngagement } from './ConfidentialityEngagement';
 import { trpc } from '@/lib/trpc';
+import { useApp } from '@/lib/app-context';
 
 interface SignaturePadProps {
   documentId?: string;
