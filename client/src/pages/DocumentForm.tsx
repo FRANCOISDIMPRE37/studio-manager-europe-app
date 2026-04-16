@@ -3855,12 +3855,19 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
+      <FormSection title="1 — IDENTITE DU SALON" />
+      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
+        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+      </div>
+      <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueur || salonInfo?.nomTatoueur || ''} onChange={v => update('nomTatoueur', v)} />
       <LegalBox color="red">
         <strong>Cadre legal — Art. 371-1 Code civil</strong><br/>
         Toute prestation de tatouage sur mineur requiert le consentement ecrit du representant legal et sa presence physique.<br/>
         Conservation : 3 ans minimum apres la majorite (Art. L1110-4 CSP).
       </LegalBox>
-      <FormSection title="1 — IDENTITE DU MINEUR" />
+      <FormSection title="2 — IDENTITE DU MINEUR" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
@@ -3922,12 +3929,19 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
+      <FormSection title="1 — IDENTITE DU SALON" />
+      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
+        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+      </div>
+      <FormField label="Nom du dermographe" value={data.nomDermographe || salonInfo?.nomDermographe || ''} onChange={v => update('nomDermographe', v)} />
       <LegalBox color="red">
         <strong>Cadre legal — Art. 371-1 Code civil</strong><br/>
         Toute prestation de dermographie sur mineur requiert le consentement ecrit du representant legal et sa presence physique.<br/>
         Conservation : 3 ans minimum apres la majorite (Art. L1110-4 CSP).
       </LegalBox>
-      <FormSection title="1 — IDENTITE DU MINEUR" />
+      <FormSection title="2 — IDENTITE DU MINEUR" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
