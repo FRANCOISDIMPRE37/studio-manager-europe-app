@@ -3745,12 +3745,19 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
+      <FormSection title="1 — IDENTITE DU SALON" />
+      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
+        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+      </div>
+      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} />
       <LegalBox color="red">
         <strong>Cadre legal — Art. 371-1 Code civil</strong><br/>
         Toute prestation sur mineur requiert le consentement ecrit du representant legal et sa presence physique.<br/>
         Conservation : 3 ans minimum apres la majorite (Art. L1110-4 CSP).
       </LegalBox>
-      <FormSection title="1 — IDENTITE DU MINEUR" />
+      <FormSection title="2 — IDENTITE DU MINEUR" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
@@ -3801,14 +3808,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <FormSection title="5 — DECLARATION CLIENT" />
       <CheckboxField label={t('q01.answered_honestly')} value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} required />
       <RgpdMentions />
-      <FormSection title="6 — IDENTITE DU SALON" />
-      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
-      </div>
-      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} />
-      <FormSection title="7 — REPRESENTANT LEGAL" />
+      <FormSection title="6 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
       <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} />
