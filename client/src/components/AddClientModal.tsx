@@ -444,15 +444,7 @@ export default function AddClientModal({ onClose, client }: Props) {
             </div>
           </div>
 
-          {/* ADRESSE ET PIECE D'IDENTITE */}
-          <div style={{ marginTop: 12 }}>
-            <p className="text-xs mb-2 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>Adresse</p>
-            <input type="text" style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', borderRadius: 8, color: 'var(--brand-text)', marginBottom: 8 }} value={adresse} onChange={e => setAdresse(e.target.value)} placeholder="Rue, numéro..." />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input type="text" style={{ width: '30%', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', borderRadius: 8, color: 'var(--brand-text)' }} value={codePostal} onChange={e => setCodePostal(e.target.value)} placeholder="37000" />
-              <input type="text" style={{ flex: 1, padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', borderRadius: 8, color: 'var(--brand-text)' }} value={ville} onChange={e => setVille(e.target.value)} placeholder="Tours" />
-            </div>
-          </div>
+
 
           {/* PRESTATIONS SOUHAITÉES */}
           <div>

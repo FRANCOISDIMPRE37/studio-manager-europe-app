@@ -17,16 +17,16 @@ import { trpc } from '@/lib/trpc';
 
 function FormSection({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-3 my-5">
-      <div className="h-px flex-1" style={{ background: 'var(--brand-border)' }} />
-      <span className="text-xs font-700 px-2 py-1 rounded" style={{
-        color: 'var(--brand-cyan)',
-        background: 'rgba(131,208,245,0.08)',
+    <div className="my-4">
+      <div className="px-3 py-2 rounded-lg" style={{
+        background: 'linear-gradient(135deg, #0a4a7a 0%, #0077aa 100%)',
+        color: '#ffffff',
         fontWeight: 700,
         fontFamily: 'Outfit',
-        letterSpacing: '0.05em',
-      }}>{title}</span>
-      <div className="h-px flex-1" style={{ background: 'var(--brand-border)' }} />
+        fontSize: '12px',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase' as const,
+      }}>{title}</div>
     </div>
   );
 }
@@ -47,7 +47,7 @@ function FormField({
   };
   return (
     <div className="mb-3">
-      <label className="block text-xs mb-1" style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+      <label className="block text-xs mb-1" style={{ color: '#111111', fontWeight: 700 }}>
         {label}{required && <span style={{ color: 'var(--brand-rose)' }}> *</span>}
       </label>
       {multiline ? (
@@ -91,7 +91,7 @@ function RadioField({ label, options, value, onChange }: {
 }) {
   return (
     <div className="mb-3">
-      <label className="block text-xs mb-2" style={{ color: '#374151', fontWeight: 500 }}>{label}</label>
+      <label className="block text-xs mb-2" style={{ color: '#111111', fontWeight: 700 }}>{label}</label>
       <div className="flex flex-wrap gap-2">
         {(Array.isArray(options) ? options : []).map(opt => (
           <button
@@ -100,11 +100,11 @@ function RadioField({ label, options, value, onChange }: {
             onClick={() => onChange(opt)}
             className="px-3 py-1.5 rounded-lg text-xs transition-all"
             style={{
-              background: value === opt ? 'rgba(131,208,245,0.15)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${value === opt ? 'var(--brand-cyan)' : 'var(--brand-border)'}`,
-              color: value === opt ? 'var(--brand-cyan)' : 'var(--brand-text-muted)',
+              background: value === opt ? '#0a4a7a' : '#ffffff',
+              border: `2px solid ${value === opt ? '#0a4a7a' : '#555555'}`,
+              color: value === opt ? '#ffffff' : '#111111',
               fontFamily: 'Outfit',
-              fontWeight: value === opt ? 600 : 400,
+              fontWeight: 700,
             }}
           >
             {opt}
@@ -186,10 +186,10 @@ function CheckboxField({ label, value, onToggle, warning }: {
 
 function LegalBox({ children, color = 'cyan' }: { children: React.ReactNode; color?: 'cyan' | 'orange' | 'green' | 'red' }) {
   const colors = {
-    cyan: { bg: 'rgba(131,208,245,0.05)', border: 'rgba(131,208,245,0.2)', text: '#83D0F5' },
-    orange: { bg: 'rgba(255,152,0,0.05)', border: 'rgba(255,152,0,0.2)', text: '#FF9800' },
-    green: { bg: 'rgba(76,175,80,0.05)', border: 'rgba(76,175,80,0.2)', text: '#4CAF50' },
-    red: { bg: 'rgba(244,67,54,0.05)', border: 'rgba(244,67,54,0.2)', text: '#F44336' },
+    cyan: { bg: '#c8e6c9', border: '#388e3c', text: '#1b5e20' },
+    orange: { bg: '#ffcdd2', border: '#c62828', text: '#b71c1c' },
+    green: { bg: '#e8f5e9', border: '#a5d6a7', text: '#1b5e20' },
+    red: { bg: '#ffebee', border: '#ef9a9a', text: '#b71c1c' },
   };
   const c = colors[color];
   return (
@@ -203,26 +203,27 @@ function LegalBox({ children, color = 'cyan' }: { children: React.ReactNode; col
 function RgpdMentions() {
   return (
     <div className="mt-4 mb-2 rounded-xl text-xs" style={{
-      background: 'rgba(131,208,245,0.04)',
+      background: '#e8f5e9',
       border: '1px solid rgba(131,208,245,0.15)',
       padding: '10px 12px',
       fontFamily: 'Outfit, sans-serif',
       lineHeight: 1.6,
-      color: '#374151',
+      color: '#1b5e20',
+      fontWeight: 600,
     }}>
-      <div style={{ fontWeight: 700, color: 'var(--brand-cyan)', marginBottom: 4, fontSize: 11 }}>VOS DROITS RGPD</div>
+      <div style={{ fontWeight: 700, color: '#1b5e20', marginBottom: 4, fontSize: 11 }}>VOS DROITS RGPD</div>
       <div style={{ marginBottom: 4 }}>
-        <span style={{ fontWeight: 600, color: '#111827' }}>Conservation (mineurs) :</span>{' '}
+        <span style={{ fontWeight: 600, color: '#1b5e20' }}>Conservation (mineurs) :</span>{' '}
         3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux.
       </div>
       <div style={{ marginBottom: 4 }}>
         Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants :{' '}
-        <span style={{ fontWeight: 600, color: '#111827' }}>Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition</span>{' '}
+        <span style={{ fontWeight: 600, color: '#1b5e20' }}>Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition</span>{' '}
         — Conservation : données de santé 3 ans — Pour exercer vos droits :{' '}
-        <span style={{ fontWeight: 600, color: 'var(--brand-cyan)' }}>francois-dimpre@intemporelle.eu</span>
+        <span style={{ fontWeight: 600, color: '#1a1a2e' }}>francois-dimpre@intemporelle.eu</span>
       </div>
       <div>
-        <span style={{ fontWeight: 600, color: '#111827' }}>Support :</span>{' '}
+        <span style={{ fontWeight: 600, color: '#1b5e20' }}>Support :</span>{' '}
         L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil). Le salon s'engage à ne pas utiliser les données personnelles à des fins publicitaires.
       </div>
     </div>
@@ -231,9 +232,9 @@ function RgpdMentions() {
 
 function WarningBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 p-3 rounded-xl mb-3" style={{ background: 'rgba(244,67,54,0.05)', border: '1px solid rgba(244,67,54,0.2)' }}>
-      <AlertTriangle size={14} style={{ color: '#F44336', flexShrink: 0, marginTop: 2 }} />
-      <span className="text-xs" style={{ color: '#F44336', fontFamily: 'Outfit', lineHeight: 1.6 }}>{children}</span>
+    <div className="flex items-start gap-2 p-3 rounded-xl mb-3" style={{ background: '#ffcdd2', border: '2px solid #c62828' }}>
+      <AlertTriangle size={14} style={{ color: '#b71c1c', flexShrink: 0, marginTop: 2 }} />
+      <span className="text-xs" style={{ color: '#b71c1c', fontFamily: 'Outfit', lineHeight: 1.6, fontWeight: 700 }}>{children}</span>
     </div>
   );
 }
@@ -645,7 +646,7 @@ function FormAutorisationParentale({ data, update, client, salonInfo }: { data: 
       <FormSection title={t('q02.section_legal_rep')} />
       <div className="p-3 rounded-xl mb-3" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
         <p className="text-xs mb-1" style={{ color: 'var(--brand-cyan)' }}>{t('q02.sync_from_01')}</p>
-        <p className="text-sm font-600" style={{ color: '#111827', fontWeight: 600 }}>
+        <p className="text-sm font-600" style={{ color: '#1b5e20', fontWeight: 600 }}>
           {data.nomRep || client.nom} {data.prenomRep || client.prenom}
         </p>
         {data.telRep || client.telephone ? <p className="text-xs mt-1" style={{ color: '#374151' }}>{data.telRep || client.telephone}</p> : null}
@@ -924,7 +925,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
           <tbody>
             {(Array.isArray(soinsZones) ? soinsZones : []).map((z: any, i: number) => (
               <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                <td className="p-2 font-600" style={{ color: '#111827', border: '1px solid var(--brand-border)', fontWeight: 600 }}>{z.zone}</td>
+                <td className="p-2 font-600" style={{ color: '#1b5e20', border: '1px solid var(--brand-border)', fontWeight: 600 }}>{z.zone}</td>
                 <td className="p-2" style={{ color: '#374151', border: '1px solid var(--brand-border)' }}>{z.desc}</td>
                 <td className="p-2" style={{ color: 'var(--brand-cyan)', border: '1px solid var(--brand-border)' }}>{z.cica}</td>
               </tr>
@@ -1065,13 +1066,13 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       <div className="mt-4 p-4 rounded-xl space-y-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
         <label className="flex items-start gap-3 cursor-pointer">
           <input type="checkbox" className="mt-0.5 accent-cyan-400" />
-          <span className="text-sm" style={{ color: '#111827' }}>
+          <span className="text-sm" style={{ color: '#1b5e20' }}>
             {t('soins.declaration_1', 'Je déclare avoir pris connaissance des risques liés à la pratique du piercing')}
           </span>
         </label>
         <label className="flex items-start gap-3 cursor-pointer">
           <input type="checkbox" className="mt-0.5 accent-cyan-400" />
-          <span className="text-sm" style={{ color: '#111827' }}>
+          <span className="text-sm" style={{ color: '#1b5e20' }}>
             {t('soins.declaration_2', "J'ai pu poser toutes les questions que je voulais")}
           </span>
         </label>
@@ -1142,8 +1143,8 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
           type="date"
         />
         <div className="mb-3">
-          <label className="block text-xs mb-1" style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>Âge (calculé automatiquement)</label>
-          <div className="w-full px-3 py-2 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--brand-border)', color: '#111827', opacity: 0.8 }}>
+          <label className="block text-xs mb-1" style={{ color: '#111111', fontWeight: 700 }}>Âge (calculé automatiquement)</label>
+          <div className="w-full px-3 py-2 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--brand-border)', color: '#1b5e20', opacity: 0.8 }}>
             {data.ageClient || calculateAge(data.dateNaissanceClient || client.dateNaissance || '') || '—'} {(data.ageClient || calculateAge(data.dateNaissanceClient || client.dateNaissance || '')) ? 'ans' : ''}
           </div>
         </div>
@@ -1162,7 +1163,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span style={{ fontSize: 16 }}>📷</span>
-            <span className="text-sm font-600" style={{ color: '#111827', fontWeight: 600 }}>Photos de traçabilité</span>
+            <span className="text-sm font-600" style={{ color: '#1b5e20', fontWeight: 600 }}>Photos de traçabilité</span>
           </div>
           <div className="flex gap-2">
             {/* Bouton caméra */}
@@ -1179,7 +1180,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
               type="button"
               onClick={() => photoInputRef.current?.click()}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#111827', border: '1px solid var(--brand-border)' }}
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#1b5e20', border: '1px solid var(--brand-border)' }}
             >
               ↗ Importer
             </button>
@@ -1361,7 +1362,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
                   fontWeight: 700,
                   fontFamily: 'Outfit',
                 }}>{etape.jour}</span>
-                <span className="text-xs font-600" style={{ color: '#111827', fontWeight: 600 }}>{etape.titre}</span>
+                <span className="text-xs font-600" style={{ color: '#1b5e20', fontWeight: 600 }}>{etape.titre}</span>
               </div>
               <p className="text-xs leading-relaxed" style={{ color: '#374151', lineHeight: 1.7 }}>{etape.instructions}</p>
             </div>
@@ -2439,7 +2440,7 @@ function FormSoinsDermographe({ data, update, client }: { data: Record<string, a
                   fontWeight: 700,
                   fontFamily: 'Outfit',
                 }}>{etape.jour}</span>
-                <span className="text-xs font-600" style={{ color: '#111827', fontWeight: 600 }}>{etape.titre}</span>
+                <span className="text-xs font-600" style={{ color: '#1b5e20', fontWeight: 600 }}>{etape.titre}</span>
               </div>
               <p className="text-xs leading-relaxed" style={{ color: '#374151', lineHeight: 1.7 }}>{etape.instructions}</p>
             </div>
@@ -2608,7 +2609,7 @@ function FormEngagementConfidentialite({ data, update, client }: { data: Record<
     <>
       {/* En-tête */}
       <div className="text-center mb-6">
-        <h2 className="text-xl font-900 mb-1" style={{ color: '#111827', fontFamily: 'Outfit', fontWeight: 900, letterSpacing: '-0.02em' }}>ENGAGEMENT DE CONFIDENTIALITÉ</h2>
+        <h2 className="text-xl font-900 mb-1" style={{ color: '#1b5e20', fontFamily: 'Outfit', fontWeight: 900, letterSpacing: '-0.02em' }}>ENGAGEMENT DE CONFIDENTIALITÉ</h2>
         <p className="text-sm italic mb-1" style={{ color: '#C8860A' }}>Données personnelles clients — RGPD Art. 29</p>
         <p className="text-xs" style={{ color: '#374151' }}>À signer par tout employé, stagiaire ou prestataire ayant accès aux données clients</p>
       </div>
@@ -2689,7 +2690,7 @@ function FormEngagementConfidentialite({ data, update, client }: { data: Record<
         </div>
         <div className="grid grid-cols-1 gap-6">
           <div className="p-4 rounded-xl space-y-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}>
-            <p className="text-xs font-700" style={{ color: '#111827', fontWeight: 700 }}>LE SIGNATAIRE — Lu et approuvé</p>
+            <p className="text-xs font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>LE SIGNATAIRE — Lu et approuvé</p>
             <FormField label="Nom, Prénom" value={data.signataireNomSignature || ''} onChange={v => update('signataireNomSignature', v)} />
             <DateSlashField label="Date" value={data.signataireDate || ''} onChange={v => update('signataireDate', v)} required />
             <SignaturePad
@@ -2750,7 +2751,7 @@ function FormAffichageSalon({ data, update, client }: { data: Record<string, any
     <>
       {/* En-tête */}
       <div className="text-center mb-6">
-        <h2 className="text-xl font-900 mb-1" style={{ color: '#111827', fontFamily: 'Outfit', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+        <h2 className="text-xl font-900 mb-1" style={{ color: '#1b5e20', fontFamily: 'Outfit', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.3 }}>
           INFORMATION CLIENT – PROTECTION DE VOS DONNÉES (RGPD)
         </h2>
       </div>
@@ -3266,7 +3267,7 @@ export default function DocumentForm() {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-700 truncate" style={{ color: '#111827', fontWeight: 700, fontFamily: 'Outfit' }}>
+          <h1 className="text-sm font-700 truncate" style={{ color: '#1b5e20', fontWeight: 700, fontFamily: 'Outfit' }}>
             {docTitle}
           </h1>
           <p className="text-xs truncate" style={{ color: '#374151' }}>
@@ -3318,7 +3319,7 @@ export default function DocumentForm() {
       </div>
 
       {/* Form content */}
-      <div className="p-4 max-w-3xl mx-auto pb-16">
+      <div className="p-4 max-w-3xl mx-auto pb-16" style={{ background: "#ffffff", borderRadius: 12, margin: "0 auto 24px", padding: "24px" }}>
         {/* En-tête visible uniquement à l'impression */}
         <PrintHeader
           salonInfo={state.salonInfo}
@@ -3378,7 +3379,7 @@ export default function DocumentForm() {
             <div className="flex items-center gap-3">
               <Eye size={18} style={{ color: 'var(--brand-cyan)' }} />
               <div>
-                <h3 className="text-sm font-700" style={{ color: '#111827', fontWeight: 700 }}>Aperçu avant impression</h3>
+                <h3 className="text-sm font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>Aperçu avant impression</h3>
                 <p className="text-xs" style={{ color: '#374151' }}>{docTitle} — {effectiveClient.prenom} {effectiveClient.nom}</p>
               </div>
             </div>
@@ -3508,19 +3509,19 @@ export default function DocumentForm() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Mail size={18} style={{ color: 'var(--brand-cyan)' }} />
-                <h3 className="text-sm font-700" style={{ color: '#111827', fontWeight: 700 }}>Envoyer par email</h3>
+                <h3 className="text-sm font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>Envoyer par email</h3>
               </div>
               <button type="button" onClick={() => setEmailModal(false)} style={{ color: '#374151' }}><X size={18} /></button>
             </div>
 
             <div className="mb-4 p-3 rounded-lg" style={{ background: 'rgba(131,208,245,0.06)', border: '1px solid rgba(131,208,245,0.15)' }}>
-              <p className="text-xs" style={{ color: '#374151' }}>Document : <strong style={{ color: '#111827' }}>{docTitle}</strong></p>
-              <p className="text-xs mt-1" style={{ color: '#374151' }}>Client : <strong style={{ color: '#111827' }}>{effectiveClient.prenom} {effectiveClient.nom}</strong></p>
+              <p className="text-xs" style={{ color: '#374151' }}>Document : <strong style={{ color: '#1b5e20' }}>{docTitle}</strong></p>
+              <p className="text-xs mt-1" style={{ color: '#374151' }}>Client : <strong style={{ color: '#1b5e20' }}>{effectiveClient.prenom} {effectiveClient.nom}</strong></p>
             </div>
 
             <form onSubmit={handleSendEmail} className="space-y-3">
               <div>
-                <label className="block text-xs mb-1" style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>Adresse email du destinataire</label>
+                <label className="block text-xs mb-1" style={{ color: '#111111', fontWeight: 700 }}>Adresse email du destinataire</label>
                 <input
                   type="email"
                   required
@@ -3528,7 +3529,7 @@ export default function DocumentForm() {
                   onChange={e => setEmailTo(e.target.value)}
                   placeholder="client@exemple.fr"
                   className="w-full px-3 py-2 rounded-lg text-sm"
-                  style={{ background: 'var(--brand-navy)', border: '1px solid var(--brand-border)', color: '#111827', outline: 'none' }}
+                  style={{ background: 'var(--brand-navy)', border: '1px solid var(--brand-border)', color: '#1b5e20', outline: 'none' }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
