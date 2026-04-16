@@ -595,8 +595,8 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <FormSection title={t('q03.section_declaration')} />
       <CheckboxField label={t('q03.consent_adult')} value={data.consent_majeur || false} onToggle={() => update('consent_majeur', !data.consent_majeur)} />
       <CheckboxField label={t('q03.consent_honest')} value={data.consent_honnete || false} onToggle={() => update('consent_honnete', !data.consent_honnete)} />
-      <CheckboxField label={t('q03.consent_freely')} value={data.consent_librement || false} onToggle={() => update('consent_librement', !data.consent_librement)} />
-      <CheckboxField label={t('q03.consent_protocol')} value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} />
+      <CheckboxField label={t('q03.consent_freely')} value={data.consent_librement || false} onToggle={() => update('consent_librement', !data.consent_librement)} required />
+      <CheckboxField label={t('q03.consent_protocol')} value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} required />
 
       <RgpdMentions />
       <FormSection title={t('q03.section_signatures')} />
@@ -1336,7 +1336,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       <CheckboxField label="J'ai été informé(e) que le résultat définitif est visible après cicatrisation complète (3 à 4 semaines)" value={data.consent_resultat || false} onToggle={() => update('consent_resultat', !data.consent_resultat)} />
       <CheckboxField label="J'accepte que le tatouage est permanent et que les retouches peuvent nécessiter une séance supplémentaire" value={data.consent_permanent || false} onToggle={() => update('consent_permanent', !data.consent_permanent)} />
       <CheckboxField label="J'ai reçu et lu la fiche de soins post-tatouage" value={data.consent_ficheRecue || false} onToggle={() => update('consent_ficheRecue', !data.consent_ficheRecue)} />
-      <CheckboxField label="Je m'engage à respecter le protocole de cicatrisation" value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} />
+      <CheckboxField label="Je m'engage à respecter le protocole de cicatrisation" value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} required />
       <CheckboxField label="Je consens librement à la réalisation de cette prestation" value={data.consent_libre || false} onToggle={() => update('consent_libre', !data.consent_libre)} />
 
       <FormSection title="6 — PROTOCOLE DE CICATRISATION — J1 À J30" />
@@ -3018,8 +3018,8 @@ export default function DocumentForm() {
       'questionnaire_majeur': [
         { key: 'estMajeur', label: 'Être majeur(e)' },
         { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
-        { key: 'consentLibre', label: 'Consent librement' },
-        { key: 'protocole', label: "S'engage à respecter le protocole" },
+        { key: 'consent_librement', label: 'Consent librement' },
+        { key: 'consent_protocole', label: "S'engage à respecter le protocole" },
       ],
       'questionnaire_tatouage_majeur': [
         { key: 'estMajeur', label: 'Être majeur(e)' },
