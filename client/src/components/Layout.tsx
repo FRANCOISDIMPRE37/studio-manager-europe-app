@@ -7,7 +7,7 @@ import { Link, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info,
+  LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info, Calendar,
   LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -16,7 +16,7 @@ import { trpc } from '@/lib/trpc';
 import { useState } from 'react';
 import LanguageSelector from '@/components/LanguageSelector';
 
-const MODE_EMPLOI_URL = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/mode_emploi_studio_manager_v4_a4dac9ab.html';
+const MODE_EMPLOI_URL = '/mode-emploi.html';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

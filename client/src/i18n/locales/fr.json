@@ -34,7 +34,8 @@
     "section_rgpd": "RGPD",
     "section_admin": "Administration",
     "employees": "Salaries",
-    "salaries": "Salariés"
+    "salaries": "Salariés",
+    "rdv": "Rendez-vous"
   },
   "auth": {
     "pin_title": "Créez votre code PIN",
@@ -375,7 +376,6 @@
     "soins_detatouage_laser": "08 — Soins Post-Détatouage Laser",
     "questionnaire_patch_test": "09 — Questionnaire Patch Test / Allergie (Dermographie)",
     "fiche_retouche_dermographie": "14 — Fiche Retouche / Correction Dermographie",
-    
     "questionnaire_dermographe_mineur": "10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie",
     "questionnaire_dermographe": "11 — Questionnaire Médical Dermographie Majeur",
     "fiche_seance_dermographe": "12 — Fiche de Traçabilité Matériel Stérile (Dermographie)",
@@ -1063,7 +1063,27 @@
     "session_number_placeholder": "ex : Séance 1/2",
     "artist_name_placeholder": "Nom du praticien",
     "general_observations_placeholder": "Notes, remarques...",
-    "post_session_advice_placeholder": "Soins recommandés..."
+    "post_session_advice_placeholder": "Soins recommandés...",
+    "lip_contour": "Contour des lèvres",
+    "lip_watercolor": "Aquarelle",
+    "lip_neutralization": "Neutralisation",
+    "lip_full": "Full lips",
+    "liner_thin": "Trait fin",
+    "liner_thick": "Trait épais",
+    "description_form": "Description / forme",
+    "color_shade": "Couleur / teinte",
+    "prev_session_obs": "Observations séance précédente",
+    "incident_none": "Aucun",
+    "incident_options": [
+      "Aucun",
+      "Réaction légère",
+      "Saignement",
+      "Arrêt prématuré",
+      "Autre"
+    ],
+    "description_form_placeholder": "Décrivez la forme souhaitée...",
+    "color_shade_placeholder": "Ex: Brun naturel, Nude rose...",
+    "prev_session_obs_placeholder": "Observations de la séance précédente..."
   },
   "q09": {
     "legal_framework": "■ Cadre légal — Arrêté du 3 décembre 2008 (ARS) + Règlement UE 2020/2081 ■ La dermographie est soumise à la réglementation sanitaire française. ■ Conservation du dossier : 5 ans minimum.",

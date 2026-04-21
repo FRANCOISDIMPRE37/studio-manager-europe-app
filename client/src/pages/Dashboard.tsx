@@ -46,7 +46,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   type PhotoItem = { id: string; name: string; dataUrl: string; date: string };
   const [photos, setPhotos] = useState<PhotoItem[]>(() => {
-    try { return JSON.parse(localStorage.getItem('sm_tracabilite_photos') || '[]'); } catch { return []; }
+    return [];
   });
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   const savePhotos = (newPhotos: typeof photos) => {
     setPhotos(newPhotos);
-    localStorage.setItem('sm_tracabilite_photos', JSON.stringify(newPhotos));
+    trpc.tracabilite.save.mutate({ photos: newPhotos }).catch(console.error);
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +70,7 @@ export default function Dashboard() {
         };
         setPhotos((prev: PhotoItem[]) => {
           const updated = [...prev, newPhoto];
-          localStorage.setItem('sm_tracabilite_photos', JSON.stringify(updated));
+          trpc.tracabilite.save.mutate({ photos: updated }).catch(console.error);
           return updated;
         });
       };

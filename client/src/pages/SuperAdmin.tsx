@@ -21,15 +21,20 @@ export default function SuperAdmin() {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showChangePwd, setShowChangePwd] = useState(false);
+  const [oldPwd, setOldPwd] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
   const [loginError, setLoginError] = useState("");
   const [studios, setStudios] = useState<Studio[]>([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [newStudio, setNewStudio] = useState({ nomSalon: "", ownerEmail: "", planType: "trial", trialDays: 30, specialites: ["piercing", "tatouage", "dermographie"] });
+  const [showPassword, setShowPassword] = useState(false);
+  const [newStudio, setNewStudio] = useState({ nomSalon: "", ownerEmail: "", password: "", planType: "trial", trialDays: 30, specialites: ["piercing", "tatouage", "dermographie"] });
   const [created, setCreated] = useState<{ tempPin: string; nomSalon: string; ownerEmail: string } | null>(null);
   const [actionMsg, setActionMsg] = useState("");
   const [editingSpecialites, setEditingSpecialites] = useState<number | null>(null);
   const [showNotif, setShowNotif] = useState(false);
-  const [notifForm, setNotifForm] = useState({ titre: "", message: "", type: "info" });
+  const [notifForm, setNotifForm] = useState({ titre: "", message: "", type: "info", destinataire: "tous", studioId: "" });
   const [sendingNotif, setSendingNotif] = useState(false);
 
   useEffect(() => {
@@ -63,7 +68,7 @@ export default function SuperAdmin() {
   }
 
   async function updateSpecialites(studio: Studio, spec: string, checked: boolean) {
-    const current = (studio.specialites || '').split(',').filter(Boolean);
+    const spec_obj = typeof studio.specialites === 'string' ? JSON.parse(studio.specialites || '{}') : (studio.specialites || {}); const current = Object.keys(spec_obj).filter(k => spec_obj[k]);
     const updated = checked ? [...new Set([...current, spec])] : current.filter(s => s !== spec);
     await fetch(`/api/super-admin/studios/${studio.id}`, {
       method: "PATCH",
@@ -206,7 +211,7 @@ export default function SuperAdmin() {
           <div style={{ fontSize: 24 }}>💎</div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16 }}>Console Super-Admin</div>
-            <div style={{ color: "#555", fontSize: 12 }}>studio.intemporelle.eu</div>
+            <div style={{ color: "#555", fontSize: 12 }}>app.intemporelle.eu</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -219,6 +224,7 @@ export default function SuperAdmin() {
           <button onClick={handleLogout} style={{ padding: "8px 16px", background: "transparent", border: "1px solid #2a2a3a", borderRadius: 8, color: "#888", cursor: "pointer", fontSize: 13 }}>
             Déconnexion
           </button>
+          <button onClick={() => setShowChangePwd(true)} style={{ padding: "8px 16px", background: "transparent", border: "1px solid #7c3aed", borderRadius: 8, color: "#a855f7", cursor: "pointer", fontSize: 13 }}>🔑 Mot de passe</button>
         </div>
       </div>
 
@@ -297,11 +303,12 @@ export default function SuperAdmin() {
                 {/* Spécialités */}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {["piercing", "tatouage", "dermographie"].map(spec => {
-                    const specs = (studio.specialites || '').split(',').filter(Boolean);
+                    const spec_obj2 = typeof studio.specialites === 'string' ? JSON.parse(studio.specialites || '{}') : (studio.specialites || {}); const specs = Object.keys(spec_obj2).filter(k => spec_obj2[k]);
                     const active = specs.includes(spec);
+                    if (!active) return null;
                     return (
                       <button key={spec} onClick={() => updateSpecialites(studio, spec, !active)}
-                        style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", border: `1px solid ${active ? "#10b981" : "#333"}`, background: active ? "#10b98120" : "transparent", color: active ? "#10b981" : "#555" }}>
+                        style={{ padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer", border: "1px solid #10b981", background: "#10b98120", color: "#10b981" }}>
                         {spec === "piercing" ? "💉" : spec === "tatouage" ? "🎨" : "✏️"} {spec}
                       </button>
                     );
@@ -326,6 +333,13 @@ export default function SuperAdmin() {
                   <option value="multi">Multi-sites</option>
                 </select>
 
+                {/* Lien direct */}
+                <button
+                  onClick={() => window.open('https://app.intemporelle.eu', '_blank')}
+                  style={{ padding: "6px 14px", background: "#10b98120", border: "1px solid #10b981", borderRadius: 6, color: "#10b981", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
+                >
+                  🔗 Ouvrir
+                </button>
                 {/* Toggle actif */}
                 {studio.slug !== 'studio-intemporelle' && studio.email !== 'contact@intemporelle.eu' && <button
                   onClick={() => toggleActif(studio)}
@@ -351,6 +365,27 @@ export default function SuperAdmin() {
           <div style={{ background: "#13131a", border: "1px solid #2a2a3a", borderRadius: 16, padding: 32, width: 420, maxWidth: "90vw" }}>
             <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 24 }}>🔔 Envoyer une notification</div>
             <form onSubmit={sendNotification}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>DESTINATAIRES</label>
+                <select value={notifForm.destinataire} onChange={e => setNotifForm({ ...notifForm, destinataire: e.target.value })}
+                  style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box" }}>
+                  <option value="tous">📢 Tous les studios</option>
+                  <option value="piercing">💉 Pierceurs uniquement</option>
+                  <option value="tatouage">🎨 Tatoueurs uniquement</option>
+                  <option value="dermographie">✏️ Dermographes uniquement</option>
+                  <option value="studio">🏪 Un studio spécifique</option>
+                </select>
+              </div>
+              {notifForm.destinataire === "studio" && (
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>CHOISIR LE STUDIO</label>
+                  <select value={notifForm.studioId} onChange={e => setNotifForm({ ...notifForm, studioId: e.target.value })}
+                    style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box" }}>
+                    <option value="">-- Choisir --</option>
+                    {studios.map(s => <option key={s.id} value={String(s.id)}>{s.nom} ({s.email})</option>)}
+                  </select>
+                </div>
+              )}
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>TYPE</label>
                 <select value={notifForm.type} onChange={e => setNotifForm({ ...notifForm, type: e.target.value })}
@@ -378,7 +413,12 @@ export default function SuperAdmin() {
                   Annuler
                 </button>
                 <button type="submit" disabled={sendingNotif} style={{ flex: 1, padding: "10px", background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: "pointer" }}>
-                  {sendingNotif ? "Envoi..." : "Envoyer à tous 🔔"}
+                  {sendingNotif ? "Envoi..." : 
+                    notifForm.destinataire === "tous" ? "Envoyer à tous 🔔" :
+                    notifForm.destinataire === "piercing" ? "Envoyer aux pierceurs 💉" :
+                    notifForm.destinataire === "tatouage" ? "Envoyer aux tatoueurs 🎨" :
+                    notifForm.destinataire === "dermographie" ? "Envoyer aux dermographes ✏️" :
+                    "Envoyer au studio 🏪"}
                 </button>
               </div>
             </form>
@@ -413,6 +453,23 @@ export default function SuperAdmin() {
                 />
               </div>
               <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>MOT DE PASSE</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newStudio.password}
+                    onChange={e => setNewStudio({ ...newStudio, password: e.target.value })}
+                    placeholder="Mot de passe du studio"
+                    required
+                    style={{ width: "100%", padding: "10px 44px 10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
+                  />
+                  <button type="button" onClick={() => setShowPassword(p => !p)}
+                    style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 18 }}>
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>PLAN</label>
                 <select
                   value={newStudio.planType}
@@ -427,26 +484,27 @@ export default function SuperAdmin() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 8 }}>SPÉCIALITÉS</label>
-                <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {["piercing", "tatouage", "dermographie"].map(s => (
-                    <label key={s} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
-                      <div
-                        onClick={() => setNewStudio(n => ({
-                          ...n,
-                          specialites: n.specialites.includes(s)
-                            ? n.specialites.filter(x => x !== s)
-                            : [...n.specialites, s]
-                        }))}
-                        style={{
-                          width: 18, height: 18, borderRadius: 4, border: `2px solid ${newStudio.specialites.includes(s) ? "#a855f7" : "#444"}`,
-                          background: newStudio.specialites.includes(s) ? "#a855f7" : "transparent",
-                          display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer"
-                        }}
-                      >
-                        {newStudio.specialites.includes(s) && <span style={{ color: "#fff", fontSize: 10 }}>✓</span>}
-                      </div>
+                    <div key={s} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ color: "#ccc", fontSize: 13, textTransform: "capitalize" }}>{s}</span>
-                    </label>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button type="button"
+                          onClick={() => setNewStudio(n => ({ ...n, specialites: [...new Set([...n.specialites, s])] }))}
+                          style={{ padding: "4px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+                            background: newStudio.specialites.includes(s) ? "#a855f7" : "#333",
+                            color: newStudio.specialites.includes(s) ? "#fff" : "#888", fontWeight: 600, fontSize: 13 }}>
+                          Oui
+                        </button>
+                        <button type="button"
+                          onClick={() => setNewStudio(n => ({ ...n, specialites: n.specialites.filter(x => x !== s) }))}
+                          style={{ padding: "4px 14px", borderRadius: 6, border: "none", cursor: "pointer",
+                            background: !newStudio.specialites.includes(s) ? "#ef4444" : "#333",
+                            color: !newStudio.specialites.includes(s) ? "#fff" : "#888", fontWeight: 600, fontSize: 13 }}>
+                          Non
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -468,6 +526,35 @@ export default function SuperAdmin() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showChangePwd && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000}}>
+          <div style={{background:"#13131f",border:"1px solid #2a2a3a",borderRadius:12,padding:32,width:380}}>
+            <h3 style={{color:"#fff",marginBottom:20,fontSize:18,fontWeight:700}}>🔑 Changer le mot de passe</h3>
+            <div style={{marginBottom:12}}>
+              <label style={{color:"#888",fontSize:13,display:"block",marginBottom:6}}>Ancien mot de passe</label>
+              <input type="password" value={oldPwd} onChange={e=>setOldPwd(e.target.value)} style={{width:"100%",padding:"10px 12px",background:"#1a1a2e",border:"1px solid #2a2a3a",borderRadius:8,color:"#fff",fontSize:14,boxSizing:"border-box"}} />
+            </div>
+            <div style={{marginBottom:12}}>
+              <label style={{color:"#888",fontSize:13,display:"block",marginBottom:6}}>Nouveau mot de passe</label>
+              <input type="password" value={newPwd} onChange={e=>setNewPwd(e.target.value)} style={{width:"100%",padding:"10px 12px",background:"#1a1a2e",border:"1px solid #2a2a3a",borderRadius:8,color:"#fff",fontSize:14,boxSizing:"border-box"}} />
+            </div>
+            <div style={{marginBottom:20}}>
+              <label style={{color:"#888",fontSize:13,display:"block",marginBottom:6}}>Confirmer</label>
+              <input type="password" value={confirmPwd} onChange={e=>setConfirmPwd(e.target.value)} style={{width:"100%",padding:"10px 12px",background:"#1a1a2e",border:"1px solid #2a2a3a",borderRadius:8,color:"#fff",fontSize:14,boxSizing:"border-box"}} />
+            </div>
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={async()=>{
+                if(newPwd!==confirmPwd){alert("Mots de passe différents");return;}
+                const r=await fetch("/api/super-admin/change-password",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify({oldPassword:oldPwd,newPassword:newPwd})});
+                if(r.ok){alert("Mot de passe changé !");setShowChangePwd(false);setOldPwd("");setNewPwd("");setConfirmPwd("");}
+                else{alert("Ancien mot de passe incorrect");}
+              }} style={{flex:1,padding:"10px",background:"linear-gradient(135deg,#7c3aed,#a855f7)",border:"none",borderRadius:8,color:"#fff",fontWeight:600,cursor:"pointer"}}>Changer</button>
+              <button onClick={()=>setShowChangePwd(false)} style={{flex:1,padding:"10px",background:"transparent",border:"1px solid #2a2a3a",borderRadius:8,color:"#888",cursor:"pointer"}}>Annuler</button>
+            </div>
           </div>
         </div>
       )}

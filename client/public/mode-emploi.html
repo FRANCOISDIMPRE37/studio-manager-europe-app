@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mode d'emploi — Studio Manager</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0D1B2A; color: white; height: 100vh; overflow: hidden; }
+.slide { display: none; height: 100vh; flex-direction: column; padding: 30px; animation: fadeIn 0.5s ease; }
+.slide.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.header { background: linear-gradient(135deg, #00B4D8, #0D1B2A); padding: 20px 25px; border-radius: 16px; margin-bottom: 20px; }
+.header h1 { font-size: 24px; font-weight: 800; }
+.header p { font-size: 13px; opacity: 0.8; margin-top: 5px; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #00B4D8; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+.steps { flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.step { display: flex; align-items: center; background: #1E2D3D; border-radius: 12px; padding: 16px; font-size: 14px; line-height: 1.4; }
+.step.green { border-left: 4px solid #10B981; }
+.step.cyan { border-left: 4px solid #00B4D8; }
+.step.orange { border-left: 4px solid #FB923C; }
+.step.purple { border-left: 4px solid #A78BFA; }
+.tip { background: #1a3a2a; border: 1px solid #10B981; border-radius: 12px; padding: 14px; font-size: 13px; color: #86EFAC; margin-top: 10px; }
+.warning { background: #3a2a0a; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px; font-size: 13px; color: #FDE68A; margin-top: 10px; }
+.nav { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
+.btn { background: #1E2D3D; border: none; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.btn:hover { background: #2a3d4d; }
+.btn.primary { background: #00B4D8; font-weight: 700; }
+.btn.primary:hover { background: #0098B8; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.progress { display: flex; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #1E2D3D; transition: all 0.3s; }
+.dot.active { background: #00B4D8; width: 24px; border-radius: 4px; }
+.icon { font-size: 40px; margin-bottom: 10px; text-align: center; }
+.big-icon { font-size: 60px; text-align: center; margin: 20px 0; }
+.slide-title { font-size: 20px; font-weight: 800; color: #00B4D8; margin-bottom: 15px; }
+.cover { justify-content: center; align-items: center; text-align: center; }
+.cover h1 { font-size: 32px; font-weight: 900; margin: 20px 0 10px; }
+.cover p { font-size: 15px; opacity: 0.7; margin-bottom: 30px; }
+.cover-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; margin: 20px auto; }
+.cover-card { background: #1E2D3D; border-radius: 12px; padding: 20px; text-align: center; font-size: 13px; }
+.cover-card .emoji { font-size: 30px; display: block; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Couverture -->
+<div class="slide active cover" id="slide-0">
+  <div style="font-size:50px;">🛡️</div>
+  <h1>Studio Manager</h1>
+  <p>Mode d'emploi — Intemporelle RGPD & Cybersécurité</p>
+  <div class="cover-grid">
+    <div class="cover-card"><span class="emoji">👤</span>Créer des clients</div>
+    <div class="cover-card"><span class="emoji">📋</span>Remplir les fiches</div>
+    <div class="cover-card"><span class="emoji">🖨️</span>Imprimer</div>
+    <div class="cover-card"><span class="emoji">✍️</span>Faire signer</div>
+    <div class="cover-card"><span class="emoji">📅</span>L'agenda</div>
+    <div class="cover-card"><span class="emoji">📁</span>Archives</div>
+  </div>
+  <p style="font-size:13px; color:#00B4D8;">Appuyez sur Suivant pour commencer →</p>
+</div>
+
+<!-- SLIDE 2: Se connecter -->
+<div class="slide" id="slide-1">
+  <div class="header">
+    <h1>🔐 Se connecter</h1>
+    <p>Accéder à votre espace studio</p>
+  </div>
+  <div class="steps">
+    <div class="step cyan"><span class="step-num">1</span> Ouvrez Safari sur l'iPad et allez sur <strong>app.intemporelle.eu</strong></div>
+    <div class="step cyan"><span class="step-num">2</span> Tapez votre <strong>code PIN à 4 chiffres</strong> sur le clavier à l'écran</div>
+    <div class="step cyan"><span class="step-num">3</span> Vous arrivez directement sur le <strong>Tableau de bord</strong></div>
+    <div class="tip">💡 Vous pouvez aussi utiliser <strong>email + mot de passe</strong> en appuyant sur "Se connecter avec email →"</div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Créer un client -->
+<div class="slide" id="slide-2">
+  <div class="header" style="background: linear-gradient(135deg, #10B981, #0D1B2A);">
+    <h1>👤 Créer un client</h1>
+    <p>Enregistrer un nouveau client</p>
+  </div>
+  <div class="steps">
+    <div class="step green"><span class="step-num">1</span> Appuyez sur <strong>👥 Clients</strong> dans le menu gauche</div>
+    <div class="step green"><span class="step-num">2</span> Appuyez sur le bouton <strong>+ Nouveau client</strong></div>
+    <div class="step green"><span class="step-num">3</span> Remplissez : <strong>Nom, Prénom, Date de naissance, Téléphone, Email</strong></div>
+    <div class="step green"><span class="step-num">4</span> Appuyez sur <strong>Enregistrer</strong></div>
+    <div class="tip">💡 Le numéro client est généré automatiquement. Vous pouvez aussi importer des clients depuis un fichier Excel.</div>
+  </div>
+</div>
+
+<!-- SLIDE 4: Remplir une fiche -->
+<div class="slide" id="slide-3">
+  <div class="header" style="background: linear-gradient(135deg, #7C3AED, #0D1B2A);">
+    <h1>📋 Remplir une fiche</h1>
+    <p>Créer un document pour un client</p>
+  </div>
+  <div class="steps">
+    <div class="step purple"><span class="step-num">1</span> Appuyez sur <strong>📋 Documents</strong> dans le menu</div>
+    <div class="step purple"><span class="step-num">2</span> Choisissez le type de fiche : <strong>Piercing, Tatouage ou Dermographie</strong></div>
+    <div class="step purple"><span class="step-num">3</span> Recherchez et sélectionnez le client dans la liste</div>
+    <div class="step purple"><span class="step-num">4</span> Remplissez tous les champs marqués <strong>*</strong> (obligatoires)</div>
+    <div class="step purple"><span class="step-num">5</span> Faites signer le client (voir slide suivant)</div>
+    <div class="step purple"><span class="step-num">6</span> Appuyez sur <strong>✓ Sauvegarder le document</strong></div>
+  </div>
+</div>
+
+<!-- SLIDE 5: Faire signer -->
+<div class="slide" id="slide-4">
+  <div class="header" style="background: linear-gradient(135deg, #A78BFA, #0D1B2A);">
+    <h1>✍️ Faire signer le client</h1>
+    <p>Signature électronique obligatoire</p>
+  </div>
+  <div class="steps">
+    <div class="step purple"><span class="step-num">1</span> Faites défiler la fiche jusqu'en bas pour voir la zone de signature</div>
+    <div class="step purple"><span class="step-num">2</span> Tendez la tablette au client</div>
+    <div class="step purple"><span class="step-num">3</span> Le client signe avec son <strong>doigt</strong> dans la zone prévue</div>
+    <div class="step purple"><span class="step-num">4</span> Appuyez sur <strong>✅ Valider</strong> pour confirmer la signature</div>
+    <div class="step purple"><span class="step-num">5</span> Appuyez sur <strong>✓ Sauvegarder le document</strong></div>
+    <div class="warning">⚠️ La signature est OBLIGATOIRE pour les questionnaires médicaux. Sans signature, le document ne peut pas être sauvegardé.</div>
+  </div>
+</div>
+
+<!-- SLIDE 6: Fiches piercing -->
+<div class="slide" id="slide-5">
+  <div class="header" style="background: linear-gradient(135deg, #0EA5E9, #0D1B2A);">
+    <h1>💉 Fiches Piercing</h1>
+    <p>Documents disponibles pour le piercing</p>
+  </div>
+  <div class="steps">
+    <div class="step cyan"><span class="step-num">01</span> Questionnaire Médical Mineur + Autorisation Parentale</div>
+    <div class="step cyan"><span class="step-num">02</span> Questionnaire Médical Majeur</div>
+    <div class="step cyan"><span class="step-num">03</span> Fiche de Traçabilité Matériel Stérile</div>
+    <div class="step cyan"><span class="step-num">A-G</span> Soins Post-Piercing : Oreilles, Nez, Labret, Nombril, Téton, Arcade, Surface</div>
+    <div class="tip">💡 Les fiches de soins (A à G) peuvent être imprimées et remises au client après le piercing.</div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Imprimer -->
+<div class="slide" id="slide-6">
+  <div class="header" style="background: linear-gradient(135deg, #FB923C, #0D1B2A);">
+    <h1>🖨️ Imprimer une fiche</h1>
+    <p>Imprimer ou enregistrer en PDF</p>
+  </div>
+  <div class="steps">
+    <div class="step orange"><span class="step-num">1</span> Ouvrez la fiche du client (Clients → nom → fiche)</div>
+    <div class="step orange"><span class="step-num">2</span> Appuyez sur le bouton <strong>🖨️ Aperçu / Imprimer</strong> en haut</div>
+    <div class="step orange"><span class="step-num">3</span> Choisissez : <strong>Imprimer</strong> (imprimante) ou <strong>Enregistrer en PDF</strong></div>
+    <div class="step orange"><span class="step-num">4</span> Sélectionnez votre imprimante AirPrint et appuyez sur <strong>Imprimer</strong></div>
+    <div class="tip">💡 Le logo et les informations de votre salon apparaissent automatiquement sur chaque fiche imprimée.</div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Archives numérisées -->
+<div class="slide" id="slide-7">
+  <div class="header" style="background: linear-gradient(135deg, #059669, #0D1B2A);">
+    <h1>📁 Archives Numérisées</h1>
+    <p>Numériser les anciens dossiers papier</p>
+  </div>
+  <div class="steps">
+    <div class="step green"><span class="step-num">1</span> Menu gauche → <strong>Archives Numérisées</strong></div>
+    <div class="step green"><span class="step-num">2</span> Appuyez sur <strong>+ Nouveau</strong> en haut à droite</div>
+    <div class="step green"><span class="step-num">3</span> Sélectionnez la <strong>date de visite</strong> du client</div>
+    <div class="step green"><span class="step-num">4</span> Remplissez le <strong>Nom et Prénom</strong> du client</div>
+    <div class="step green"><span class="step-num">5</span> Photographiez le dossier papier avec <strong>📷 Ajouter des photos</strong></div>
+    <div class="step green"><span class="step-num">6</span> Appuyez sur <strong>✓ Sauvegarder</strong></div>
+    <div class="warning">🔴 RGPD : Les dossiers sont automatiquement marqués expirés après 3 ans.</div>
+  </div>
+</div>
+
+<!-- SLIDE 9: Agenda -->
+<div class="slide" id="slide-8">
+  <div class="header" style="background: linear-gradient(135deg, #8B5CF6, #0D1B2A);">
+    <h1>📅 L'Agenda</h1>
+    <p>Gérer vos rendez-vous</p>
+  </div>
+  <div class="steps">
+    <div class="step purple"><span class="step-num">1</span> Appuyez sur <strong>📅 Agenda</strong> dans le menu</div>
+    <div class="step purple"><span class="step-num">2</span> Choisissez la vue : <strong>Jour, Semaine ou Mois</strong></div>
+    <div class="step purple"><span class="step-num">3</span> Appuyez sur une case du calendrier pour créer un RDV</div>
+    <div class="step purple"><span class="step-num">4</span> Remplissez : client, heure, type de prestation, notes</div>
+    <div class="step purple"><span class="step-num">5</span> Appuyez sur <strong>Enregistrer</strong></div>
+    <div class="tip">💡 Appuyez sur un RDV existant pour le modifier ou le supprimer.</div>
+  </div>
+</div>
+
+<!-- SLIDE 10: Fin -->
+<div class="slide cover" id="slide-9">
+  <div style="font-size:60px;">🎉</div>
+  <h1 style="margin-top:15px;">Vous êtes prêt !</h1>
+  <p>Vous connaissez maintenant toutes les fonctions essentielles de Studio Manager.</p>
+  <div class="cover-grid" style="margin-top:20px;">
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Connexion PIN</div>
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Clients</div>
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Fiches</div>
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Signature</div>
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Impression</div>
+    <div class="cover-card" style="border:1px solid #10B981;"><span class="emoji">✅</span>Archives</div>
+  </div>
+  <p style="color:#10B981; font-size:14px; margin-top:20px;">contact@intemporelle.eu</p>
+</div>
+
+<!-- Navigation -->
+<div class="nav" style="position:fixed; bottom:0; left:0; right:0; padding:15px 30px; background:#0D1B2A; border-top:1px solid #1E2D3D;">
+  <button class="btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Précédent</button>
+  <div class="progress" id="progress"></div>
+  <button class="btn primary" id="nextBtn" onclick="changeSlide(1)">Suivant →</button>
+</div>
+
+<script>
+let current = 0;
+const total = 10;
+
+function init() {
+  const progress = document.getElementById('progress');
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dot.style.cursor = 'pointer';
+    progress.appendChild(dot);
+  }
+}
+
+function goTo(n) {
+  document.getElementById('slide-' + current).classList.remove('active');
+  document.querySelectorAll('.dot')[current].classList.remove('active');
+  current = n;
+  document.getElementById('slide-' + current).classList.add('active');
+  document.querySelectorAll('.dot')[current].classList.add('active');
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').textContent = current === total - 1 ? '✓ Terminé' : 'Suivant →';
+}
+
+function changeSlide(dir) {
+  const next = current + dir;
+  if (next >= 0 && next < total) goTo(next);
+}
+
+// Swipe support
+let startX = 0;
+document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+document.addEventListener('touchend', e => {
+  const diff = startX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+
+init();
+</script>
+</body>
+</html>

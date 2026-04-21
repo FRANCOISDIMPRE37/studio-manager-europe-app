@@ -88,7 +88,7 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
     const db = await getDb();
     if (!db) return res.status(500).json({ error: 'Database error' });
 
-    const { nomSalon, ownerEmail, planType = 'trial', trialDays = 30, specialites = 'piercing,tatouage,dermographie' } = req.body;
+    const { nomSalon, ownerEmail, password, planType = 'trial', trialDays = 30, specialites = 'piercing,tatouage,dermographie' } = req.body;
     if (!nomSalon || !ownerEmail) return res.status(400).json({ error: 'nomSalon et ownerEmail requis' });
 
     // Générer un PIN temporaire à 6 chiffres
@@ -118,6 +118,15 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
       [userId, nomSalon, slug, ownerEmail, ownerEmail, planType, trialEndsAt, true, true, true, tempPin, specialites]
     );
 
+    // Sauvegarder le mot de passe si fourni
+    if (password) {
+      const bcrypt = require('bcryptjs');
+      const passwordHash = await bcrypt.hash(password, 10);
+      await (db as any).$client.query(
+        'INSERT INTO salon_settings (userId, nom, passwordHash) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE passwordHash = ?',
+        [userId, nomSalon, passwordHash, passwordHash]
+      );
+    }
     return res.json({ success: true, tempPin, slug, ownerEmail, nomSalon });
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
@@ -256,6 +265,34 @@ router.post('/api/check-temp-pin', async (req, res) => {
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
   }
+});
+
+// Route changement mot de passe super-admin
+router.post('/change-password', async (req: Request, res: Response) => {
+  const token = req.cookies?.super_admin_session;
+  if (!token) return res.status(401).json({ error: 'Non authentifié' });
+  
+  const { oldPassword, newPassword } = req.body;
+  
+  // Vérifier l'ancien mot de passe
+  const ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD || 'StudioAdmin2024!';
+  if (oldPassword !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Ancien mot de passe incorrect' });
+  }
+  
+  // Sauvegarder le nouveau mot de passe dans .env
+  const fs = require('fs');
+  const envPath = '/home/ubuntu/app/.env';
+  let envContent = fs.readFileSync(envPath, 'utf8');
+  if (envContent.includes('SUPER_ADMIN_PASSWORD=')) {
+    envContent = envContent.replace(/SUPER_ADMIN_PASSWORD=.*/g, `SUPER_ADMIN_PASSWORD=${newPassword}`);
+  } else {
+    envContent += `
+SUPER_ADMIN_PASSWORD=${newPassword}`;
+  }
+  fs.writeFileSync(envPath, envContent);
+  
+  return res.json({ success: true });
 });
 
 export default router;

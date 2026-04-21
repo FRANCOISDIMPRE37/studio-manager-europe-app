@@ -50,13 +50,7 @@ const DOC_CATEGORY_KEYS = [
     color: '#E53935',
     docs: ['engagement_confidentialite', 'affichage_salon'] as DocumentType[],
   },
-  {
-    titleKey: 'doc_categories.archives',
-    icon: FileText,
-    color: '#607D8B',
-    docs: ['archivage_dossier_papier'] as DocumentType[],
-    forMineur: null,
-  },
+
 ];
 
 export default function Documents() {

@@ -179,7 +179,7 @@ export default function Login() {
             style={{ width: '220px', objectFit: 'contain' }}
           />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
-            studio.intemporelle.eu
+            app.intemporelle.eu
           </h1>
           {state.salonInfo?.nom && (
             <p className="text-sm mt-1 font-600 text-center" style={{ color: 'var(--brand-cyan)', fontFamily: 'Outfit', fontWeight: 600 }}>
@@ -291,6 +291,12 @@ export default function Login() {
         )}
 
         {emps && emps.filter((e) => e.hasPinSet).length > 0 && !showEmailLogin && (<div style={{marginTop:16,paddingTop:12,borderTop:"1px solid var(--brand-border)"}}><p style={{color:"var(--brand-text-muted)",fontSize:12,textAlign:"center",marginBottom:8}}>Connexion salarie</p><div style={{display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center"}}>{selEmp ? <p style={{color:"var(--brand-cyan)",fontSize:12}}>PIN de {selEmp.prenom} <button onClick={()=>{setSelEmp(null);setLocalPin("");}} style={{background:"none",border:"none",color:"var(--brand-text-muted)",cursor:"pointer"}}>x</button></p> : emps.filter((e) => e.hasPinSet).map((e) => (<button key={e.id} onClick={()=>{setSelEmp(e);setLocalPin("");}} style={{padding:"6px 14px",borderRadius:8,border:"1px solid var(--brand-cyan)",background:"rgba(131,208,245,0.1)",color:"var(--brand-cyan)",cursor:"pointer",fontWeight:600}}>{e.prenom}</button>))}</div></div>)}
+        {/* Créer un compte */}
+        <button onClick={() => window.location.href = '/inscription'}
+          className="mt-3 text-sm transition-all duration-200 hover:opacity-100 opacity-60"
+          style={{ color: 'var(--brand-cyan)' }}>
+          ✨ Créer un compte →
+        </button>
         {/* Première connexion */}
         {!showTempPin ? (
           <button onClick={() => setShowTempPin(true)}

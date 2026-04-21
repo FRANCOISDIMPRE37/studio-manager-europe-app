@@ -671,3 +671,74 @@ export async function getAdminStats() {
     };
   } catch { return { totalStudios: 0, totalClients: 0, licenseStats: [] }; }
 }
+
+// ─── Archives Numérisées ────────────────────────────────────────────────────
+export async function getArchivesNumerisees(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const [rows] = await db.execute('SELECT * FROM archives_numerisees WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+  return rows as any[];
+}
+
+export async function createArchiveNumerisee(userId: number, data: any) {
+  const db = await getDb();
+  if (!db) throw new Error('DB');
+  const [result] = await db.execute(
+    'INSERT INTO archives_numerisees (user_id, nom, prenom, date_numerisation, type_document, praticien, periode, notes, photos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [userId, data.nom||'', data.prenom||'', data.dateNumerisation||'', data.typeDocument||'', data.praticien||'', data.periode||'', data.notes||'', JSON.stringify(data.photos||[])]
+  );
+  return result;
+}
+
+export async function deleteArchiveNumerisee(userId: number, id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('DB');
+  await db.execute('DELETE FROM archives_numerisees WHERE id = ? AND user_id = ?', [id, userId]);
+  return { success: true };
+}
+
+// ─── Engagements RGPD ───────────────────────────────────────────────────────
+export async function getEngagementsRgpd(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const [rows] = await db.execute('SELECT * FROM engagements_rgpd WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+  return rows as any[];
+}
+
+export async function createEngagementRgpd(userId: number, data: any) {
+  const db = await getDb();
+  if (!db) throw new Error('DB');
+  await db.execute(
+    'INSERT INTO engagements_rgpd (user_id, nom, poste, date_signature, data) VALUES (?, ?, ?, ?, ?)',
+    [userId, data.nom||'', data.poste||'', data.date||'', JSON.stringify(data)]
+  );
+  return { success: true };
+}
+
+export async function deleteEngagementRgpd(userId: number, id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('DB');
+  await db.execute('DELETE FROM engagements_rgpd WHERE id = ? AND user_id = ?', [id, userId]);
+  return { success: true };
+}
+
+// ─── Traçabilité Photos ─────────────────────────────────────────────────────
+export async function getTracabilitePhotos(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const [rows] = await db.execute('SELECT photos FROM tracabilite_photos WHERE user_id = ? LIMIT 1', [userId]) as any;
+  if ((rows as any[]).length === 0) return [];
+  try { return JSON.parse((rows as any[])[0].photos || '[]'); } catch { return []; }
+}
+
+export async function saveTracabilitePhotos(userId: number, photos: any[]) {
+  const db = await getDb();
+  if (!db) throw new Error('DB');
+  const [rows] = await db.execute('SELECT id FROM tracabilite_photos WHERE user_id = ?', [userId]) as any;
+  if ((rows as any[]).length === 0) {
+    await db.execute('INSERT INTO tracabilite_photos (user_id, photos) VALUES (?, ?)', [userId, JSON.stringify(photos)]);
+  } else {
+    await db.execute('UPDATE tracabilite_photos SET photos = ? WHERE user_id = ?', [JSON.stringify(photos), userId]);
+  }
+  return { success: true };
+}

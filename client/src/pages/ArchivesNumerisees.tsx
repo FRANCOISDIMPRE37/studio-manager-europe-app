@@ -1,45 +1,74 @@
-import { useState, useEffect } from 'react';
-import { Search, ArrowLeft, Trash2, Eye, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Search, ArrowLeft, Trash2, Eye, X, Plus, Camera } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 interface ArchiveDossier {
-  id: number;
+  id: string;
   nom: string;
   prenom: string;
-  dateNumerisation: string;
-  typeDocument: string;
-  praticien: string;
-  periode: string;
-  notes: string;
-  photos: { id: number; url: string; nom: string; date: string }[];
-  savedAt: string;
+  date: string;
+  expiration?: string;
+  photos: string[];
 }
 
 export default function ArchivesNumerisees() {
   const [, navigate] = useLocation();
-  const [archives, setArchives] = useState<ArchiveDossier[]>([]);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<ArchiveDossier | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [dateVisite, setDateVisite] = useState(new Date().toISOString().split('T')[0]);
+  const photoRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem('sm_archives_dossiers') || '[]');
-    setArchives(stored.reverse());
-  }, []);
+  const getArchives = (): ArchiveDossier[] => {
+    try { return JSON.parse(localStorage.getItem('archives_numerisees') || '[]'); } catch { return []; }
+  };
+  const [archives, setArchives] = useState<ArchiveDossier[]>(getArchives);
+
+  const saveArchives = (data: ArchiveDossier[]) => {
+    localStorage.setItem('archives_numerisees', JSON.stringify(data));
+    setArchives(data);
+  };
 
   const filtered = archives.filter(a =>
-    `${a.nom} ${a.prenom} ${a.typeDocument} ${a.praticien}`.toLowerCase().includes(search.toLowerCase())
+    (a.nom + ' ' + a.prenom).toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id: number) => {
-    const updated = archives.filter(a => a.id !== id);
-    setArchives(updated);
-    localStorage.setItem('sm_archives_dossiers', JSON.stringify([...updated].reverse()));
-    if (selected?.id === id) setSelected(null);
+  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => setPhotos(p => [...p, ev.target?.result as string]);
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleSave = () => {
+    if (!nom.trim() || !prenom.trim()) return;
+    const newDossier: ArchiveDossier = {
+      id: Date.now().toString(),
+      nom: nom.trim(),
+      prenom: prenom.trim(),
+      date: new Date(dateVisite).toLocaleDateString('fr-FR'),
+      expiration: new Date(new Date(dateVisite).setFullYear(new Date(dateVisite).getFullYear() + 3)).toLocaleDateString('fr-FR'),
+      photos,
+    };
+    saveArchives([newDossier, ...archives]);
+    setShowForm(false);
+    setNom('');
+    setPrenom('');
+    setPhotos([]);
+  };
+
+  const handleDelete = (id: string) => {
+    saveArchives(archives.filter(a => a.id !== id));
   };
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--brand-navy)' }}>
-      {/* Header */}
       <div className="sticky top-0 z-10 px-4 py-3 flex items-center gap-3" style={{ background: 'var(--brand-card)', borderBottom: '1px solid var(--brand-border)' }}>
         <button onClick={() => navigate('/documents')} className="p-2 rounded-lg hover:bg-white/10">
           <ArrowLeft size={20} style={{ color: 'var(--brand-text)' }} />
@@ -48,28 +77,67 @@ export default function ArchivesNumerisees() {
           <h1 className="text-sm font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>📁 Archives Numérisées</h1>
           <p className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>{filtered.length} dossier(s)</p>
         </div>
+        <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-600" style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid #10b981', color: '#10b981', fontWeight: 600 }}>
+          <Plus size={16} /> Nouveau
+        </button>
       </div>
 
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="w-full max-w-lg rounded-t-2xl p-6" style={{ background: 'var(--brand-card)' }}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-700 text-base" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>📋 Nouveau dossier archivé</h2>
+              <button onClick={() => setShowForm(false)}><X size={20} style={{ color: 'var(--brand-text-muted)' }} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--brand-text-muted)' }}>DATE DE VISITE</label>
+                <input type="date" value={dateVisite} onChange={e => setDateVisite(e.target.value)} className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)' }} />
+              </div>
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--brand-text-muted)' }}>NOM *</label>
+                <input value={nom} onChange={e => setNom(e.target.value)} placeholder="Nom du client" className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)' }} />
+              </div>
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--brand-text-muted)' }}>PRÉNOM *</label>
+                <input value={prenom} onChange={e => setPrenom(e.target.value)} placeholder="Prénom du client" className="w-full px-3 py-2 rounded-lg text-sm outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)' }} />
+              </div>
+              <div>
+                <label className="text-xs mb-2 block" style={{ color: 'var(--brand-text-muted)' }}>PHOTOS</label>
+                <input ref={photoRef} type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={handlePhoto} />
+                <button onClick={() => photoRef.current?.click()} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm" style={{ background: 'rgba(131,208,245,0.1)', border: '2px dashed rgba(131,208,245,0.4)', color: 'var(--brand-cyan)' }}>
+                  <Camera size={18} /> 📷 Prendre / Ajouter des photos
+                </button>
+                {photos.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    {photos.map((p, i) => (
+                      <div key={i} className="relative">
+                        <img src={p} className="w-full h-20 object-cover rounded-lg" />
+                        <button onClick={() => setPhotos(ph => ph.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs" style={{ background: '#ef4444', color: '#fff' }}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <button onClick={handleSave} disabled={!nom.trim() || !prenom.trim()} className="w-full py-3 rounded-xl text-sm font-700 mt-2" style={{ background: (!nom.trim() || !prenom.trim()) ? '#333' : '#10b981', color: '#fff', fontWeight: 700 }}>
+                ✓ Sauvegarder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-4 space-y-4">
-        {/* Recherche */}
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'var(--brand-card)', border: '1px solid var(--brand-border)' }}>
           <Search size={16} style={{ color: 'var(--brand-text-muted)' }} />
-          <input
-            type="text"
-            placeholder="Rechercher par nom, type de document, praticien..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none"
-            style={{ color: 'var(--brand-text)' }}
-          />
+          <input type="text" placeholder="Rechercher par nom..." value={search} onChange={e => setSearch(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" style={{ color: 'var(--brand-text)' }} />
           {search && <button onClick={() => setSearch('')}><X size={14} style={{ color: 'var(--brand-text-muted)' }} /></button>}
         </div>
-
-        {/* Liste */}
         {filtered.length === 0 ? (
           <div className="text-center py-12" style={{ color: 'var(--brand-text-muted)' }}>
             <p className="text-4xl mb-3">📂</p>
             <p className="text-sm">Aucun dossier archivé</p>
+            <p className="text-xs mt-1">Appuyez sur "+ Nouveau" pour commencer</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -78,17 +146,18 @@ export default function ArchivesNumerisees() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <p className="font-700 text-sm" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>{a.nom} {a.prenom}</p>
-                    <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>{a.typeDocument} {a.periode ? `· ${a.periode}` : ''}</p>
-                    <p className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>Numérisé le {a.dateNumerisation} {a.praticien ? `· par ${a.praticien}` : ''}</p>
-                    {a.photos?.length > 0 && <p className="text-xs mt-1" style={{ color: '#607D8B' }}>📷 {a.photos.length} photo(s)</p>}
+                    <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>Numérisé le {a.date}</p>
+                    {a.expiration && (() => {
+                      const parts = a.expiration.split('/');
+                      const exp = new Date(+parts[2], +parts[1]-1, +parts[0]);
+                      const expired = exp < new Date();
+                      return <p className="text-xs mt-1" style={{ color: expired ? '#ef4444' : '#10b981' }}>{expired ? '🔴 Expiré' : '🟢 Expire'} le {a.expiration}</p>;
+                    })()}
+                    {a.photos.length > 0 && <p className="text-xs mt-1" style={{ color: '#607D8B' }}>📷 {a.photos.length} photo(s)</p>}
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => setSelected(a)} className="p-2 rounded-lg" style={{ background: 'rgba(96,125,139,0.2)' }}>
-                      <Eye size={14} style={{ color: '#607D8B' }} />
-                    </button>
-                    <button onClick={() => handleDelete(a.id)} className="p-2 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)' }}>
-                      <Trash2 size={14} style={{ color: '#ef4444' }} />
-                    </button>
+                    <button onClick={() => setSelected(a)} className="p-2 rounded-lg" style={{ background: 'rgba(96,125,139,0.2)' }}><Eye size={14} style={{ color: '#607D8B' }} /></button>
+                    <button onClick={() => handleDelete(a.id)} className="p-2 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)' }}><Trash2 size={14} style={{ color: '#ef4444' }} /></button>
                   </div>
                 </div>
               </div>
@@ -97,7 +166,6 @@ export default function ArchivesNumerisees() {
         )}
       </div>
 
-      {/* Modal détail */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.7)' }} onClick={() => setSelected(null)}>
           <div className="w-full max-w-lg rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto" style={{ background: 'var(--brand-card)' }} onClick={e => e.stopPropagation()}>
@@ -105,17 +173,11 @@ export default function ArchivesNumerisees() {
               <h2 className="font-700 text-base" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>{selected.nom} {selected.prenom}</h2>
               <button onClick={() => setSelected(null)}><X size={20} style={{ color: 'var(--brand-text-muted)' }} /></button>
             </div>
-            <div className="space-y-2 text-sm mb-4" style={{ color: 'var(--brand-text)' }}>
-              <p><strong>Type :</strong> {selected.typeDocument}</p>
-              <p><strong>Période :</strong> {selected.periode}</p>
-              <p><strong>Praticien :</strong> {selected.praticien}</p>
-              <p><strong>Date numérisation :</strong> {selected.dateNumerisation}</p>
-              {selected.notes && <p><strong>Notes :</strong> {selected.notes}</p>}
-            </div>
-            {selected.photos?.length > 0 && (
+            <p className="text-xs mb-4" style={{ color: 'var(--brand-text-muted)' }}>Numérisé le {selected.date}</p>
+            {selected.photos.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
                 {selected.photos.map((p, i) => (
-                  <img key={i} src={p.url} alt={p.nom} className="w-full rounded-lg object-cover" style={{ maxHeight: 200 }} />
+                  <img key={i} src={p} alt={`photo ${i+1}`} className="w-full rounded-lg object-cover" style={{ maxHeight: 200 }} />
                 ))}
               </div>
             )}

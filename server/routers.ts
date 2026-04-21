@@ -25,6 +25,14 @@ import {
   createAdminNotification, getNotificationsForUser, markNotificationRead, getAllAdminNotifications,
   getSharedServices, createSharedService, updateSharedService, deleteSharedService,
   getAdminStats,
+  getArchivesNumerisees,
+  createArchiveNumerisee,
+  deleteArchiveNumerisee,
+  getEngagementsRgpd,
+  createEngagementRgpd,
+  deleteEngagementRgpd,
+  getTracabilitePhotos,
+  saveTracabilitePhotos,
 } from "./db";
 
 export const appRouter = router({
@@ -1396,6 +1404,28 @@ export const appRouter = router({
     return await db.query('SELECT id, prenom, nom, email, pin FROM employees WHERE ownerId = ?', [ctx.ownerId]);
   }),
 
+  archives: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getArchivesNumerisees(ctx.user.id);
+    }),
+    create: protectedProcedure.input(z.object({
+      nom: z.string().default(''),
+      prenom: z.string().default(''),
+      dateNumerisation: z.string(),
+      typeDocument: z.string().default(''),
+      praticien: z.string().default(''),
+      periode: z.string().default(''),
+      notes: z.string().default(''),
+      photos: z.array(z.any()).default([]),
+    })).mutation(async ({ ctx, input }) => {
+      return createArchiveNumerisee(ctx.user.id, input);
+    }),
+    delete: protectedProcedure.input(z.object({
+      id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      return deleteArchiveNumerisee(ctx.user.id, input.id);
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
@@ -1430,4 +1460,56 @@ export const notificationsRouter = router({
         .where(eq(adminNotifications.id, input.id));
       return { success: true };
     }),
+
+  archives: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getArchivesNumerisees(ctx.user.id);
+    }),
+    create: protectedProcedure.input(z.object({
+      nom: z.string().default(''),
+      prenom: z.string().default(''),
+      dateNumerisation: z.string(),
+      typeDocument: z.string().default(''),
+      praticien: z.string().default(''),
+      periode: z.string().default(''),
+      notes: z.string().default(''),
+      photos: z.array(z.any()).default([]),
+    })).mutation(async ({ ctx, input }) => {
+      return createArchiveNumerisee(ctx.user.id, input);
+    }),
+    delete: protectedProcedure.input(z.object({
+      id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      return deleteArchiveNumerisee(ctx.user.id, input.id);
+    }),
+  }),
+
+  engagements: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return getEngagementsRgpd(ctx.user.id);
+    }),
+    create: protectedProcedure.input(z.object({
+      nom: z.string().default(''),
+      poste: z.string().default(''),
+      date: z.string().default(''),
+      data: z.any().default({}),
+    })).mutation(async ({ ctx, input }) => {
+      return createEngagementRgpd(ctx.user.id, input);
+    }),
+    delete: protectedProcedure.input(z.object({
+      id: z.number(),
+    })).mutation(async ({ ctx, input }) => {
+      return deleteEngagementRgpd(ctx.user.id, input.id);
+    }),
+  }),
+  tracabilite: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return getTracabilitePhotos(ctx.user.id);
+    }),
+    save: protectedProcedure.input(z.object({
+      photos: z.array(z.any()),
+    })).mutation(async ({ ctx, input }) => {
+      return saveTracabilitePhotos(ctx.user.id, input.photos);
+    }),
+  }),
 });
