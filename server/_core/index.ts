@@ -9,6 +9,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes, registerBypassLogin } from "./oauth";
 import { registerAuthRoutes } from "./auth-routes";
 import adminRoutes from "../admin-routes";
+import stripeRoutes from "../stripe-routes";
 
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -63,6 +64,7 @@ app.set("trust proxy", 1);
   registerBypassLogin(app);
   registerAuthRoutes(app);
   app.use(adminRoutes);
+app.use(stripeRoutes);
   // tRPC API
   app.use(
     "/api/trpc",
