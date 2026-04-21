@@ -448,6 +448,18 @@ export default function ClientDetail() {
               <p className="text-xs text-center" style={{ color: 'var(--brand-text-muted)' }}>
                 L'archivage anonymise les données personnelles et déplace le client dans la section Archives.
               </p>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleDelete}
+                  className="w-full py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 transition-all"
+                  style={{ background: 'rgba(244,67,54,0.15)', border: '1px solid rgba(244,67,54,0.5)', color: '#F44336' }}
+                >
+                  <Trash2 size={14} />Supprimer définitivement (Art. 17 RGPD)
+                </button>
+              </div>
+              <p className="text-xs text-center" style={{ color: 'rgba(244,67,54,0.7)' }}>
+                Supprime toutes les données y compris médicales. Action irréversible.
+              </p>
             </div>
           );
         })()}

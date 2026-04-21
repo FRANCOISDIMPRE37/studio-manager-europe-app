@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import net from "net";
@@ -34,6 +35,10 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 
 async function startServer() {
   const app = express();
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
 app.set("trust proxy", 1);
   app.use(cookieParser());
   const server = createServer(app);

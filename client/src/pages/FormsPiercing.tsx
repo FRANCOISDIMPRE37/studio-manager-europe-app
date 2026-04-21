@@ -7,6 +7,8 @@ import { Client } from '@/lib/types';
 import { FormSection, FormField, RadioField, DateSlashField, CheckboxField, LegalBox, RgpdMentions, WarningBox, AgeVerif, PrintHeader, PrintFooter } from './FormsCommuns';
 
 function FormQuestionnaireMineur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  const { state: appState } = useApp();
+  const salonInfo = appState.salonInfo;
   const { t } = useTranslation();
   const yesNo = [t('forms.no'), t('forms.yes')];
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
@@ -135,6 +137,8 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
 // ─── Formulaire Questionnaire Médical Majeur ─────────────────────────────────
 
 function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  const { state: appState } = useApp();
+  const salonInfo = appState.salonInfo;
   const { t } = useTranslation();
   const yesNo = [t('forms.no'), t('forms.yes')];
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
@@ -222,6 +226,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <CheckboxField label={t('q03.consent_honest')} value={data.consent_honnete || false} onToggle={() => update('consent_honnete', !data.consent_honnete)} required />
       <CheckboxField label={t('q03.consent_freely')} value={data.consent_librement || false} onToggle={() => update('consent_librement', !data.consent_librement)} required />
       <CheckboxField label={t('q03.consent_protocol')} value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
 
       <RgpdMentions />
       <FormSection title={t('q03.section_signatures')} />

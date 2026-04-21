@@ -293,6 +293,7 @@ function FormConsentementSoinsTatouage({ data, update, client }: { data: Record<
       <CheckboxField label="J'ai reçu et lu la fiche de soins post-tatouage" value={data.consent_ficheRecue || false} onToggle={() => update('consent_ficheRecue', !data.consent_ficheRecue)} required />
       <CheckboxField label="Je m'engage à respecter le protocole de cicatrisation" value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} required />
       <CheckboxField label="Je consens librement à la réalisation de cette prestation" value={data.consent_libre || false} onToggle={() => update('consent_libre', !data.consent_libre)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
 
       <FormSection title="6 — PROTOCOLE DE CICATRISATION — J1 À J30" />
       <LegalBox color="cyan">
@@ -926,6 +927,7 @@ function FormQuestionnaireTatouageMajeur({ data, update, client }: { data: Recor
       <CheckboxField label="Le représentant légal donne son consentement éclairé pour la réalisation du tatouage sur le mineur" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} required />
       <CheckboxField label="Le représentant légal assume la responsabilité du suivi des soins post-tatouage" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} required />
       <CheckboxField label="Confirme la présence physique du représentant légal lors de la séance" value={data.presenceRepresentant || false} onToggle={() => update('presenceRepresentant', !data.presenceRepresentant)} required />
+      <CheckboxField label="Je consens expressément au traitement des données de santé du mineur par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
 
       <RgpdMentions />
       <FormSection title={t('q05.section_signatures')} />

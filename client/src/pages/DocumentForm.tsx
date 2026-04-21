@@ -1187,12 +1187,13 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <CheckboxField label={t('q01.minor_confirms')} value={data.avisMineur || false} onToggle={() => update('avisMineur', !data.avisMineur)} required />
       <FormSection title="5 — DECLARATION CLIENT" />
       <CheckboxField label={t('q01.answered_honestly')} value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
       <RgpdMentions />
       <FormSection title="6 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
       <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} />
-      <FormField label="Telephone" value={data.telephoneRepresentant || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" />
+      <FormField label="Telephone" value={data.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" />
       <RadioField label="Pièce d'identité du représentant légal" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} required />
       {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non presentee' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} required />
@@ -1215,7 +1216,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
@@ -1275,6 +1276,7 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
       )}
       <FormSection title="4 — CONSENTEMENT REPRESENTANT LEGAL" />
       <CheckboxField label="Le representant legal a repondu honnetement au questionnaire medical" value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
       <CheckboxField label="Le representant legal donne son consentement pour le tatouage du mineur" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} required />
       <CheckboxField label="Le representant legal assume la responsabilite du suivi des soins" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} required />
       <CheckboxField label="Confirme la presence physique du representant legal lors de la seance" value={data.presenceRepresentant || false} onToggle={() => update('presenceRepresentant', !data.presenceRepresentant)} required />
@@ -1289,7 +1291,7 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
@@ -1347,6 +1349,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       )}
       <FormSection title="4 — CONSENTEMENT REPRESENTANT LEGAL" />
       <CheckboxField label="Le representant legal a repondu honnetement au questionnaire medical" value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
       <CheckboxField label="Le representant legal autorise la prestation de dermographie sur le mineur" value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} required />
       <CheckboxField label="Le representant legal assume la responsabilite du suivi des soins" value={data.assumeResponsabilite || false} onToggle={() => update('assumeResponsabilite', !data.assumeResponsabilite)} required />
       <CheckboxField label="Confirme la presence physique du representant legal lors de la seance" value={data.presenceRepresentant || false} onToggle={() => update('presenceRepresentant', !data.presenceRepresentant)} required />
@@ -1361,7 +1364,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
           <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>

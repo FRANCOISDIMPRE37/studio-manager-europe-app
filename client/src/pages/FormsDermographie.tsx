@@ -322,6 +322,7 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
       <CheckboxField label={t('q09.consent_contraindications')} value={data.certifieContraIndications || false} onToggle={() => update('certifieContraIndications', !data.certifieContraIndications)} required />
       <CheckboxField label={t('q09.consent_aftercare')} value={data.engageSoinsPost || false} onToggle={() => update('engageSoinsPost', !data.engageSoinsPost)} required />
       <CheckboxField label={t('q09.consent_free')} value={data.consentementLibre || false} onToggle={() => update('consentementLibre', !data.consentementLibre)} required />
+      <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
       <CheckboxField label={t('q09.consent_accurate')} value={data.certifieInfosExactes || false} onToggle={() => update('certifieInfosExactes', !data.certifieInfosExactes)} required />
 
       <RgpdMentions />

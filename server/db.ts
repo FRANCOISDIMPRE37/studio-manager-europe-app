@@ -1,4 +1,23 @@
 import { eq, desc, and } from "drizzle-orm";
+import { encrypt, decrypt, encryptStr, decryptStr } from "./_core/crypto";
+
+const CLIENT_SENSITIVE_FIELDS = ['telephone', 'email', 'dateNaissance', 'nomRepresentantLegal', 'prenomRepresentantLegal', 'telephoneRepresentantLegal'] as const;
+
+function encryptClient<T extends Record<string, any>>(data: T): T {
+  const result = { ...data };
+  for (const field of CLIENT_SENSITIVE_FIELDS) {
+    if (result[field]) result[field] = encryptStr(result[field]);
+  }
+  return result;
+}
+
+function decryptClient<T extends Record<string, any>>(data: T): T {
+  const result = { ...data };
+  for (const field of CLIENT_SENSITIVE_FIELDS) {
+    if (result[field]) result[field] = decryptStr(result[field]);
+  }
+  return result;
+}
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, clients, prestations, documents, rendezVous, salonSettings, smtpConfig, studioUsers, smsConfig, licenses, adminArticles, adminArticleReads, adminNotifications, sharedServices } from "../drizzle/schema";
 import type { InsertClient, InsertPrestation, InsertDocument, InsertRendezVous, InsertSalonSettings, InsertSmtpConfig, InsertStudioUser, InsertSmsConfig } from "../drizzle/schema";
@@ -111,9 +130,11 @@ export async function getClientsByUserId(userId: number, employeeId?: number) {
   const db = await getDb();
   if (!db) return [];
   if (employeeId) {
-    return db.select().from(clients).where(and(eq(clients.userId, userId), eq(clients.employeeId, employeeId))).orderBy(desc(clients.createdAt));
+    const rows = await db.select().from(clients).where(and(eq(clients.userId, userId), eq(clients.employeeId, employeeId))).orderBy(desc(clients.createdAt));
+    return rows.map(decryptClient);
   }
-  return db.select().from(clients).where(eq(clients.userId, userId)).orderBy(desc(clients.createdAt));
+  const rows = await db.select().from(clients).where(eq(clients.userId, userId)).orderBy(desc(clients.createdAt));
+  return rows.map(decryptClient);
 }
 
 export async function getClientById(clientId: string, userId: number) {
@@ -122,20 +143,21 @@ export async function getClientById(clientId: string, userId: number) {
   const result = await db.select().from(clients)
     .where(and(eq(clients.id, clientId), eq(clients.userId, userId)))
     .limit(1);
-  return result[0];
+  if (!result[0]) return undefined;
+  return decryptClient(result[0]);
 }
 
 export async function createClient(data: InsertClient) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(clients).values(data);
+  await db.insert(clients).values(encryptClient(data));
   return data;
 }
 
 export async function updateClientById(clientId: string, userId: number, data: Partial<InsertClient>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(clients).set(data).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
+  await db.update(clients).set(encryptClient(data)).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
 }
 
 export async function deleteClientById(clientId: string, userId: number) {
@@ -180,9 +202,10 @@ export async function deletePrestationById(prestationId: string, userId: number)
 export async function getDocumentsByClientId(clientId: string, userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(documents)
+  const rows = await db.select().from(documents)
     .where(and(eq(documents.clientId, clientId), eq(documents.userId, userId)))
     .orderBy(desc(documents.createdAt));
+  return rows.map(r => ({ ...r, data: decrypt(r.data as any) }));
 }
 
 export async function getDocumentsByUserId(userId: number) {
@@ -199,20 +222,23 @@ export async function getDocumentById(docId: string, userId: number) {
   const result = await db.select().from(documents)
     .where(and(eq(documents.id, docId), eq(documents.userId, userId)))
     .limit(1);
-  return result[0];
+  if (!result[0]) return undefined;
+  return { ...result[0], data: decrypt(result[0].data as any) };
 }
 
 export async function createDocument(data: InsertDocument) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.insert(documents).values(data);
+  const encrypted = { ...data, data: encrypt(data.data as Record<string, unknown>) as any };
+  await db.insert(documents).values(encrypted);
   return data;
 }
 
 export async function updateDocumentById(docId: string, userId: number, data: Partial<InsertDocument>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(documents).set(data).where(and(eq(documents.id, docId), eq(documents.userId, userId)));
+  const toSave = data.data ? { ...data, data: encrypt(data.data as Record<string, unknown>) as any } : data;
+  await db.update(documents).set(toSave).where(and(eq(documents.id, docId), eq(documents.userId, userId)));
 }
 
 // ============ RENDEZ-VOUS ============
