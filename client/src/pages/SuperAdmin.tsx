@@ -68,7 +68,7 @@ export default function SuperAdmin() {
   }
 
   async function updateSpecialites(studio: Studio, spec: string, checked: boolean) {
-    const spec_obj = typeof studio.specialites === 'string' ? JSON.parse(studio.specialites || '{}') : (studio.specialites || {}); const current = Object.keys(spec_obj).filter(k => spec_obj[k]);
+    const spec_obj = typeof studio.specialites === 'string' ? Object.fromEntries((studio.specialites || 'piercing,tatouage,dermographie').split(',').map(s => [s.trim(), true])) : (studio.specialites || {}); const current = Object.keys(spec_obj).filter(k => spec_obj[k]);
     const updated = checked ? [...new Set([...current, spec])] : current.filter(s => s !== spec);
     await fetch(`/api/super-admin/studios/${studio.id}`, {
       method: "PATCH",
@@ -318,7 +318,7 @@ export default function SuperAdmin() {
                 {/* Spécialités */}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {["piercing", "tatouage", "dermographie"].map(spec => {
-                    const spec_obj2 = typeof studio.specialites === 'string' ? JSON.parse(studio.specialites || '{}') : (studio.specialites || {}); const specs = Object.keys(spec_obj2).filter(k => spec_obj2[k]);
+                    const spec_obj2 = typeof studio.specialites === 'string' ? Object.fromEntries((studio.specialites || 'piercing,tatouage,dermographie').split(',').map(s => [s.trim(), true])) : (studio.specialites || {}); const specs = Object.keys(spec_obj2).filter(k => spec_obj2[k]);
                     const active = specs.includes(spec);
                     if (!active) return null;
                     return (
