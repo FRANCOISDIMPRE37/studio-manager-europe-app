@@ -11,17 +11,19 @@ import { toast } from "sonner";
 type Tab = "dashboard" | "studios" | "licences" | "articles" | "notifications" | "services" | "invitations" | "nouveau-salon" | "acces";
 
 const PLAN_LABELS: Record<string, string> = {
-  trial: "Essai",
+  starter: "Starter",
   solo: "Solo",
   studio: "Studio",
   multi: "Multi",
+  premium: "Premium",
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  trial: "#6b7280",
+  starter: "#6b7280",
   solo: "#3b82f6",
   studio: "#8b5cf6",
   multi: "#f59e0b",
+  premium: "#ec4899",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -126,7 +128,7 @@ export default function Admin() {
   const [newArticle, setNewArticle] = useState({ titre: "", contenu: "", type: "annonce" as const, statut: "publie" as const, important: false });
   const [newNotif, setNewNotif] = useState({ titre: "", message: "", type: "info" as const });
   const [newService, setNewService] = useState({ nom: "", type: "piercing" as const, description: "", zone: "", prixConseille: "", dureeMinutes: "" });
-  const [newInvit, setNewInvit] = useState({ email: "", planType: "trial" as const, trialDays: 30 });
+  const [newInvit, setNewInvit] = useState({ email: "", planType: "studio" as const });
   const [invitCode, setInvitCode] = useState<string | null>(null);
 
   // ====== NOUVEAU SALON ======
@@ -137,7 +139,6 @@ export default function Admin() {
     telephone: "",
     ville: "",
     planType: "studio" as "starter" | "studio" | "premium",
-    trialDays: 30,
     maxClients: 500,
     maxUsers: 3,
     featureClients: true,
@@ -345,7 +346,7 @@ export default function Admin() {
                             <button
                               onClick={() => {
                                 setEditingLicense(s.id);
-                                setLicenseForm({ planType: s.planType || "trial", status: s.licenseStatus || "active", expiresAt: s.expiresAt ? new Date(s.expiresAt).toISOString().split("T")[0] : "", notes: s.licenseNotes || "", maxClients: s.maxClients || 100, maxUsers: s.maxUsers || 1, featureSms: s.featureSms || false, featureMultiUsers: s.featureMultiUsers || false });
+                                setLicenseForm({ planType: s.planType || "studio", status: s.licenseStatus || "active", expiresAt: s.expiresAt ? new Date(s.expiresAt).toISOString().split("T")[0] : "", notes: s.licenseNotes || "", maxClients: s.maxClients || 100, maxUsers: s.maxUsers || 1, featureSms: s.featureSms || false, featureMultiUsers: s.featureMultiUsers || false });
                                 setActiveTab("licences");
                               }}
                               style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, border: "1px solid #6366f1", background: "transparent", color: "#818cf8", cursor: "pointer" }}
@@ -387,10 +388,11 @@ export default function Admin() {
                         <Select value={licenseForm.planType} onValueChange={v => setLicenseForm((f: any) => ({ ...f, planType: v }))}>
                           <SelectTrigger style={inputStyle}><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="trial">Essai</SelectItem>
+                            <SelectItem value="starter">Starter</SelectItem>
                             <SelectItem value="solo">Solo</SelectItem>
                             <SelectItem value="studio">Studio</SelectItem>
                             <SelectItem value="multi">Multi</SelectItem>
+                            <SelectItem value="premium">Premium</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -478,7 +480,7 @@ export default function Admin() {
                           </div>
                         </td>
                         <td style={{ padding: "10px 12px" }}>
-                          <button onClick={() => { setEditingLicense(s.id); setLicenseForm({ planType: s.planType || "trial", status: s.licenseStatus || "active", expiresAt: s.expiresAt ? new Date(s.expiresAt).toISOString().split("T")[0] : "", notes: s.licenseNotes || "", maxClients: s.maxClients || 100, maxUsers: s.maxUsers || 1, featureSms: s.featureSms || false, featureMultiUsers: s.featureMultiUsers || false }); }}
+                          <button onClick={() => { setEditingLicense(s.id); setLicenseForm({ planType: s.planType || "studio", status: s.licenseStatus || "active", expiresAt: s.expiresAt ? new Date(s.expiresAt).toISOString().split("T")[0] : "", notes: s.licenseNotes || "", maxClients: s.maxClients || 100, maxUsers: s.maxUsers || 1, featureSms: s.featureSms || false, featureMultiUsers: s.featureMultiUsers || false }); }}
                             style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, border: "1px solid #6366f1", background: "transparent", color: "#818cf8", cursor: "pointer" }}>
                             Modifier
                           </button>
@@ -715,17 +717,17 @@ export default function Admin() {
                       <Select value={newInvit.planType} onValueChange={v => setNewInvit(i => ({ ...i, planType: v as any }))}>
                         <SelectTrigger style={inputStyle}><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="trial">Essai</SelectItem>
+                          <SelectItem value="starter">Starter</SelectItem>
                           <SelectItem value="solo">Solo</SelectItem>
                           <SelectItem value="studio">Studio</SelectItem>
                           <SelectItem value="multi">Multi</SelectItem>
+                          <SelectItem value="premium">Premium</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div><Label style={labelStyle}>Jours d'essai</Label><Input type="number" value={newInvit.trialDays} onChange={e => setNewInvit(i => ({ ...i, trialDays: parseInt(e.target.value) || 30 }))} style={inputStyle} /></div>
                   </div>
                   <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
-                    <Button onClick={() => createInvitation.mutate({ email: newInvit.email || undefined, planType: newInvit.planType, trialDays: newInvit.trialDays })} disabled={createInvitation.isPending} style={{ background: "#6366f1", color: "white" }}>
+                    <Button onClick={() => createInvitation.mutate({ email: newInvit.email || undefined, planType: newInvit.planType })} disabled={createInvitation.isPending} style={{ background: "#6366f1", color: "white" }}>
                       {createInvitation.isPending ? "Génération..." : "Générer le code"}
                     </Button>
                     {invitCode && (
@@ -741,7 +743,7 @@ export default function Admin() {
                 <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.5)" }}>
-                      {["Code", "Email", "Plan", "Jours essai", "Utilisé", "Créé le"].map(h => <th key={h} style={{ textAlign: "left", padding: "12px 12px", fontWeight: 500 }}>{h}</th>)}
+                      {["Code", "Email", "Plan", "Utilisé", "Créé le"].map(h => <th key={h} style={{ textAlign: "left", padding: "12px 12px", fontWeight: 500 }}>{h}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -754,7 +756,6 @@ export default function Admin() {
                             {PLAN_LABELS[inv.planType] || inv.planType}
                           </span>
                         </td>
-                        <td style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>{inv.trialDays}j</td>
                         <td style={{ padding: "10px 12px" }}>
                           <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: inv.usedByUserId ? "#22c55e22" : "#6b728022", color: inv.usedByUserId ? "#22c55e" : "#9ca3af" }}>
                             {inv.usedByUserId ? "✓ Utilisé" : "En attente"}
@@ -839,7 +840,7 @@ export default function Admin() {
                     ))}
                   </div>
 
-                  <Button onClick={() => { setProvisionResult(null); setNewSalon({ nomSalon: "", slug: "", email: "", telephone: "", ville: "", planType: "studio", trialDays: 30, maxClients: 500, maxUsers: 3, featureClients: true, featureDocuments: true, featureAgenda: true, featureSms: false, featureMultiUsers: false, featureExport: true, notes: "" }); }} style={{ background: "#6366f1", color: "white" }}>
+                  <Button onClick={() => { setProvisionResult(null); setNewSalon({ nomSalon: "", slug: "", email: "", telephone: "", ville: "", planType: "studio", maxClients: 500, maxUsers: 3, featureClients: true, featureDocuments: true, featureAgenda: true, featureSms: false, featureMultiUsers: false, featureExport: true, notes: "" }); }} style={{ background: "#6366f1", color: "white" }}>
                     Créer un autre salon
                   </Button>
                 </div>
@@ -905,11 +906,6 @@ export default function Admin() {
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                           <div>
-                            <Label style={labelStyle}>Jours d'essai</Label>
-                            <Input style={inputStyle} type="number" min={0} max={90} value={newSalon.trialDays}
-                              onChange={e => setNewSalon(s => ({ ...s, trialDays: parseInt(e.target.value) || 0 }))} />
-                          </div>
-                          <div>
                             <Label style={labelStyle}>Max clients</Label>
                             <Input style={inputStyle} type="number" value={newSalon.maxClients}
                               onChange={e => setNewSalon(s => ({ ...s, maxClients: parseInt(e.target.value) || 500 }))} />
@@ -959,7 +955,7 @@ export default function Admin() {
                             <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.5)", fontSize: 13 }}>
                               {newSalon.slug ? `https://${newSalon.slug}.intemporelle.eu` : "Renseignez le slug"}
                               {" → "}
-                              {newSalon.planType} · {newSalon.trialDays}j essai · {newSalon.maxClients} clients max
+                              {newSalon.planType} · {newSalon.maxClients} clients max
                             </p>
                             <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                               <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(99,102,241,0.2)", color: "#818cf8" }}>1. DNS IONOS</span>

@@ -965,7 +965,7 @@ export const appRouter = router({
     upsertLicense: publicProcedure
       .input(z.object({
         userId: z.number(),
-        planType: z.enum(['trial', 'solo', 'studio', 'multi']).optional(),
+        planType: z.enum(['starter', 'solo', 'studio', 'multi', 'premium']).optional(),
         status: z.enum(['active', 'suspended', 'expired', 'cancelled']).optional(),
         expiresAt: z.date().nullable().optional(),
         featureClients: z.boolean().optional(),
@@ -1148,8 +1148,7 @@ export const appRouter = router({
     createInvitation: publicProcedure
       .input(z.object({
         email: z.string().email().optional(),
-        planType: z.enum(['trial', 'solo', 'studio', 'multi']),
-        trialDays: z.number().default(30),
+        planType: z.enum(['starter', 'solo', 'studio', 'multi', 'premium']),
         expiresInDays: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
@@ -1172,7 +1171,6 @@ export const appRouter = router({
           code,
           email: input.email,
           planType: input.planType,
-          trialDays: input.trialDays,
           expiresAt,
           createdByUserId,
         });
@@ -1200,7 +1198,6 @@ export const appRouter = router({
         ville: z.string().optional(),
         // Licence
         planType: z.enum(["starter", "studio", "premium"]).default("studio"),
-        trialDays: z.number().min(0).max(90).default(30),
         maxClients: z.number().default(500),
         maxUsers: z.number().default(3),
         featureClients: z.boolean().default(true),
@@ -1311,7 +1308,7 @@ export const appRouter = router({
 
           // Créer la licence
           const expiresAt = new Date();
-          expiresAt.setDate(expiresAt.getDate() + (input.trialDays > 0 ? input.trialDays : 365));
+          expiresAt.setDate(expiresAt.getDate() + 365);
 
           await conn.query(
             `INSERT INTO licenses (userId, planType, status, expiresAt, maxClients, maxUsers,
