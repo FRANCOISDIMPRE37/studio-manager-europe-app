@@ -254,7 +254,7 @@ export default function DocumentForm() {
       'questionnaire_majeur': [
         { key: 'consent_majeur', label: 'Être majeur(e)' },
         { key: 'consent_honnete', label: 'A répondu honnêtement' },
-        { key: 'consent_libre', label: 'Consent librement' },
+        { key: 'consent_librement', label: 'Consent librement' },
         { key: 'consent_protocole', label: "S'engage à respecter le protocole" },
         { key: 'consentDonneesSante', label: 'Consentement données de santé' },
       ],
