@@ -23,8 +23,7 @@ async function authenticateLocal(req: any): Promise<User | null> {
       })
     );
     const token = cookies["local_session"];
-    console.log("[LocalAuth] Cookie header:", cookieHeader.substring(0, 100));
-    console.log("[LocalAuth] Token found:", !!token);
+    // Logs de debug supprimés (trop verbeux en production)
     if (!token) return null;
     const { payload } = await jwtVerify(token, JWT_SECRET);
     if (!payload.openId) return null;
