@@ -29,7 +29,7 @@ export default function SuperAdmin() {
   const [studios, setStudios] = useState<Studio[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [newStudio, setNewStudio] = useState({ nomSalon: "", ownerEmail: "", password: "", planType: "trial", trialDays: 30, specialites: ["piercing", "tatouage", "dermographie"] });
+  const [newStudio, setNewStudio] = useState({ nomSalon: "", ownerEmail: "", password: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"] });
   const [created, setCreated] = useState<{ tempPin: string; nomSalon: string; ownerEmail: string } | null>(null);
   const [actionMsg, setActionMsg] = useState("");
   const [editingSpecialites, setEditingSpecialites] = useState<number | null>(null);
@@ -117,7 +117,7 @@ export default function SuperAdmin() {
     if (r.ok) {
       setCreated({ tempPin: data.tempPin, nomSalon: data.nomSalon, ownerEmail: data.ownerEmail });
       setShowCreate(false);
-      setNewStudio({ nomSalon: "", ownerEmail: "", planType: "trial", trialDays: 30 });
+      setNewStudio({ nomSalon: "", ownerEmail: "", password: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"] });
       loadStudios();
     } else {
       alert("Erreur : " + data.error);
@@ -501,15 +501,7 @@ export default function SuperAdmin() {
                   ))}
                 </div>
               </div>
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>JOURS D'ESSAI</label>
-                <input
-                  type="number" min={1} max={365}
-                  value={newStudio.trialDays}
-                  onChange={e => setNewStudio({ ...newStudio, trialDays: parseInt(e.target.value) })}
-                  style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
-                />
-              </div>
+
               <div style={{ display: "flex", gap: 12 }}>
                 <button type="button" onClick={() => setShowCreate(false)} style={{ flex: 1, padding: "10px", background: "transparent", border: "1px solid #2a2a3a", borderRadius: 8, color: "#888", cursor: "pointer" }}>
                   Annuler

@@ -64,9 +64,7 @@ export default function Inscription() {
         <Card style={{ background: "var(--brand-card)", border: "1px solid var(--brand-border)" }}>
           <CardHeader>
             <CardTitle className="text-white text-xl">Créer votre compte</CardTitle>
-            <CardDescription style={{ color: "var(--brand-text-muted)" }}>
-              Essai gratuit 30 jours — sans carte bancaire
-            </CardDescription>
+
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
