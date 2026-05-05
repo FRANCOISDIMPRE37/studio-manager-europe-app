@@ -375,15 +375,7 @@ export default function Admin() {
                   <CardHeader><CardTitle style={{ color: "white", fontSize: 16 }}>Modifier la licence — Studio #{editingLicense}</CardTitle></CardHeader>
                   <CardContent>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                      <div>
-                        <Label style={labelStyle}>Plan</Label>
-                        <Select value={licenseForm.planType} onValueChange={v => setLicenseForm((f: any) => ({ ...f, planType: v }))}>
-                          <SelectTrigger style={inputStyle}><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="studio">Studio</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+
                       <div>
                         <Label style={labelStyle}>Statut</Label>
                         <Select value={licenseForm.status} onValueChange={v => setLicenseForm((f: any) => ({ ...f, status: v }))}>
@@ -700,15 +692,7 @@ export default function Admin() {
                 <CardContent>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
                     <div><Label style={labelStyle}>Email (optionnel)</Label><Input value={newInvit.email} onChange={e => setNewInvit(i => ({ ...i, email: e.target.value }))} placeholder="contact@studio.fr" style={inputStyle} /></div>
-                    <div>
-                      <Label style={labelStyle}>Plan</Label>
-                      <Select value={newInvit.planType} onValueChange={v => setNewInvit(i => ({ ...i, planType: v as any }))}>
-                        <SelectTrigger style={inputStyle}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="studio">Studio</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+
                   </div>
                   <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
                     <Button onClick={() => createInvitation.mutate({ email: newInvit.email || undefined, planType: newInvit.planType })} disabled={createInvitation.isPending} style={{ background: "#6366f1", color: "white" }}>
@@ -877,15 +861,7 @@ export default function Admin() {
                     <Card style={{ background: "#1a1f2e", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 16 }}>
                       <CardHeader><CardTitle style={{ color: "white", fontSize: 16 }}>🔑 Configuration de la licence</CardTitle></CardHeader>
                       <CardContent style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        <div>
-                          <Label style={labelStyle}>Plan</Label>
-                          <Select value={newSalon.planType} onValueChange={v => setNewSalon(s => ({ ...s, planType: v as any }))}>
-                            <SelectTrigger style={{ ...inputStyle, marginTop: 4 }}><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="studio">Studio</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                           <div>
                             <Label style={labelStyle}>Max clients</Label>
