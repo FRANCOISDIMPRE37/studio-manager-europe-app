@@ -369,6 +369,28 @@ export const appRouter = router({
     get: protectedProcedure.query(async ({ ctx }) => {
       return getSalonSettings(ctx.user.id);
     }),
+    // Récupérer le statut firstLogin depuis la table studios
+    getFirstLogin: protectedProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return { firstLogin: false };
+      const [rows] = await (db as any).$client.query(
+        'SELECT firstLogin FROM studios WHERE userId = ? LIMIT 1',
+        [ctx.user.id]
+      );
+      const studio = (rows as any[])[0];
+      if (!studio) return { firstLogin: false };
+      return { firstLogin: studio.firstLogin === 1 || studio.firstLogin === true };
+    }),
+    // Marquer l'onboarding comme terminé (firstLogin = false)
+    completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return { success: true };
+      await (db as any).$client.query(
+        'UPDATE studios SET firstLogin = 0 WHERE userId = ?',
+        [ctx.user.id]
+      );
+      return { success: true };
+    }),
     update: protectedProcedure
       .input(z.object({
         nom: z.string().optional(),

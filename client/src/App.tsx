@@ -6,6 +6,7 @@ import ArchivesNumerisees from '@/pages/ArchivesNumerisees';
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AppProvider, useApp } from "./lib/app-context";
+import { trpc } from "@/lib/trpc";
 import Layout from "./components/Layout";
 import EcranPIN from '@/pages/EcranPIN';
 import GestionUtilisateurs from '@/pages/GestionUtilisateurs';
@@ -34,6 +35,10 @@ import Admin from "@/pages/Admin";
 
 function AppRoutes() {
   const { state } = useApp();
+  const { data: firstLoginData, isLoading: firstLoginLoading } = trpc.salon.getFirstLogin.useQuery(
+    undefined,
+    { enabled: state.isAuthenticated && !state.isDemo }
+  );
   if (state.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
@@ -61,9 +66,23 @@ function AppRoutes() {
     return <Login />;
   }
 
-  // Première connexion : onboarding non encore effectué → Engagements
-  const onboardingDone = localStorage.getItem('sm_onboarding_done');
-  if (!onboardingDone) {
+  // Première connexion : onboarding non encore effectué → Engagements (flag côté serveur)
+  if (firstLoginLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
+            alt="Intemporelle"
+            className="rounded-lg animate-pulse"
+            style={{ width: '140px', objectFit: 'contain' }}
+          />
+          <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+  if (firstLoginData?.firstLogin === true) {
     return <Onboarding />;
   }
 

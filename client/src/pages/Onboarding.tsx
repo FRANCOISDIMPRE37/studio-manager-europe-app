@@ -6,11 +6,14 @@
  */
 import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
+import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Check, ChevronRight, ShieldCheck } from 'lucide-react';
 
 export default function Onboarding() {
-  const { setAuthenticated, syncFromCloud } = useApp();
+  const { syncFromCloud } = useApp();
+  const completeOnboarding = trpc.salon.completeOnboarding.useMutation();
+  const utils = trpc.useUtils();
 
   const [engagements, setEngagements] = useState({
     sterilisation: false,
@@ -33,19 +36,19 @@ export default function Onboarding() {
     }
     setIsLoading(true);
     try {
-      // Marquer l'onboarding comme terminé
-      localStorage.setItem('sm_onboarding_done', '1');
+      // Marquer l'onboarding comme terminé côté serveur (studios.firstLogin = false)
+      await completeOnboarding.mutateAsync();
+      // Invalider le cache pour que App.tsx recharge firstLogin
+      await utils.salon.getFirstLogin.invalidate();
       // Synchroniser les données depuis le serveur
       await syncFromCloud();
-      setAuthenticated(true);
       toast.success('Bienvenue sur Studio Manager !');
       setTimeout(() => {
         window.location.href = '/';
       }, 800);
     } catch {
-      // Même en cas d'erreur de sync, on laisse passer
-      localStorage.setItem('sm_onboarding_done', '1');
-      setAuthenticated(true);
+      // Même en cas d'erreur, on invalide quand même
+      await utils.salon.getFirstLogin.invalidate();
       window.location.href = '/';
     } finally {
       setIsLoading(false);
