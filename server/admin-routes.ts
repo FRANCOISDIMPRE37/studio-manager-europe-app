@@ -304,7 +304,7 @@ SUPER_ADMIN_PASSWORD=${newPassword}`;
 });
 
 // Route pour configurer le SMTP d'un studio depuis le Super-Admin
-router.post('/set-smtp/:studioId', async (req: Request, res: Response) => {
+router.post('/api/super-admin/set-smtp/:studioId', async (req: Request, res: Response) => {
   const token = req.cookies?.super_admin_session;
   if (!token) return res.status(401).json({ error: 'Non authentifié' });
   const studioId = parseInt(req.params.studioId);
