@@ -285,6 +285,7 @@ export default function SuperAdmin() {
                 🔐 Mot de passe : <b>{created.password}</b>
               </div>
               <div style={{ color: "#888", fontSize: 12, textAlign: "center", marginTop: 4 }}>Communiquez le PIN et le mot de passe au client — ils serviront à la double sécurité</div>
+            </div>
             <button onClick={() => setCreated(null)} style={{ marginTop: 16, padding: "6px 14px", background: "transparent", border: "1px solid #444", borderRadius: 6, color: "#888", cursor: "pointer", fontSize: 12 }}>
               Fermer
             </button>
