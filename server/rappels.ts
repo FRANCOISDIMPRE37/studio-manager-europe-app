@@ -46,7 +46,7 @@ async function checkAndSendRgpdRappels() {
   const dateStr = targetDate.toISOString().split('T')[0];
 
   const clients = await query<any>(
-    `SELECT c.*, ss.nom as salonNom, sc.host, sc.port, sc.secure, sc.user, sc.password, sc.fromName, sc.replyTo
+    `SELECT c.*, ss.nom as salonNom, ss.email as salonEmail, sc.host, sc.port, sc.secure, sc.user, sc.password, sc.fromName, sc.replyTo
      FROM clients c
      JOIN smtp_config sc ON sc.userId = c.userId
      LEFT JOIN salon_settings ss ON ss.userId = c.userId
@@ -73,7 +73,8 @@ async function checkAndSendRgpdRappels() {
       });
 
       const salonNom = client.salonNom || "Votre Studio";
-      const contactEmail = client.replyTo || client.user;
+      // Utiliser l'email du salon (salon_settings.email) comme adresse de contact RGPD
+      const contactEmail = client.salonEmail || client.replyTo || client.user;
 
       await transporter.sendMail({
         from: `"${client.fromName || salonNom}" <${client.user}>`,
@@ -86,9 +87,8 @@ async function checkAndSendRgpdRappels() {
             </div>
             <div style="padding:32px;background:#ffffff;border:1px solid #e2e8f0;border-radius:0 0 12px 12px">
               <p>Bonjour ${client.prenom || ''},</p>
-              <p>Conformément au Règlement Général sur la Protection des Données (RGPD), nous vous informons que votre dossier client au sein de notre salon arrive au terme de sa période de conservation.</p>
-              <p><strong>Vos données personnelles seront définitivement supprimées le ${new Date(client.dateSuppressionPrevue).toLocaleDateString('fr-FR')}.</strong></p>
-              <p>Si vous souhaitez exercer vos droits (accès, rectification, effacement) avant cette date, vous pouvez nous contacter directement à l'adresse suivante : <a href="mailto:${contactEmail}">${contactEmail}</a>.</p>
+              <p>Nous vous informons que conformément au RGPD et à notre politique de conservation des données, vos données personnelles enregistrées dans notre salon seront supprimées dans 30 jours, soit le <strong>${new Date(client.dateSuppressionPrevue).toLocaleDateString('fr-FR')}</strong>.</p>
+              <p>Si vous souhaitez exercer vos droits (accès, rectification, effacement) avant cette date, veuillez nous contacter à l'adresse suivante : <a href="mailto:${contactEmail}" style="color:#0A1628;font-weight:bold">${contactEmail}</a>.</p>
               <p>À bientôt,<br>L'équipe ${salonNom}</p>
             </div>
           </div>
