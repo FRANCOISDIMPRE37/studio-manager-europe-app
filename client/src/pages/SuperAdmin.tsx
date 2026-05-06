@@ -344,9 +344,12 @@ export default function SuperAdmin() {
 
 
 
-                {/* Lien direct */}
+                {/* Lien direct — déconnecte la session courante avant d'ouvrir l'app */}
                 <button
-                  onClick={() => window.open('https://studio.intemporelle.eu', '_blank')}
+                  onClick={async () => {
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                    window.open('https://studio.intemporelle.eu', '_blank');
+                  }}
                   style={{ padding: "6px 14px", background: "#10b98120", border: "1px solid #10b981", borderRadius: 6, color: "#10b981", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
                 >
                   🔗 Ouvrir

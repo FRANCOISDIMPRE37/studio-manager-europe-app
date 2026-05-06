@@ -615,10 +615,10 @@ export default function DocumentForm() {
               <div className="space-y-3">
                 <FormField label="Nom du client — Lu et approuvé" value={formData.nomClientSigne||''} onChange={(v: string)=>updateField('nomClientSigne',v)} />
                 <FormField label="Date" value={formData.dateSignatureClient||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignatureClient',v)} />
-                <SignaturePad label="Signature du client" value={formData.signatureClient||''} onChange={(v: string)=>updateField('signatureClient',v)} />
+                <SignaturePad label="Signature du client" value={formData.signatureClient||''} onChange={(v)=>updateField('signatureClient', v ?? '')} />
                 <FormField label="Nom du praticien" value={formData.nomPraticien||''} onChange={(v: string)=>updateField('nomPraticien',v)} />
                 <FormField label="Date" value={formData.dateSignaturePraticien||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignaturePraticien',v)} />
-                <SignaturePad label="Signature du praticien" value={formData.signaturePraticien||''} onChange={(v: string)=>updateField('signaturePraticien',v)} />
+                <SignaturePad label="Signature du praticien" value={formData.signaturePraticien||''} onChange={(v)=>updateField('signaturePraticien', v ?? '')} />
               </div>
             </div>
           </div>
@@ -692,10 +692,10 @@ export default function DocumentForm() {
               <div className="space-y-3">
                 <FormField label="Nom du client — Lu et approuvé" value={formData.nomClientSigne||''} onChange={(v: string)=>updateField('nomClientSigne',v)} />
                 <FormField label="Date" value={formData.dateSignatureClient||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignatureClient',v)} />
-                <SignaturePad label="Signature du client" value={formData.signatureClient||''} onChange={(v: string)=>updateField('signatureClient',v)} />
+                <SignaturePad label="Signature du client" value={formData.signatureClient||''} onChange={(v)=>updateField('signatureClient', v ?? '')} />
                 <FormField label="Nom du praticien" value={formData.nomPraticien||''} onChange={(v: string)=>updateField('nomPraticien',v)} />
                 <FormField label="Date" value={formData.dateSignaturePraticien||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignaturePraticien',v)} />
-                <SignaturePad label="Signature du praticien" value={formData.signaturePraticien||''} onChange={(v: string)=>updateField('signaturePraticien',v)} />
+                <SignaturePad label="Signature du praticien" value={formData.signaturePraticien||''} onChange={(v)=>updateField('signaturePraticien', v ?? '')} />
               </div>
             </div>
           </div>

@@ -10,8 +10,6 @@ import { useApp } from '@/lib/app-context';
 interface SignaturePadProps {
   documentId?: string;
   requireConfidentiality?: boolean;
-  documentId?: string;
-  requireConfidentiality?: boolean;
   value?: string;
   onChange: (base64: string | null) => void;
   label?: string;
