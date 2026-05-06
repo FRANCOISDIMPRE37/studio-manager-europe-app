@@ -137,8 +137,9 @@ export default function RgpdSalarie() {
               
               <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 p-2">
                 <SignaturePad
-                  signature={signatureData}
-                  onSave={setSignatureData}
+                  value={signatureData || ''}
+                  onChange={(v) => setSignatureData(v ?? null)}
+                  requireConfidentiality={false}
                 />
               </div>
               
