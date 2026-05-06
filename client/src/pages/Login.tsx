@@ -1,50 +1,117 @@
 /*
  * DESIGN: Studio Nocturne — Écran de connexion avec deux onglets
- * "Déjà client" → connexion PIN enregistré
- * "Nouveau" → connexion email + mot de passe
- * Auth: PIN vérifié côté serveur → cookie de session JWT posé automatiquement
+ * "Déjà client" → saisie PIN enregistré → double sécurité email + mot de passe
+ * "Nouveau"     → connexion email + mot de passe (première connexion)
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useApp } from '@/lib/app-context';
-import { useTranslation } from 'react-i18next';
-import { Delete } from 'lucide-react';
+import { Delete, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 
 type Tab = 'pin' | 'email';
+type PinStep = 'pin' | 'double';   // pin = saisie PIN, double = vérif email+mdp
 
 export default function Login() {
-  const { state, setAuthenticated, verifyPin, setPin, hasPin } = useApp();
-  const { t } = useTranslation();
+  const { state, setAuthenticated, verifyPin } = useApp();
+
   const [activeTab, setActiveTab] = useState<Tab>('pin');
+  const [pinStep, setPinStep] = useState<PinStep>('pin');
+
+  // PIN
   const [pin, setLocalPin] = useState('');
+  const [shake, setShake] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Double sécurité (après PIN valide)
+  const [dblEmail, setDblEmail] = useState('');
+  const [dblPassword, setDblPassword] = useState('');
+
+  // Salarié
   const [selEmp, setSelEmp] = useState<any>(null);
   const { data: emps } = trpc.studioUsers.listForPin.useQuery();
   const empLogin = trpc.studioUsers.loginWithPin.useMutation({
     onSuccess: (d) => {
-      try { sessionStorage.setItem('studio_employe_session', JSON.stringify({ ...d.employe, loginAt: new Date().toISOString() })); } catch (e) {}
+      try { sessionStorage.setItem('studio_employe_session', JSON.stringify({ ...d.employe, loginAt: new Date().toISOString() })); } catch {}
       setAuthenticated(true);
       toast.success('Bonjour ' + d.employe.prenom + ' !');
     },
-    onError: (e) => { toast.error(e.message || 'PIN incorrect'); setLocalPin(''); }
+    onError: (e) => { toast.error(e.message || 'PIN incorrect'); setLocalPin(''); },
   });
-  const [confirmPin, setConfirmPin] = useState('');
-  const [isCreatingPin, setIsCreatingPin] = useState(false);
-  const [shake, setShake] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Email tab state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Onglet Nouveau
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
-  const handleEmailLogin = async () => {
-    if (!email || !password) return;
+  const pinLoginMutation = trpc.auth.pinLogin.useMutation();
+
+  // ── Saisie PIN ──────────────────────────────────────────────────────────────
+  const handlePinInput = (digit: string) => {
+    if (isLoading || pin.length >= 4) return;
+    const newPin = pin + digit;
+    setLocalPin(newPin);
+
+    if (newPin.length === 4) {
+      setTimeout(() => {
+        // Vérification locale du PIN
+        const localOk = verifyPin(newPin);
+        if (!localOk) {
+          setShake(true);
+          setTimeout(() => { setShake(false); setLocalPin(''); }, 600);
+          toast.error('Code PIN incorrect');
+          return;
+        }
+        // Si salarié → connexion directe
+        if (selEmp) {
+          setIsLoading(true);
+          empLogin.mutate({ employeId: selEmp.id, pin: newPin });
+          return;
+        }
+        // Sinon → passer à la double sécurité
+        setPinStep('double');
+        setLocalPin('');
+      }, 200);
+    }
+  };
+
+  const handleDelete = () => {
+    if (!isLoading) setLocalPin(prev => prev.slice(0, -1));
+  };
+
+  // ── Double sécurité (email + mdp) ──────────────────────────────────────────
+  const handleDoubleAuth = async () => {
+    if (!dblEmail || !dblPassword) return;
     setIsLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: dblEmail, password: dblPassword }),
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAuthenticated(true);
+        toast.success('Connexion réussie !');
+      } else {
+        toast.error(data.error || 'Email ou mot de passe incorrect');
+      }
+    } catch {
+      toast.error('Erreur de connexion');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── Onglet Nouveau ──────────────────────────────────────────────────────────
+  const handleNewLogin = async () => {
+    if (!newEmail || !newPassword) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail, password: newPassword }),
         credentials: 'include',
       });
       const data = await res.json();
@@ -55,115 +122,55 @@ export default function Login() {
       } else {
         toast.error(data.error || 'Email ou mot de passe incorrect');
       }
-    } catch (err) {
+    } catch {
       toast.error('Erreur de connexion');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const pinLoginMutation = trpc.auth.pinLogin.useMutation();
-  const pinSetupMutation = trpc.auth.pinSetup.useMutation();
-
-  useEffect(() => {
-    if (!hasPin()) {
-      setIsCreatingPin(true);
-    }
-  }, [hasPin]);
-
-  const handlePinInput = (digit: string) => {
-    if (isLoading) return;
-    if (isCreatingPin) {
-      if (pin.length < 4) {
-        const newPin = pin + digit;
-        setLocalPin(newPin);
-        if (newPin.length === 4) {
-          if (!confirmPin) {
-            setTimeout(() => { setConfirmPin(newPin); setLocalPin(''); }, 200);
-          } else {
-            if (newPin === confirmPin) {
-              setPin(confirmPin);
-              setIsLoading(true);
-              pinSetupMutation.mutate(
-                { pin: confirmPin },
-                {
-                  onSuccess: () => { setAuthenticated(true); toast.success(t('auth.pin_created', 'Code PIN créé avec succès')); },
-                  onError: () => { setAuthenticated(true); toast.success(t('auth.pin_created', 'Code PIN créé avec succès')); },
-                  onSettled: () => setIsLoading(false),
-                }
-              );
-            } else {
-              setShake(true);
-              setTimeout(() => { setShake(false); setLocalPin(''); setConfirmPin(''); }, 600);
-              toast.error(t('auth.pin_mismatch'));
-            }
-          }
-        }
-      }
-    } else {
-      if (pin.length < 4) {
-        const newPin = pin + digit;
-        setLocalPin(newPin);
-        if (newPin.length === 4) {
-          setTimeout(() => {
-            const localOk = verifyPin(newPin);
-            if (!localOk) {
-              setShake(true);
-              setTimeout(() => { setShake(false); setLocalPin(''); }, 600);
-              toast.error(t('auth.pin_error'));
-              return;
-            }
-            setIsLoading(true);
-            if (selEmp) {
-              empLogin.mutate({ employeId: selEmp.id, pin: newPin });
-            } else {
-              pinLoginMutation.mutate(
-                { pin: newPin },
-                {
-                  onSuccess: (data) => { if (!data?.firstLogin) setAuthenticated(true); },
-                  onError: () => { setAuthenticated(true); },
-                  onSettled: () => setIsLoading(false),
-                }
-              );
-            }
-          }, 200);
-        }
-      }
-    }
-  };
-
-  const handleDelete = () => {
-    if (!isLoading) setLocalPin(prev => prev.slice(0, -1));
-  };
-
   const pinDots = Array.from({ length: 4 }, (_, i) => i < pin.length);
 
-  const getTitle = () => {
-    if (isCreatingPin) return confirmPin ? t('auth.pin_confirm') : t('auth.pin_title');
-    return t('auth.pin_enter');
+  // ── Styles ──────────────────────────────────────────────────────────────────
+  const cardStyle: React.CSSProperties = {
+    width: '100%',
+    borderRadius: 16,
+    padding: 24,
+    background: 'rgba(15, 32, 64, 0.85)',
+    border: '1px solid var(--brand-border)',
+    backdropFilter: 'blur(12px)',
   };
-
-  // Styles communs
-  const tabBase: React.CSSProperties = {
-    flex: 1,
-    padding: '10px 0',
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '12px 14px',
+    marginBottom: 10,
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid var(--brand-border)',
     borderRadius: 10,
+    color: 'var(--brand-text)',
     fontFamily: 'Outfit',
-    fontWeight: 700,
     fontSize: 14,
-    cursor: 'pointer',
-    border: 'none',
-    transition: 'all 0.2s',
+    outline: 'none',
+    boxSizing: 'border-box',
   };
-  const tabActive: React.CSSProperties = {
-    ...tabBase,
+  const btnPrimary: React.CSSProperties = {
+    width: '100%',
+    padding: '13px 0',
+    borderRadius: 10,
     background: 'var(--brand-cyan)',
     color: '#0A1628',
+    fontFamily: 'Outfit',
+    fontWeight: 700,
+    fontSize: 15,
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
   };
-  const tabInactive: React.CSSProperties = {
-    ...tabBase,
-    background: 'rgba(255,255,255,0.05)',
-    color: 'var(--brand-text-muted)',
+  const btnDisabled: React.CSSProperties = { ...btnPrimary, background: 'rgba(131,208,245,0.3)', cursor: 'not-allowed' };
+  const tabBase: React.CSSProperties = {
+    flex: 1, padding: '10px 0', borderRadius: 10,
+    fontFamily: 'Outfit', fontWeight: 700, fontSize: 14,
+    cursor: 'pointer', border: 'none', transition: 'all 0.2s',
   };
 
   return (
@@ -171,19 +178,16 @@ export default function Login() {
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
       style={{ background: 'var(--brand-navy)' }}
     >
-      {/* Background hero image */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `url(https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/hero-login-bg-hLRj6RMZ79APYJzwLEuAnp.webp)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* Background */}
+      <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: `url(https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/hero-login-bg-hLRj6RMZ79APYJzwLEuAnp.webp)`,
+        backgroundSize: 'cover', backgroundPosition: 'center',
+      }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,22,40,0.6) 0%, rgba(10,22,40,0.95) 100%)' }} />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full max-w-sm px-6">
+
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
@@ -192,217 +196,175 @@ export default function Login() {
             className="rounded-lg mb-4"
             style={{ width: '220px', objectFit: 'contain' }}
           />
-          <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
+          <h1 className="text-2xl text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
             studio.intemporelle.eu
           </h1>
           {state.salonInfo?.nom && (
-            <p className="text-sm mt-1 font-600 text-center" style={{ color: 'var(--brand-cyan)', fontFamily: 'Outfit', fontWeight: 600 }}>
+            <p className="text-sm mt-1 text-center" style={{ color: 'var(--brand-cyan)', fontFamily: 'Outfit', fontWeight: 600 }}>
               {state.salonInfo.nom}
             </p>
           )}
         </div>
 
         {/* Onglets */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 6,
-            width: '100%',
-            marginBottom: 16,
-            background: 'rgba(15, 32, 64, 0.8)',
-            border: '1px solid var(--brand-border)',
-            borderRadius: 14,
-            padding: 6,
-            backdropFilter: 'blur(12px)',
-          }}
-        >
+        <div style={{
+          display: 'flex', gap: 6, width: '100%', marginBottom: 16,
+          background: 'rgba(15, 32, 64, 0.8)', border: '1px solid var(--brand-border)',
+          borderRadius: 14, padding: 6, backdropFilter: 'blur(12px)',
+        }}>
           <button
-            style={activeTab === 'pin' ? tabActive : tabInactive}
-            onClick={() => { setActiveTab('pin'); setLocalPin(''); }}
+            style={activeTab === 'pin' ? { ...tabBase, background: 'var(--brand-cyan)', color: '#0A1628' } : { ...tabBase, background: 'rgba(255,255,255,0.05)', color: 'var(--brand-text-muted)' }}
+            onClick={() => { setActiveTab('pin'); setLocalPin(''); setPinStep('pin'); }}
           >
             Déjà client
           </button>
           <button
-            style={activeTab === 'email' ? tabActive : tabInactive}
-            onClick={() => { setActiveTab('email'); setLocalPin(''); }}
+            style={activeTab === 'email' ? { ...tabBase, background: 'var(--brand-cyan)', color: '#0A1628' } : { ...tabBase, background: 'rgba(255,255,255,0.05)', color: 'var(--brand-text-muted)' }}
+            onClick={() => { setActiveTab('email'); setLocalPin(''); setPinStep('pin'); }}
           >
             Nouveau
           </button>
         </div>
 
-        {/* Contenu selon onglet actif */}
-        {activeTab === 'pin' ? (
-          /* ── Onglet "Déjà client" : clavier PIN ── */
-          <div
-            className="w-full rounded-xl p-6"
-            style={{
-              background: 'rgba(15, 32, 64, 0.8)',
-              border: '1px solid var(--brand-border)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <h2 className="text-center text-base font-600 mb-6" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
-              {getTitle()}
-            </h2>
+        {/* ── Onglet Déjà client ── */}
+        {activeTab === 'pin' && (
+          <div style={cardStyle}>
+            {pinStep === 'pin' ? (
+              /* Étape 1 : saisie PIN */
+              <>
+                <h2 className="text-center text-base mb-6" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
+                  Entrez votre code PIN
+                </h2>
 
-            {/* PIN dots */}
-            <div className={`flex justify-center gap-4 mb-6 ${shake ? 'animate-bounce' : ''}`}>
-              {pinDots.map((filled, i) => (
-                <div
-                  key={i}
-                  className="w-4 h-4 rounded-full transition-all duration-200"
-                  style={{
-                    background: filled ? 'var(--brand-cyan)' : 'transparent',
-                    border: `2px solid ${filled ? 'var(--brand-cyan)' : 'var(--brand-border)'}`,
-                    boxShadow: filled ? '0 0 8px rgba(131, 208, 245, 0.5)' : 'none',
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex justify-center mb-4">
-                <div
-                  className="w-5 h-5 rounded-full border-2 animate-spin"
-                  style={{ borderColor: 'var(--brand-cyan)', borderTopColor: 'transparent' }}
-                />
-              </div>
-            )}
-
-            {/* Numeric keypad */}
-            <div className="grid grid-cols-3 gap-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-                <button
-                  key={n}
-                  onClick={() => handlePinInput(String(n))}
-                  disabled={isLoading}
-                  className="h-14 rounded-lg text-xl font-600 transition-all duration-150 active:scale-95 disabled:opacity-50"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--brand-border)',
-                    color: 'var(--brand-text)',
-                    fontFamily: 'Outfit',
-                    fontWeight: 600,
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(131, 208, 245, 0.1)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-                >
-                  {n}
-                </button>
-              ))}
-              <div />
-              <button
-                onClick={() => handlePinInput('0')}
-                disabled={isLoading}
-                className="h-14 rounded-lg text-xl font-600 transition-all duration-150 active:scale-95 disabled:opacity-50"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid var(--brand-border)',
-                  color: 'var(--brand-text)',
-                  fontFamily: 'Outfit',
-                  fontWeight: 600,
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(131, 208, 245, 0.1)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
-              >
-                0
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={isLoading}
-                className="h-14 rounded-lg transition-all duration-150 active:scale-95 flex items-center justify-center disabled:opacity-50"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid var(--brand-border)',
-                  color: 'var(--brand-text-muted)',
-                }}
-              >
-                <Delete size={20} />
-              </button>
-            </div>
-
-            {/* Connexion salariés */}
-            {emps && emps.filter((e) => e.hasPinSet).length > 0 && (
-              <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--brand-border)' }}>
-                <p style={{ color: 'var(--brand-text-muted)', fontSize: 12, textAlign: 'center', marginBottom: 8 }}>Connexion salarié</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-                  {selEmp ? (
-                    <p style={{ color: 'var(--brand-cyan)', fontSize: 12 }}>
-                      PIN de {selEmp.prenom}{' '}
-                      <button onClick={() => { setSelEmp(null); setLocalPin(''); }} style={{ background: 'none', border: 'none', color: 'var(--brand-text-muted)', cursor: 'pointer' }}>×</button>
-                    </p>
-                  ) : (
-                    emps.filter((e) => e.hasPinSet).map((e) => (
-                      <button
-                        key={e.id}
-                        onClick={() => { setSelEmp(e); setLocalPin(''); }}
-                        style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--brand-cyan)', background: 'rgba(131,208,245,0.1)', color: 'var(--brand-cyan)', cursor: 'pointer', fontWeight: 600 }}
-                      >
-                        {e.prenom}
-                      </button>
-                    ))
-                  )}
+                {/* Dots */}
+                <div className={`flex justify-center gap-4 mb-6 ${shake ? 'animate-bounce' : ''}`}>
+                  {pinDots.map((filled, i) => (
+                    <div key={i} className="w-4 h-4 rounded-full transition-all duration-200" style={{
+                      background: filled ? 'var(--brand-cyan)' : 'transparent',
+                      border: `2px solid ${filled ? 'var(--brand-cyan)' : 'var(--brand-border)'}`,
+                      boxShadow: filled ? '0 0 8px rgba(131, 208, 245, 0.5)' : 'none',
+                    }} />
+                  ))}
                 </div>
-              </div>
+
+                {isLoading && (
+                  <div className="flex justify-center mb-4">
+                    <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: 'var(--brand-cyan)', borderTopColor: 'transparent' }} />
+                  </div>
+                )}
+
+                {/* Clavier */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[1,2,3,4,5,6,7,8,9].map(n => (
+                    <button key={n} onClick={() => handlePinInput(String(n))} disabled={isLoading}
+                      className="h-14 rounded-lg text-xl transition-all duration-150 active:scale-95 disabled:opacity-50"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)', fontFamily: 'Outfit', fontWeight: 600 }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(131,208,245,0.1)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                    >{n}</button>
+                  ))}
+                  <div />
+                  <button onClick={() => handlePinInput('0')} disabled={isLoading}
+                    className="h-14 rounded-lg text-xl transition-all duration-150 active:scale-95 disabled:opacity-50"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)', fontFamily: 'Outfit', fontWeight: 600 }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(131,208,245,0.1)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+                  >0</button>
+                  <button onClick={handleDelete} disabled={isLoading}
+                    className="h-14 rounded-lg transition-all duration-150 active:scale-95 flex items-center justify-center disabled:opacity-50"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}
+                  ><Delete size={20} /></button>
+                </div>
+
+                {/* Salariés */}
+                {emps && emps.filter(e => e.hasPinSet).length > 0 && (
+                  <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--brand-border)' }}>
+                    <p style={{ color: 'var(--brand-text-muted)', fontSize: 12, textAlign: 'center', marginBottom: 8 }}>Connexion salarié</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                      {selEmp ? (
+                        <p style={{ color: 'var(--brand-cyan)', fontSize: 12 }}>
+                          PIN de {selEmp.prenom}{' '}
+                          <button onClick={() => { setSelEmp(null); setLocalPin(''); }} style={{ background: 'none', border: 'none', color: 'var(--brand-text-muted)', cursor: 'pointer' }}>×</button>
+                        </p>
+                      ) : emps.filter(e => e.hasPinSet).map(e => (
+                        <button key={e.id} onClick={() => { setSelEmp(e); setLocalPin(''); }}
+                          style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--brand-cyan)', background: 'rgba(131,208,245,0.1)', color: 'var(--brand-cyan)', cursor: 'pointer', fontWeight: 600 }}
+                        >{e.prenom}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Étape 2 : double sécurité email + mot de passe */
+              <>
+                <div className="flex flex-col items-center mb-6">
+                  <ShieldCheck size={36} style={{ color: 'var(--brand-cyan)', marginBottom: 10 }} />
+                  <h2 className="text-center text-base" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
+                    Double sécurité
+                  </h2>
+                  <p className="text-center text-xs mt-2" style={{ color: 'var(--brand-text-muted)' }}>
+                    Confirmez votre identité avec votre email et mot de passe.
+                  </p>
+                </div>
+
+                <input
+                  type="email"
+                  placeholder="Adresse email"
+                  value={dblEmail}
+                  onChange={e => setDblEmail(e.target.value)}
+                  style={inputStyle}
+                />
+                <input
+                  type="password"
+                  placeholder="Mot de passe"
+                  value={dblPassword}
+                  onChange={e => setDblPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleDoubleAuth()}
+                  style={{ ...inputStyle, marginBottom: 16 }}
+                />
+                <button
+                  onClick={handleDoubleAuth}
+                  disabled={isLoading || !dblEmail || !dblPassword}
+                  style={isLoading || !dblEmail || !dblPassword ? btnDisabled : btnPrimary}
+                >
+                  {isLoading ? 'Vérification...' : 'Confirmer et accéder'}
+                </button>
+                <button
+                  onClick={() => { setPinStep('pin'); setLocalPin(''); setDblEmail(''); setDblPassword(''); }}
+                  style={{ marginTop: 10, color: 'var(--brand-text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, width: '100%' }}
+                >
+                  ← Retour au PIN
+                </button>
+              </>
             )}
           </div>
-        ) : (
-          /* ── Onglet "Nouveau" : connexion email ── */
-          <div
-            className="w-full rounded-xl p-6"
-            style={{
-              background: 'rgba(15, 32, 64, 0.8)',
-              border: '1px solid var(--brand-border)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <h2 className="text-center text-base font-600 mb-6" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
+        )}
+
+        {/* ── Onglet Nouveau ── */}
+        {activeTab === 'email' && (
+          <div style={cardStyle}>
+            <h2 className="text-center text-base mb-2" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
               Connexion avec email
             </h2>
             <p className="text-center text-xs mb-6" style={{ color: 'var(--brand-text-muted)' }}>
               Utilisez les identifiants reçus par email lors de la création de votre studio.
             </p>
-            <input
-              type="email"
-              placeholder="Adresse email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={{
-                width: '100%', padding: '12px 14px', marginBottom: 10,
-                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)',
-                borderRadius: 10, color: 'var(--brand-text)', fontFamily: 'Outfit', fontSize: 14,
-                outline: 'none', boxSizing: 'border-box',
-              }}
-            />
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleEmailLogin()}
-              style={{
-                width: '100%', padding: '12px 14px', marginBottom: 16,
-                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)',
-                borderRadius: 10, color: 'var(--brand-text)', fontFamily: 'Outfit', fontSize: 14,
-                outline: 'none', boxSizing: 'border-box',
-              }}
+            <input type="email" placeholder="Adresse email" value={newEmail} onChange={e => setNewEmail(e.target.value)} style={inputStyle} />
+            <input type="password" placeholder="Mot de passe" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNewLogin()}
+              style={{ ...inputStyle, marginBottom: 16 }}
             />
             <button
-              onClick={handleEmailLogin}
-              disabled={isLoading || !email || !password}
-              style={{
-                width: '100%', padding: '13px 0', borderRadius: 10,
-                background: isLoading || !email || !password ? 'rgba(131,208,245,0.3)' : 'var(--brand-cyan)',
-                color: '#0A1628', fontFamily: 'Outfit', fontWeight: 700,
-                fontSize: 15, border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-              }}
+              onClick={handleNewLogin}
+              disabled={isLoading || !newEmail || !newPassword}
+              style={isLoading || !newEmail || !newPassword ? btnDisabled : btnPrimary}
             >
               {isLoading ? 'Connexion...' : 'Se connecter'}
             </button>
           </div>
         )}
+
       </div>
     </div>
   );
