@@ -360,4 +360,48 @@ router.post('/api/super-admin/set-smtp/:studioId', async (req: Request, res: Res
   }
 });
 
+// Route d'impersonation — connexion directe à un studio depuis le Super-Admin
+router.post('/api/super-admin/open-studio/:studioId', async (req: Request, res: Response) => {
+  const token = req.cookies?.super_admin_session;
+  if (!token) return res.status(401).json({ error: 'Non authentifié' });
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET());
+    if (payload.role !== 'super-admin') return res.status(403).json({ error: 'Accès refusé' });
+  } catch { return res.status(401).json({ error: 'Token invalide' }); }
+
+  const studioId = parseInt(req.params.studioId);
+  if (isNaN(studioId)) return res.status(400).json({ error: 'studioId invalide' });
+
+  try {
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: 'Database error' });
+
+    // Récupérer le userId du studio
+    const [rows] = await (db as any).$client.query(
+      'SELECT u.id as userId, u.openId, u.email, u.name FROM studios s JOIN users u ON s.userId = u.id WHERE s.id = ? LIMIT 1',
+      [studioId]
+    );
+    if ((rows as any[]).length === 0) return res.status(404).json({ error: 'Studio non trouvé' });
+    const user = (rows as any[])[0];
+
+    // Générer un JWT de session pour ce studio (8h)
+    const sessionToken = await new SignJWT({ openId: user.openId, userId: user.userId })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('8h')
+      .sign(JWT_SECRET());
+
+    // Poser le cookie local_session
+    res.cookie('local_session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60 * 1000,
+    });
+
+    return res.json({ success: true, name: user.name, email: user.email });
+  } catch (e: any) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
 export default router;

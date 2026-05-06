@@ -344,11 +344,16 @@ export default function SuperAdmin() {
 
 
 
-                {/* Lien direct — déconnecte la session courante avant d'ouvrir l'app */}
+                {/* Connexion directe au studio depuis le Super-Admin */}
                 <button
                   onClick={async () => {
-                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                    window.open('https://studio.intemporelle.eu', '_blank');
+                    const r = await fetch(`/api/super-admin/open-studio/${studio.id}`, { method: 'POST', credentials: 'include' });
+                    if (r.ok) {
+                      window.open('https://studio.intemporelle.eu', '_blank');
+                    } else {
+                      const d = await r.json();
+                      alert('Erreur : ' + (d.error || 'Impossible d\'ouvrir ce studio'));
+                    }
                   }}
                   style={{ padding: "6px 14px", background: "#10b98120", border: "1px solid #10b981", borderRadius: 6, color: "#10b981", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
                 >
