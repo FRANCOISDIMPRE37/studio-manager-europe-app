@@ -83,69 +83,7 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
       <WarningBox>Photographiez les étiquettes de traçabilité du matériel stérile. L'emballage stérile est ouvert devant le client. Conserver les photos 5 ans minimum.</WarningBox>
 
 
-      {/* ─── Section Photos de traçabilité ─── */}
-      <div className="studio-card p-4 rounded-xl mb-4" style={{ border: '1px solid var(--brand-border)', background: 'var(--brand-surface)' }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span style={{ fontSize: 16 }}>📷</span>
-            <span className="text-sm font-600" style={{ color: '#1b5e20', fontWeight: 600 }}>Photos de traçabilité</span>
-          </div>
-          <div className="flex gap-2">
-            {/* Bouton caméra */}
-            <button
-              type="button"
-              onClick={() => cameraInputRef.current?.click()}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
-              style={{ background: 'var(--brand-cyan-dim)', color: 'var(--brand-cyan)', border: '1px solid var(--brand-cyan)' }}
-            >
-              📷 Prendre une photo
-            </button>
-            {/* Bouton import */}
-            <button
-              type="button"
-              onClick={() => photoInputRef.current?.click()}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#1b5e20', border: '1px solid var(--brand-border)' }}
-            >
-              ↗ Importer
-            </button>
-          </div>
-        </div>
 
-        {/* Inputs cachés */}
-        <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" multiple onChange={e => addPhotos(e.target.files)} />
-        <input ref={photoInputRef} type="file" accept="image/*" className="hidden" multiple onChange={e => addPhotos(e.target.files)} />
-
-        {/* Galerie ou état vide */}
-        {photos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8" style={{ color: '#1e293b', fontWeight: 600 }}>
-            <span style={{ fontSize: 32, opacity: 0.3 }}>📷</span>
-            <p className="text-sm mt-2">Aucune photo de traçabilité</p>
-            <p className="text-xs mt-1" style={{ opacity: 0.6 }}>Prenez des photos de vos documents, bijoux, encres ou matériels</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-2 mt-2">
-            {(Array.isArray(photos) ? photos : []).map((src, idx) => (
-              <div key={idx} className="relative group rounded-lg overflow-hidden" style={{ aspectRatio: '1', background: 'rgba(0,0,0,0.2)' }}>
-                <img
-                  src={src}
-                  alt={`Photo ${idx + 1}`}
-                  className="w-full h-full object-cover cursor-pointer"
-                  onClick={() => setLightboxPhoto(src)}
-                />
-                <button
-                  type="button"
-                  onClick={() => removePhoto(idx)}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ background: 'rgba(192,57,106,0.9)', color: 'white' }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Lightbox */}
       {lightboxPhoto && (
