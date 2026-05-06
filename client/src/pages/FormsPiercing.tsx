@@ -182,7 +182,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <RadioField label={t('q01.hepatitis')} options={yesNo} value={data.hepatite || t('forms.no')} onChange={v => update('hepatite', v)} />
       <RadioField label={t('q01.asthma_allergy')} options={yesNo} value={data.asthmeAllergiesGraves || t('forms.no')} onChange={v => update('asthmeAllergiesGraves', v)} />
       <RadioField label={t('q01.epilepsy')} options={yesNo} value={data.epilepsie || t('forms.no')} onChange={v => update('epilepsie', v)} />
-      <RadioField label={t('q03.other_chronic')} options={yesNo} value={data.autrePathologie || t('forms.no')} onChange={v => update('autrePathologie', v)} />
+      <RadioField label={t('q03.other_pathology')} options={yesNo} value={data.autrePathologie || t('forms.no')} onChange={v => update('autrePathologie', v)} />
       {data.autrePathologie === t('forms.yes') && (
         <FormField label={t('forms.specify')} value={data.autrePathologieDetail || ''} onChange={v => update('autrePathologieDetail', v)} />
       )}
