@@ -150,7 +150,7 @@ export default function AddClientModal({ onClose, client }: Props) {
       case 'prenom': return !prenom.trim() ? 'Le prénom est requis' : '';
       case 'nom': return !nom.trim() ? 'Le nom est requis' : '';
       case 'telephone': return !telephone.trim() ? 'Le téléphone est requis' : '';
-      case 'email': return isMineur && !email.trim() ? 'L’email est requis pour une fiche mineur' : '';
+      case 'email': return isMineur && !email.trim() ? 'L’adresse mail est obligatoire pour une fiche mineur' : '';
       case 'adresse': return isMineur && !adresse.trim() ? 'L’adresse est requise pour une fiche mineur' : '';
       case 'codePostal': return isMineur && !codePostal.trim() ? 'Le code postal est requis pour une fiche mineur' : '';
       case 'ville': return isMineur && !ville.trim() ? 'La ville est requise pour une fiche mineur' : '';
@@ -499,7 +499,7 @@ export default function AddClientModal({ onClose, client }: Props) {
               </div>
 
               <div>
-                <label style={labelStyle}>Adresse email{isMineur ? ' *' : ''}</label>
+                <label style={labelStyle}>Adresse mail{isMineur ? ' obligatoire *' : ''}</label>
                 <input
                   ref={refEmail}
                   type="email"
@@ -510,7 +510,13 @@ export default function AddClientModal({ onClose, client }: Props) {
                   placeholder="exemple@email.com"
                   autoComplete="off"
                   required={isMineur}
+                  aria-required={isMineur}
                 />
+                {isMineur && !errEmail && (
+                  <p className="mt-1 text-xs" style={{ color: 'var(--brand-text-muted)', opacity: 0.75 }}>
+                    Adresse mail obligatoire pour créer une fiche mineur.
+                  </p>
+                )}
                 {errEmail && (
                   <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
                     <AlertCircle size={11} /> {errEmail}
