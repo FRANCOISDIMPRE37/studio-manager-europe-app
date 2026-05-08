@@ -150,6 +150,12 @@ export default function AddClientModal({ onClose, client }: Props) {
       case 'prenom': return !prenom.trim() ? 'Le prénom est requis' : '';
       case 'nom': return !nom.trim() ? 'Le nom est requis' : '';
       case 'telephone': return !telephone.trim() ? 'Le téléphone est requis' : '';
+      case 'email': return isMineur && !email.trim() ? 'L’email est requis pour une fiche mineur' : '';
+      case 'nomRepresentant': return isMineur && !nomRepresentant.trim() ? 'Le nom du représentant légal est requis' : '';
+      case 'prenomRepresentant': return isMineur && !prenomRepresentant.trim() ? 'Le prénom du représentant légal est requis' : '';
+      case 'lienRepresentant': return isMineur && !lienRepresentant.trim() ? 'Le lien avec le mineur est requis' : '';
+      case 'telephoneRepresentant': return isMineur && !telephoneRepresentant.trim() ? 'Le téléphone du représentant légal est requis' : '';
+      case 'prestationsSouhaitees': return isMineur && prestationsSouhaitees.length === 0 ? 'Au moins une prestation est requise pour une fiche mineur' : '';
       case 'date':
         if (!dateJour || !dateMois || !dateAnnee) return 'La date de naissance est requise';
         if (!isDateValid) return 'Date invalide';
@@ -164,7 +170,15 @@ export default function AddClientModal({ onClose, client }: Props) {
       nom.trim() !== '' &&
       telephone.trim() !== '' &&
       dateJour !== '' && dateMois !== '' && dateAnnee !== '' &&
-      isDateValid
+      isDateValid &&
+      (!isMineur || (
+        email.trim() !== '' &&
+        nomRepresentant.trim() !== '' &&
+        prenomRepresentant.trim() !== '' &&
+        lienRepresentant.trim() !== '' &&
+        telephoneRepresentant.trim() !== '' &&
+        prestationsSouhaitees.length > 0
+      ))
     );
   };
 
@@ -263,6 +277,12 @@ export default function AddClientModal({ onClose, client }: Props) {
   const errPrenom = getError('prenom');
   const errNom = getError('nom');
   const errTel = getError('telephone');
+  const errEmail = getError('email');
+  const errNomRepresentant = getError('nomRepresentant');
+  const errPrenomRepresentant = getError('prenomRepresentant');
+  const errLienRepresentant = getError('lienRepresentant');
+  const errTelephoneRepresentant = getError('telephoneRepresentant');
+  const errPrestations = getError('prestationsSouhaitees');
   const errDate = getError('date');
   const dateInputStyle = errDate ? inputErrorStyle : inputBase;
 
@@ -458,16 +478,23 @@ export default function AddClientModal({ onClose, client }: Props) {
               </div>
 
               <div>
-                <label style={labelStyle}>Adresse email</label>
+                <label style={labelStyle}>Adresse email{isMineur ? ' *' : ''}</label>
                 <input
                   ref={refEmail}
                   type="email"
                   style={getStyle('email')}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
+                  onBlur={() => touch('email')}
                   placeholder="exemple@email.com"
                   autoComplete="off"
+                  required={isMineur}
                 />
+                {errEmail && (
+                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
+                    <AlertCircle size={11} /> {errEmail}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -482,28 +509,32 @@ export default function AddClientModal({ onClose, client }: Props) {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label style={labelStyle}>Nom du représentant légal</label>
-                  <input type="text" style={getStyle('')} value={nomRepresentant} onChange={e => setNomRepresentant(e.target.value)} placeholder="Nom" autoComplete="off" />
+                  <label style={labelStyle}>Nom du représentant légal *</label>
+                  <input type="text" style={getStyle('nomRepresentant')} value={nomRepresentant} onChange={e => setNomRepresentant(e.target.value)} onBlur={() => touch('nomRepresentant')} placeholder="Nom" autoComplete="off" required />
+                  {errNomRepresentant && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errNomRepresentant}</p>}
                 </div>
                 <div>
-                  <label style={labelStyle}>Prénom du représentant légal</label>
-                  <input type="text" style={getStyle('')} value={prenomRepresentant} onChange={e => setPrenomRepresentant(e.target.value)} placeholder="Prénom" autoComplete="off" />
+                  <label style={labelStyle}>Prénom du représentant légal *</label>
+                  <input type="text" style={getStyle('prenomRepresentant')} value={prenomRepresentant} onChange={e => setPrenomRepresentant(e.target.value)} onBlur={() => touch('prenomRepresentant')} placeholder="Prénom" autoComplete="off" required />
+                  {errPrenomRepresentant && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errPrenomRepresentant}</p>}
                 </div>
                 <div>
-                  <label style={labelStyle}>Lien avec le mineur</label>
-                  <input type="text" style={getStyle('')} value={lienRepresentant} onChange={e => setLienRepresentant(e.target.value)} placeholder="Père, Mère, Tuteur..." autoComplete="off" />
+                  <label style={labelStyle}>Lien avec le mineur *</label>
+                  <input type="text" style={getStyle('lienRepresentant')} value={lienRepresentant} onChange={e => setLienRepresentant(e.target.value)} onBlur={() => touch('lienRepresentant')} placeholder="Père, Mère, Tuteur..." autoComplete="off" required />
+                  {errLienRepresentant && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errLienRepresentant}</p>}
                 </div>
                 <div>
-                  <label style={labelStyle}>Téléphone du représentant</label>
-                  <input type="tel" style={getStyle('')} value={telephoneRepresentant} onChange={e => setTelephoneRepresentant(e.target.value)} placeholder="06 XX XX XX XX" autoComplete="off" />
+                  <label style={labelStyle}>Téléphone du représentant *</label>
+                  <input type="tel" style={getStyle('telephoneRepresentant')} value={telephoneRepresentant} onChange={e => setTelephoneRepresentant(e.target.value)} onBlur={() => touch('telephoneRepresentant')} placeholder="06 XX XX XX XX" autoComplete="off" required />
+                  {errTelephoneRepresentant && <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}><AlertCircle size={11} /> {errTelephoneRepresentant}</p>}
                 </div>
               </div>
             </div>
           )}
           {/* PRESTATIONS SOUHAITÉES */}
           <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Prestations souhaitées
+            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: errPrestations ? '#F44336' : 'var(--brand-cyan)', fontWeight: 600 }}>
+              Prestations souhaitées{isMineur ? ' *' : ''}
             </p>
             <div className="flex flex-wrap gap-2">
               {PRESTATIONS_OPTIONS.map(p => {
@@ -526,6 +557,11 @@ export default function AddClientModal({ onClose, client }: Props) {
                 );
               })}
             </div>
+            {errPrestations && (
+              <p className="flex items-center gap-1 mt-2 text-xs" style={{ color: '#F44336' }}>
+                <AlertCircle size={11} /> {errPrestations}
+              </p>
+            )}
           </div>
 
           {/* BOUTONS */}

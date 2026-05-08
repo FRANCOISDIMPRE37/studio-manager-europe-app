@@ -156,6 +156,14 @@ export default function DocumentForm() {
 
   const signatureRequise = FICHES_SIGNATURE_OBLIGATOIRE.includes(docType);
   const signatureManquante = signatureRequise && !formData.signatureImageClient;
+  const fichesMineurAvecRepresentant: DocumentType[] = [
+    'questionnaire_mineur',
+    'autorisation_parentale',
+    'questionnaire_tatouage_mineur',
+    'autorisation_parentale_tatouage',
+    'questionnaire_dermographe_mineur',
+    'autorisation_parentale_dermographie',
+  ];
 
   const createDocMutation = trpc.documents.create.useMutation();
   const createArchiveMutation = trpc.archives.create.useMutation();
@@ -199,6 +207,15 @@ export default function DocumentForm() {
       toast.error('La signature du client est obligatoire pour valider ce document.');
       return;
     }
+    if (fichesMineurAvecRepresentant.includes(docType)) {
+      const signatureParentaleManquante = docType === 'autorisation_parentale'
+        ? !formData.signatureImageParent
+        : !formData.signatureImageRepresentant;
+      if (signatureParentaleManquante) {
+        toast.error('La signature du représentant légal est obligatoire pour valider une fiche mineur.');
+        return;
+      }
+    }
     // Validation champs obligatoires via data-required
     const requiredInputs = document.querySelectorAll('[data-required="true"]');
     const emptyFields: string[] = [];
@@ -211,7 +228,29 @@ export default function DocumentForm() {
     if (formData.pieceId && formData.pieceId !== 'Non présentée' && formData.pieceId !== 'Non presentee' && !formData.numeroPiece) {
       emptyFields.push("Numero de la piece d'identite du mineur");
     }
-    // Validation numéro pièce identité représentant (conditionnel)
+    // Validation obligatoire renforcée des fiches mineur : identité représentant, droit, présence, pièce d'identité et signature.
+    const addMissingIfEmpty = (label: string, value: any) => {
+      if (value === undefined || value === null || String(value).trim() === '') emptyFields.push(label);
+    };
+    if (fichesMineurAvecRepresentant.includes(docType)) {
+      if (docType === 'autorisation_parentale') {
+        addMissingIfEmpty('Nom du représentant légal', formData.nomRep);
+        addMissingIfEmpty('Prénom du représentant légal', formData.prenomRep);
+        addMissingIfEmpty('Lien avec le mineur', formData.lienRep);
+        addMissingIfEmpty('Téléphone du représentant légal', formData.telRep || client.telephone);
+        addMissingIfEmpty('Nom de signature du représentant légal', formData.nomRepresentantSign || (formData.nomRep && formData.prenomRep ? `${formData.nomRep} ${formData.prenomRep}` : ''));
+        addMissingIfEmpty('Date de signature du représentant légal', formData.dateSignatureParent || new Date().toLocaleDateString('fr-FR'));
+      } else {
+        addMissingIfEmpty('Nom du représentant légal', formData.nomRepresentant || client.nomRepresentantLegal);
+        addMissingIfEmpty('Prénom du représentant légal', formData.prenomRepresentant || client.prenomRepresentantLegal);
+        addMissingIfEmpty('Lien avec le mineur', formData.lienRepresentant || client.lienRepresentantLegal);
+        addMissingIfEmpty('Téléphone du représentant légal', formData.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone);
+        addMissingIfEmpty('Nom de signature du représentant légal', formData.nomRepresentantSign || (client.nomRepresentantLegal ? `${client.nomRepresentantLegal} ${client.prenomRepresentantLegal || ''}` : ''));
+        addMissingIfEmpty('Date de signature du représentant légal', formData.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR'));
+      }
+      addMissingIfEmpty("Pièce d'identité du représentant légal", formData.pieceIdRepresentantType);
+    }
+    // Validation numéro pièce identité représentant (obligatoire dès qu'une pièce autre que Non présentée est sélectionnée)
     if (formData.pieceIdRepresentantType && formData.pieceIdRepresentantType !== 'Non présentée' && formData.pieceIdRepresentantType !== 'Non presentee' && !formData.pieceIdRepresentantNumero) {
       emptyFields.push("Numero de la piece d'identite du representant");
     }
@@ -222,34 +261,48 @@ export default function DocumentForm() {
     // Validation cases a cocher obligatoires selon le type de fiche
     const requiredCheckboxMap: Record<string, Array<{key: string, label: string}>> = {
       'questionnaire_mineur': [
-        { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
         { key: 'avisMineur', label: 'Avis du mineur' },
+        { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
+        { key: 'consentDonneesSante', label: 'Consentement données de santé' },
+        { key: 'autoriteParentale', label: 'Autorité parentale ou tutelle légale' },
+        { key: 'autorisationPrestation', label: 'Autorisation de la prestation' },
+        { key: 'pasContraIndication', label: 'Absence de contre-indication' },
+        { key: 'engageSoins', label: 'Supervision des soins' },
+        { key: 'presencePhysique', label: 'Présence physique confirmée' },
       ],
       'autorisation_parentale': [
-        { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
+        { key: 'decl_0', label: 'Autorité parentale ou tutelle légale' },
+        { key: 'decl_1', label: 'Autorisation de la prestation' },
+        { key: 'decl_3', label: 'Absence de contre-indication' },
+        { key: 'decl_4', label: 'Supervision des soins' },
         { key: 'presencePhysique', label: 'Présence physique confirmée' },
+        { key: 'presenceEcrite', label: 'Autorisation écrite confirmée' },
       ],
       'questionnaire_tatouage_mineur': [
         { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
+        { key: 'consentDonneesSante', label: 'Consentement données de santé' },
         { key: 'consentementLibre', label: 'Consentement du représentant légal' },
         { key: 'assumeResponsabilite', label: 'Assume la responsabilité' },
         { key: 'presenceRepresentant', label: 'Présence physique confirmée' },
       ],
       'autorisation_parentale_tatouage': [
-        { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
-        { key: 'consentementLibre', label: 'Consentement' },
-        { key: 'presenceRepresentant', label: 'Présence physique confirmée' },
+        { key: 'connaitSoins', label: 'Connaissance des soins post-tatouage' },
+        { key: 'engageSoins', label: 'Supervision des soins post-tatouage' },
+        { key: 'informeRisques', label: 'Information sur les risques' },
+        { key: 'autorisationDonnee', label: 'Autorisation parentale du tatouage' },
       ],
       'questionnaire_dermographe_mineur': [
         { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
+        { key: 'consentDonneesSante', label: 'Consentement données de santé' },
         { key: 'consentementLibre', label: 'Consentement du représentant légal' },
         { key: 'assumeResponsabilite', label: 'Assume la responsabilité' },
         { key: 'presenceRepresentant', label: 'Présence physique confirmée' },
       ],
       'autorisation_parentale_dermographie': [
-        { key: 'reponduHonnetement', label: 'A répondu honnêtement' },
-        { key: 'consentementLibre', label: 'Consentement' },
-        { key: 'presenceRepresentant', label: 'Présence physique confirmée' },
+        { key: 'connaitRisques', label: 'Connaissance des risques dermographie' },
+        { key: 'engageSoins', label: 'Supervision des soins post-dermographie' },
+        { key: 'autorisationDonnee', label: 'Autorisation parentale de la prestation' },
+        { key: 'presenceConfirmee', label: 'Présence physique confirmée' },
       ],
       'questionnaire_majeur': [
         { key: 'consent_majeur', label: 'Être majeur(e)' },
@@ -290,8 +343,13 @@ export default function DocumentForm() {
       }
     }
     if (fichesAutorisations.includes(docType)) {
-      if (!formData.reponduHonnetement || !formData.presencePhysique) {
-        toast.error('Veuillez cocher toutes les cases de consentement du représentant légal.');
+      const autorisationOk = docType === 'autorisation_parentale'
+        ? formData.decl_0 && formData.decl_1 && formData.decl_3 && formData.decl_4 && formData.presencePhysique && formData.presenceEcrite
+        : docType === 'autorisation_parentale_tatouage'
+          ? formData.connaitSoins && formData.engageSoins && formData.informeRisques && formData.autorisationDonnee
+          : formData.connaitRisques && formData.engageSoins && formData.autorisationDonnee && formData.presenceConfirmee;
+      if (!autorisationOk) {
+        toast.error('Veuillez cocher toutes les cases de droits, présence et consentement du représentant légal.');
         return;
       }
     }
@@ -1060,7 +1118,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
       </div>
-      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <RadioField label="Piece d'identite du mineur" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} />
@@ -1110,8 +1168,8 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <FormSection title="6 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
-      <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} />
-      <FormField label="Telephone" value={data.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" />
+      <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} required />
+      <FormField label="Telephone" value={data.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" required />
       <RadioField label="Pièce d'identité du représentant légal" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} required />
       {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non presentee' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} required />
@@ -1134,8 +1192,8 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} required />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
@@ -1171,7 +1229,7 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
       </div>
-      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <FormSection title="2 — TATOUAGE DEMANDE" />
@@ -1187,7 +1245,7 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
       <FormSection title="3 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
-      <FormField label="Lien avec le mineur" value={data.lienRepresentant || ''} onChange={v => update('lienRepresentant', v)} />
+      <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} required />
       <RadioField label="Pièce d'identité du représentant légal" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} required />
       {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non presentee' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} required />
@@ -1209,8 +1267,8 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} required />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
@@ -1246,7 +1304,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
       </div>
-      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
+      <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
       <FormSection title="2 — PRESTATION DERMOGRAPHIE DEMANDEE" />
@@ -1260,7 +1318,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       <FormSection title="3 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
-      <FormField label="Lien avec le mineur" value={data.lienRepresentant || ''} onChange={v => update('lienRepresentant', v)} />
+      <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} required />
       <RadioField label="Pièce d'identité du représentant légal" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} required />
       {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non presentee' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} required />
@@ -1282,8 +1340,8 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du representant legal</p>
-          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
+          <FormField label="Nom du representant legal" value={data.nomRepresentantSign || (client.nomRepresentantLegal ? client.nomRepresentantLegal + ' ' + (client.prenomRepresentantLegal || '') : '')} onChange={v => update('nomRepresentantSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} required />
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
