@@ -8,6 +8,7 @@ import { ENV } from "./_core/env";
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import {
+  getDb,
   getClientsByUserId, getClientById, createClient, updateClientById, deleteClientById,
   getPrestationsByClientId, getPrestationsByUserId, createPrestation, deletePrestationById,
   getDocumentsByClientId, getDocumentsByUserId, getDocumentById, createDocument, updateDocumentById,
