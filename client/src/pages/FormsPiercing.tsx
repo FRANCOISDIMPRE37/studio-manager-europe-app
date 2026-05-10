@@ -702,18 +702,29 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       </div>
 
-      {/* Déclarations post-signature */}
+      {/* Déclarations post-signature — OBLIGATOIRES pour sauvegarder */}
       <div className="mt-4 p-4 rounded-xl space-y-3" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs font-600" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>Cases obligatoires *</p>
         <label className="flex items-start gap-3 cursor-pointer">
-          <input type="checkbox" className="mt-0.5 accent-cyan-400" />
+          <input
+            type="checkbox"
+            className="mt-0.5 accent-cyan-400"
+            checked={!!data.declarePrisConnaissance}
+            onChange={() => update('declarePrisConnaissance', !data.declarePrisConnaissance)}
+          />
           <span className="text-sm" style={{ color: '#1b5e20' }}>
-            {t('soins.declaration_1', 'Je déclare avoir pris connaissance des risques liés à la pratique du piercing')}
+            {t('soins.declaration_1', 'Je déclare avoir pris connaissance des risques liés à la pratique du piercing')} *
           </span>
         </label>
         <label className="flex items-start gap-3 cursor-pointer">
-          <input type="checkbox" className="mt-0.5 accent-cyan-400" />
+          <input
+            type="checkbox"
+            className="mt-0.5 accent-cyan-400"
+            checked={!!data.aPoserQuestions}
+            onChange={() => update('aPoserQuestions', !data.aPoserQuestions)}
+          />
           <span className="text-sm" style={{ color: '#1b5e20' }}>
-            {t('soins.declaration_2', "J'ai pu poser toutes les questions que je voulais")}
+            {t('soins.declaration_2', "J'ai pu poser toutes les questions que je voulais")} *
           </span>
         </label>
       </div>

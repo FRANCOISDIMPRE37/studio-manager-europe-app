@@ -358,6 +358,18 @@ export default function DocumentForm() {
       toast.error('Photo obligatoire : veuillez photographier le matériel stérile avant de sauvegarder la fiche de traçabilité.');
       return;
     }
+    // Validation obligatoire : cases à cocher pour les fiches Soins Post-Piercing (A à G)
+    const fichesSoins = ['soins_oreilles', 'soins_nez', 'soins_nombril', 'soins_teton', 'soins_arcade_sourcil', 'soins_surface_dermal', 'soins_labret'];
+    if (fichesSoins.includes(docType)) {
+      if (!formData.declarePrisConnaissance) {
+        toast.error('Veuillez cocher : « Je déclare avoir pris connaissance des risques liés à la pratique du piercing »');
+        return;
+      }
+      if (!formData.aPoserQuestions) {
+        toast.error('Veuillez cocher : « J\'ai pu poser toutes les questions que je voulais »');
+        return;
+      }
+    }
     // Validation obligatoire : Nom du pierceur pour le questionnaire majeur piercing
     if (docType === 'questionnaire_majeur') {
       const nomPierceur = formData.nomPierceurSign || formData.nomPierceur || '';
