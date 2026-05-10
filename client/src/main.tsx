@@ -95,3 +95,4 @@ document.addEventListener('input', (e) => {
 // Force update SIRET - Sun May 10 00:32:59 UTC 2026
 // Base propre Intemporelle - Sun May 10 00:46:35 UTC 2026
 // Suppression section PIN parametres - Sun May 10 01:01:48 UTC 2026
+// Fix logo save async + compression - Sun May 10 01:15:03 UTC 2026

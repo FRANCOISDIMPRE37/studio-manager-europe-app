@@ -207,7 +207,27 @@ export default function Parametres() {
     }
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setSalonForm(f => ({ ...f, logo: ev.target?.result as string }));
+      const result = ev.target?.result as string;
+      // Compresser l'image si elle dépasse 500 Ko
+      if (result && result.length > 500 * 1024) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = 800;
+          let w = img.width, h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+            else { w = Math.round(w * maxSize / h); h = maxSize; }
+          }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.7);
+          setSalonForm(f => ({ ...f, logo: compressed }));
+        };
+        img.src = result;
+      } else {
+        setSalonForm(f => ({ ...f, logo: result }));
+      }
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -215,11 +235,21 @@ export default function Parametres() {
   const [newPin, setNewPin] = useState('');
   const [confirmNewPin, setConfirmNewPin] = useState('');
 
-  const handleSalonSave = (e: React.FormEvent) => {
+  const [savingLogo, setSavingLogo] = useState(false);
+
+  const handleSalonSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSalonInfo(salonForm);
-    setEditingSalon(false);
-    toast.success(t('settings.saved'));
+    setSavingLogo(true);
+    try {
+      await updateSalonInfo(salonForm);
+      setEditingSalon(false);
+      toast.success(t('settings.saved'));
+    } catch (err) {
+      console.error('[Logo] Erreur sauvegarde:', err);
+      toast.error('Erreur lors de la sauvegarde. Veuillez réessayer.');
+    } finally {
+      setSavingLogo(false);
+    }
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -392,7 +422,7 @@ export default function Parametres() {
             </div>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setEditingSalon(false)} className="flex-1 py-2.5 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}>{t('common.cancel')}</button>
-              <button type="submit" className="flex-1 py-2.5 rounded-lg text-sm font-700" style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}>{t('settings.save')}</button>
+              <button type="submit" disabled={savingLogo} className="flex-1 py-2.5 rounded-lg text-sm font-700" style={{ background: savingLogo ? 'rgba(0,200,200,0.4)' : 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700, cursor: savingLogo ? 'not-allowed' : 'pointer' }}>{savingLogo ? 'Enregistrement...' : t('settings.save')}</button>
             </div>
           </form>
         ) : state.salonInfo ? (
