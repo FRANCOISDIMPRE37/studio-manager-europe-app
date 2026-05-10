@@ -27,19 +27,19 @@ export const clients = mysqlTable("clients", {
   userId: int("userId").notNull(), // propriétaire (FK vers users)
   nom: varchar("nom", { length: 100 }).notNull(),
   prenom: varchar("prenom", { length: 100 }).notNull(),
-  dateNaissance: varchar("dateNaissance", { length: 10 }).notNull(), // YYYY-MM-DD
+  dateNaissance: text("dateNaissance").notNull(), // chiffré
   adresse: text("adresse"),
   codePostal: varchar("codePostal", { length: 10 }),
   ville: varchar("ville", { length: 100 }),
-  telephone: varchar("telephone", { length: 20 }).notNull(),
-  email: varchar("email", { length: 320 }),
+  telephone: text("telephone").notNull(), // chiffré
+  email: text("email"), // chiffré
   pieceIdentiteType: mysqlEnum("pieceIdentiteType", ["CNI", "Passeport", "Permis", "Autre"]),
-  pieceIdentiteNumero: varchar("pieceIdentiteNumero", { length: 50 }),
+  pieceIdentiteNumero: text("pieceIdentiteNumero"),
   estMineur: boolean("estMineur").default(false).notNull(),
   // Représentant légal (pour les mineurs)
-  nomRepresentantLegal: varchar("nomRepresentantLegal", { length: 100 }),
-  prenomRepresentantLegal: varchar("prenomRepresentantLegal", { length: 100 }),
-  telephoneRepresentantLegal: varchar("telephoneRepresentantLegal", { length: 20 }),
+  nomRepresentantLegal: text("nomRepresentantLegal"), // chiffré
+  prenomRepresentantLegal: text("prenomRepresentantLegal"), // chiffré
+  telephoneRepresentantLegal: text("telephoneRepresentantLegal"), // chiffré
   lienRepresentantLegal: varchar("lienRepresentantLegal", { length: 50 }),
   estArchive: boolean("estArchive").default(false).notNull(),
   estSalarie: boolean("est_salarie").default(false),
