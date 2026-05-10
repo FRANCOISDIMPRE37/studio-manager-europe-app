@@ -358,6 +358,14 @@ export default function DocumentForm() {
       toast.error('Photo obligatoire : veuillez photographier le matériel stérile avant de sauvegarder la fiche de traçabilité.');
       return;
     }
+    // Validation obligatoire : Nom du pierceur pour le questionnaire majeur piercing
+    if (docType === 'questionnaire_majeur') {
+      const nomPierceur = formData.nomPierceurSign || formData.nomPierceur || '';
+      if (!nomPierceur || nomPierceur.trim() === '') {
+        toast.error('Le nom du pierceur est obligatoire pour valider ce document.');
+        return;
+      }
+    }
     // Validation cases consentement obligatoires
     const fichesMineurs = ['questionnaire_mineur', 'questionnaire_tatouage_mineur', 'questionnaire_dermographe_mineur'];
     const fichesAutorisations = ['autorisation_parentale', 'autorisation_parentale_tatouage', 'autorisation_parentale_dermographie'];
