@@ -8,6 +8,7 @@ import { ENV } from "./_core/env";
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import {
+  getDb,
   getClientsByUserId, getClientById, createClient, updateClientById, deleteClientById,
   getPrestationsByClientId, getPrestationsByUserId, createPrestation, deletePrestationById,
   getDocumentsByClientId, getDocumentsByUserId, getDocumentById, createDocument, updateDocumentById,
@@ -409,6 +410,7 @@ export const appRouter = router({
         telephone: z.string().optional(),
         email: z.string().optional(),
         siret: z.string().optional(),
+        siren: z.string().max(9).optional(),
         nomPierceur: z.string().optional(),
         nomTatoueur: z.string().optional(),
         nomDermographe: z.string().optional(),

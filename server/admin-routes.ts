@@ -93,7 +93,7 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
     const db = await getDb();
     if (!db) return res.status(500).json({ error: 'Database error' });
 
-    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, password, pin, planType = 'trial', trialDays = 30, specialites = '' } = req.body;
+    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret = '', password, pin, planType = 'trial', trialDays = 30, specialites = '' } = req.body;
     const requiredFields = { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail };
     const missingFields = Object.entries(requiredFields).filter(([, value]) => !String(value || '').trim()).map(([key]) => key);
     if (missingFields.length > 0) return res.status(400).json({ error: `Champs obligatoires manquants : ${missingFields.join(', ')}` });
@@ -126,8 +126,8 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
 
     // Créer le studio lié
     await (db as any).$client.query(
-      'INSERT INTO studios (userId, nom, slug, adresse, codePostal, ville, telephone, email, ownerEmail, planType, trialEndsAt, actif, isTemporary, firstLogin, tempPin, specialites) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [userId, nomSalon, slug, rue, codePostal, ville, telephone, emailSalon, ownerEmail, planType, trialEndsAt, true, true, true, tempPin, specialitesCsv]
+      'INSERT INTO studios (userId, nom, slug, adresse, codePostal, ville, telephone, email, ownerEmail, siret, planType, trialEndsAt, actif, isTemporary, firstLogin, tempPin, specialites) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, nomSalon, slug, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret || null, planType, trialEndsAt, true, true, true, tempPin, specialitesCsv]
     );
 
     // Sauvegarder le mot de passe (obligatoire) dans users.passwordHash
@@ -140,8 +140,8 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
     // Sauvegarder le PIN hashé dans salon_settings.pinHash
     const pinHash = await bcrypt.hash(pin, 10);
     await (db as any).$client.query(
-      'INSERT INTO salon_settings (userId, nom, adresse, codePostal, ville, telephone, email, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE nom = VALUES(nom), adresse = VALUES(adresse), codePostal = VALUES(codePostal), ville = VALUES(ville), telephone = VALUES(telephone), email = VALUES(email), pinHash = VALUES(pinHash)',
-      [userId, nomSalon, rue, codePostal, ville, telephone, emailSalon, pinHash]
+      'INSERT INTO salon_settings (userId, nom, adresse, codePostal, ville, telephone, email, siret, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE nom = VALUES(nom), adresse = VALUES(adresse), codePostal = VALUES(codePostal), ville = VALUES(ville), telephone = VALUES(telephone), email = VALUES(email), siret = VALUES(siret), pinHash = VALUES(pinHash)',
+      [userId, nomSalon, rue, codePostal, ville, telephone, emailSalon, siret || null, pinHash]
     );
 
     // Créer l'utilisateur admin dans studio_users (nécessaire pour /open et tRPC)

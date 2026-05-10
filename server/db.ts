@@ -293,6 +293,7 @@ export async function getSalonSettings(userId: number) {
       telephone: studio.telephone,
       email: studio.email,
       siret: studio.siret,
+      siren: (studio as any).siren,
     } : {}),
     specialites: studio?.specialites,
   };
@@ -487,6 +488,15 @@ export async function getPasswordHashByEmail(email: string): Promise<string | nu
   if (!db) return null;
   const user = await getUserByEmail(email);
   if (!user) return null;
+
+  // Correction 2026-05-09 : le mot de passe salon est désormais géré par
+  // users.passwordHash dans les routes d'administration. L'ancien emplacement
+  // salon_settings.passwordHash reste accepté uniquement en compatibilité.
+  const userPasswordHash = (user as any)?.passwordHash;
+  if (typeof userPasswordHash === "string" && userPasswordHash.length > 0) {
+    return userPasswordHash;
+  }
+
   const settings = await getSalonSettings(user.id);
   return (settings as any)?.passwordHash ?? null;
 }

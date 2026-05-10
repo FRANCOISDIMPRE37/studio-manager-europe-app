@@ -129,6 +129,7 @@ export const salonSettings = mysqlTable("salon_settings", {
   telephone: varchar("telephone", { length: 20 }),
   email: varchar("email", { length: 320 }),
   siret: varchar("siret", { length: 20 }),
+  siren: varchar("siren", { length: 9 }),
   nomPierceur: varchar("nomPierceur", { length: 200 }),
   nomTatoueur: varchar("nomTatoueur", { length: 200 }),
   nomDermographe: varchar("nomDermographe", { length: 200 }),

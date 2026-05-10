@@ -109,6 +109,7 @@ export interface SalonInfo {
   telephone: string;
   email: string;
   siret: string;
+  siren?: string;
   nomPierceur: string;
   nomTatoueur?: string;
   nomDermographe?: string;

@@ -33,7 +33,7 @@ export default function SuperAdmin() {
   const [studios, setStudios] = useState<Studio[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const emptyStudioForm = { nomSalon: "", rue: "", codePostal: "", ville: "", telephone: "", emailSalon: "", ownerEmail: "", password: "", pin: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"] };
+  const emptyStudioForm = { nomSalon: "", rue: "", codePostal: "", ville: "", telephone: "", emailSalon: "", ownerEmail: "", siret: "", password: "", pin: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"] };
   const [newStudio, setNewStudio] = useState(emptyStudioForm);
   const [created, setCreated] = useState<{ tempPin: string; nomSalon: string; ownerEmail: string; password: string; pin: string } | null>(null);
   const [actionMsg, setActionMsg] = useState("");
@@ -549,6 +549,16 @@ export default function SuperAdmin() {
                     style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
                   />
                 </div>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>SIRET</label>
+                <input
+                  type="text"
+                  value={newStudio.siret}
+                  onChange={e => setNewStudio({ ...newStudio, siret: e.target.value })}
+                  placeholder="Ex: 12345678901234"
+                  style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
+                />
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>EMAIL DU PROPRIÉTAIRE</label>
