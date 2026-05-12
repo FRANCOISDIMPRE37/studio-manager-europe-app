@@ -124,7 +124,41 @@ export default function AddClientModal({ onClose, client }: Props) {
   // Indique si le bouton soumettre a été cliqué au moins une fois
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  const touch = (field: string) => setTouched(prev => ({ ...prev, [field]: true }));
+  const touch = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    // Sauvegarde automatique au blur (quand on quitte le champ)
+    handleAutoSave();
+  };
+
+  const handleAutoSave = async () => {
+    if (!prenom.trim() && !nom.trim()) return;
+    
+    const dateNaissanceISO = (dateAnnee && dateMois && dateJour) 
+      ? `${dateAnnee}-${dateMois.padStart(2, '0')}-${dateJour.padStart(2, '0')}`
+      : undefined;
+
+    const clientData = {
+      prenom: prenom.trim(),
+      nom: nom.trim().toUpperCase(),
+      dateNaissance: dateNaissanceISO,
+      telephone: telephone.trim(),
+      email: email.trim(),
+      adresse: adresse.trim(),
+      codePostal: codePostal.trim(),
+      ville: ville.trim(),
+      estMineur: age >= 0 && age < 18,
+    };
+
+    try {
+      if (client?.id) {
+        await updateClient({ ...client, ...clientData });
+      }
+      // Note: Pour un nouveau client, on attend généralement le submit final 
+      // pour éviter de créer des doublons vides, mais on pourrait implémenter un draft.
+    } catch (err) {
+      console.error('Auto-save failed:', err);
+    }
+  };
 
   // Calcul de l'âge
   const age = calcAge(dateJour, dateMois, dateAnnee);
