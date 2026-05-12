@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '@/lib/app-context';
-import { X, AlertCircle, CheckCircle2, CloudSync } from 'lucide-react';
+import { X, AlertCircle, CheckCircle2, Cloud } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -318,7 +318,7 @@ export default function AddClientModal({ onClose, client: initialClient }: Props
 
         <div className="p-6 border-t border-white/10 bg-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2 text-gray-500">
-            <CloudSync className="w-4 h-4" />
+            <Cloud className="w-4 h-4" />
             <span className="text-[11px] italic">Synchronisation OVH active</span>
           </div>
           <div className="flex gap-3">
