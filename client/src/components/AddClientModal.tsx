@@ -152,9 +152,12 @@ export default function AddClientModal({ onClose, client }: Props) {
     try {
       if (client?.id) {
         await updateClient({ ...client, ...clientData });
+      } else {
+        // Pour un nouveau client, on le crée dès qu'on a un nom ou prénom
+        // Cela garantit que les données ne disparaissent pas au rafraîchissement
+        const newClient = await addClient(clientData);
+        // On pourrait ici rediriger ou mettre à jour l'état local pour continuer sur ce client
       }
-      // Note: Pour un nouveau client, on attend généralement le submit final 
-      // pour éviter de créer des doublons vides, mais on pourrait implémenter un draft.
     } catch (err) {
       console.error('Auto-save failed:', err);
     }

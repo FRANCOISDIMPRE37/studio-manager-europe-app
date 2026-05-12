@@ -433,7 +433,7 @@ function AppProviderInner({ children, dispatch, state }: {
     }
   }, [state.isDemo, deleteRDVMutation]);
 
-  const addClient = useCallback(async (client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>) => {
+  const addClient = useCallback(async (client: Omit<Client, 'id' | 'dateCreation' | 'rgpdStatus'>): Promise<Client> => {
     const dateCreation = fmt(new Date());
     const dateSuppressionPrevue = (() => {
       const d = new Date();
@@ -456,7 +456,7 @@ function AppProviderInner({ children, dispatch, state }: {
       dateSuppressionPrevue: client.dateSuppressionPrevue || dateSuppressionPrevue,
       rgpdStatus: 'ok',
     };
-    dispatch({ type: 'ADD_CLIENT', payload: newClient });
+      dispatch({ type: 'ADD_CLIENT', payload: newClient });
     if (!state.isDemo) {
       try {
         await createClientMutation.mutateAsync({
@@ -501,7 +501,8 @@ function AppProviderInner({ children, dispatch, state }: {
         }
       }
     }
-  }, [state.isDemo, createClientMutation, createDocumentMutation]);
+    return newClient;
+  }, [state.isDemo, createClientMutation, createDocumentMutation, employeeSession]);
 
   const updateClient = useCallback(async (client: Client) => {
     dispatch({ type: 'UPDATE_CLIENT', payload: client });
