@@ -25,7 +25,7 @@ const DOC_ORDER: DocumentType[] = [
   // Tatouage
   'questionnaire_tatouage_majeur',
   'consentement_soins_tatouage',
-  
+  'fiche_retouche_dermographie',
   'fiche_seance_tatouage',
   // Dermographie
   'questionnaire_dermographe',

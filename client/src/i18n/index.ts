@@ -28,7 +28,7 @@ i18n
     supportedLngs: ["fr", "en", "de", "nl", "es", "it", "pt"],
     detection: {
       order: ["navigator", "htmlTag"],
-      caches: [],
+      caches: [], // Aucun cache localStorage
     },
     interpolation: {
       escapeValue: false,

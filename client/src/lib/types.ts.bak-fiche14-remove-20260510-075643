@@ -35,6 +35,7 @@ export type DocumentType =
   | 'questionnaire_dermographe'
   | 'consentement_soins_tatouage'
   | 'soins_dermographe'
+  | 'fiche_retouche_dermographie'
   | 'engagement_confidentialite'
   | 'affichage_salon'
   | 'archivage_dossier_papier'
@@ -191,6 +192,7 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   fiche_seance_tatouage: '06 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
   consentement_soins_tatouage: '07 — Soins Post-Tatouage',
   // Dermographie
+  fiche_retouche_dermographie: '14 — Fiche Retouche / Correction Dermographie',
   questionnaire_dermographe_mineur: '10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
   questionnaire_dermographe: '11 — Questionnaire Médical Dermographie Majeur',
   fiche_seance_dermographe: '12 — Fiche de Traçabilité Matériel Stérile (Dermographie)',

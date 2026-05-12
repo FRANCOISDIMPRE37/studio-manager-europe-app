@@ -21,6 +21,7 @@ export function ThemeProvider({
   defaultTheme = "light",
   switchable = false,
 }: ThemeProviderProps) {
+  // Thème stocké en mémoire uniquement — aucun localStorage
   const [theme, setTheme] = useState<Theme>(defaultTheme);
 
   useEffect(() => {
@@ -30,9 +31,7 @@ export function ThemeProvider({
     } else {
       root.classList.remove("dark");
     }
-
-    // localStorage is forbidden
-  }, [theme, switchable]);
+  }, [theme]);
 
   const toggleTheme = switchable
     ? () => {

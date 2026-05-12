@@ -642,6 +642,83 @@ export default function DocumentForm() {
         return <FormQuestionnaireDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'consentement_soins_tatouage':
         return <FormConsentementSoinsTatouage data={formData} update={updateField} client={effectiveClient} />;
+      case 'fiche_retouche_dermographie':
+        return (
+          <div className="space-y-4 p-4">
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af', fontSize:'14px', fontWeight:'800', letterSpacing:'0.5px'}}>1 — IDENTITÉ DU CLIENT</h3>
+              <div className="space-y-3">
+                <FormField label="Nom / Prénom" value={formData.nomPrenom||''} onChange={(v: string)=>updateField('nomPrenom',v)} />
+                <FormField label="Date de naissance" value={formData.dateNaissance||''} onChange={(v: string)=>updateField('dateNaissance',v)} />
+                <FormField label="Téléphone" value={formData.telephone||''} onChange={(v: string)=>updateField('telephone',v)} />
+              </div>
+            </div>
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af'}}>2 — INFORMATIONS RETOUCHE</h3>
+              <div className="space-y-3">
+                <FormField label="Date de la retouche" value={formData.dateRetouche||''} onChange={(v: string)=>updateField('dateRetouche',v)} />
+                <FormField label="Date de la séance initiale" value={formData.dateSeanceInitiale||''} onChange={(v: string)=>updateField('dateSeanceInitiale',v)} />
+                <FormField label="Zone retouchée" value={formData.zoneRetouche||''} onChange={(v: string)=>updateField('zoneRetouche',v)} />
+                <FormField label="N° de retouche" value={formData.numeroRetouche||''} onChange={(v: string)=>updateField('numeroRetouche',v)} />
+              </div>
+            </div>
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af'}}>3 — MOTIF DE LA RETOUCHE</h3>
+              <div className="space-y-2">
+                {[
+                  {k:'motifDecoloration',l:'Décoloration / éclaircissement'},
+                  {k:'motifAsymetrie',l:'Asymétrie à corriger'},
+                  {k:'motifPatchy',l:'Zone irrégulière (patchy)'},
+                  {k:'motifEpaississement',l:'Épaississement souhaité'},
+                  {k:'motifCorrection',l:'Correction de forme'},
+                  {k:'motifComplementaire',l:'Séance complémentaire prévue'},
+                ].map(({k,l})=>(
+                  <div key={k} className="flex items-center justify-between p-2 rounded-lg" style={{background:'#f8fafc'}}>
+                    <span className="text-xs" style={{color:'#111827'}}>{l}</span>
+                    <div className="flex gap-2">
+                      {['Oui','Non'].map(opt=>(
+                        <button key={opt} onClick={()=>updateField(k,opt)}
+                          className="px-3 py-1 rounded-lg text-xs font-600 transition-all"
+                          style={{background: formData[k]===opt ? (opt==='Oui'?'#ef4444':'#22c55e') : '#e2e8f0',
+                                  color: formData[k]===opt ? 'white' : '#111827', fontWeight:700}}>
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af'}}>4 — PIGMENTS UTILISÉS</h3>
+              <div className="space-y-3">
+                <FormField label="Marque du pigment" value={formData.marquePigment||''} onChange={(v: string)=>updateField('marquePigment',v)} />
+                <FormField label="Référence / Couleur" value={formData.refCouleur||''} onChange={(v: string)=>updateField('refCouleur',v)} />
+                <FormField label="N° de lot" value={formData.numLot||''} onChange={(v: string)=>updateField('numLot',v)} />
+                <FormField label="Date de péremption" value={formData.datePeremption||''} onChange={(v: string)=>updateField('datePeremption',v)} />
+              </div>
+            </div>
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af'}}>5 — OBSERVATIONS</h3>
+              <div className="space-y-3">
+                <FormField label="Résultat de la retouche" value={formData.resultatRetouche||''} onChange={(v: string)=>updateField('resultatRetouche',v)} />
+                <FormField label="Prochaine retouche prévue" value={formData.prochaineRetouche||''} onChange={(v: string)=>updateField('prochaineRetouche',v)} />
+                <FormField label="Notes du praticien" value={formData.notesPraticien||''} onChange={(v: string)=>updateField('notesPraticien',v)} />
+              </div>
+            </div>
+            <div className="rounded-xl p-4" style={{background:'#ffffff',border:'1px solid var(--brand-border)'}}>
+              <h3 className="font-700 text-sm mb-3" style={{color:'#1e40af', fontSize:'14px', fontWeight:'800', letterSpacing:'0.5px'}}>SIGNATURES</h3>
+              <div className="space-y-3">
+                <FormField label="Nom du client — Lu et approuvé" value={formData.nomClientSigne||''} onChange={(v: string)=>updateField('nomClientSigne',v)} />
+                <FormField label="Date" value={formData.dateSignatureClient||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignatureClient',v)} />
+                <SignaturePad label="Signature du client" value={formData.signatureClient||''} onChange={(v)=>updateField('signatureClient', v ?? '')} />
+                <FormField label="Nom du praticien" value={formData.nomPraticien||''} onChange={(v: string)=>updateField('nomPraticien',v)} />
+                <FormField label="Date" value={formData.dateSignaturePraticien||new Date().toLocaleDateString('fr-FR')} onChange={(v: string)=>updateField('dateSignaturePraticien',v)} />
+                <SignaturePad label="Signature du praticien" value={formData.signaturePraticien||''} onChange={(v)=>updateField('signaturePraticien', v ?? '')} />
+              </div>
+            </div>
+          </div>
+        );
       case 'soins_dermographe':
         return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_tatouage':

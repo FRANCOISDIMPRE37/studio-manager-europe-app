@@ -373,6 +373,7 @@
     "questionnaire_tatouage_majeur": "05 — Questionnaire Médical Tatouage Majeur",
     "fiche_seance_tatouage": "06 — Fiche de Traçabilité Matériel Stérile (Tatouage)",
     "consentement_soins_tatouage": "07 — Soins Post-Tatouage",
+    "fiche_retouche_dermographie": "14 — Fiche Retouche / Correction Dermographie",
     "questionnaire_dermographe_mineur": "10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie",
     "questionnaire_dermographe": "11 — Questionnaire Médical Dermographie Majeur",
     "fiche_seance_dermographe": "12 — Fiche de Traçabilité Matériel Stérile (Dermographie)",
@@ -385,7 +386,7 @@
     "piercing_majeurs": "Piercing — Majeurs (02-03)",
     "soins_piercing": "Soins Post-Piercing (A, B, C, D, E, F, G)",
     "tatouage": "Tatouage (04-08)",
-    "dermographie": "Dermographie (10-13)",
+    "dermographie": "Dermographie (09-14)",
     "rgpd": "RGPD & Confidentialité (15-16)",
     "archives": "Archives & Numérisation (17)"
   },

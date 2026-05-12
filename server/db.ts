@@ -6,9 +6,7 @@ const CLIENT_SENSITIVE_FIELDS = ['telephone', 'email', 'dateNaissance', 'nomRepr
 function encryptClient<T extends Record<string, any>>(data: T): T {
   const result = { ...data };
   for (const field of CLIENT_SENSITIVE_FIELDS) {
-    if (result[field] !== undefined && result[field] !== null) {
-      result[field] = encryptStr(result[field]);
-    }
+    if (result[field]) result[field] = encryptStr(result[field]);
   }
   return result;
 }
@@ -18,23 +16,6 @@ function decryptClient<T extends Record<string, any>>(data: T): T {
   for (const field of CLIENT_SENSITIVE_FIELDS) {
     if (result[field]) result[field] = decryptStr(result[field]);
   }
-  
-  // Parsing JSON pour les champs stockés en texte
-  if (typeof result.prestationsSouhaitees === 'string') {
-    try {
-      result.prestationsSouhaitees = JSON.parse(result.prestationsSouhaitees);
-    } catch {
-      result.prestationsSouhaitees = [];
-    }
-  }
-  if (typeof result.rgpdDroitsExerces === 'string') {
-    try {
-      result.rgpdDroitsExerces = JSON.parse(result.rgpdDroitsExerces);
-    } catch {
-      result.rgpdDroitsExerces = [];
-    }
-  }
-  
   return result;
 }
 import { drizzle } from "drizzle-orm/mysql2";
@@ -176,19 +157,7 @@ export async function createClient(data: InsertClient) {
 export async function updateClientById(clientId: string, userId: number, data: Partial<InsertClient>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  // Préparer les données pour la mise à jour
-  const updateData = encryptClient(data);
-  
-  // Gérer explicitement les champs JSON
-  if (data.prestationsSouhaitees !== undefined) {
-    (updateData as any).prestationsSouhaitees = JSON.stringify(data.prestationsSouhaitees);
-  }
-  if (data.rgpdDroitsExerces !== undefined) {
-    (updateData as any).rgpdDroitsExerces = JSON.stringify(data.rgpdDroitsExerces);
-  }
-  
-  await db.update(clients).set(updateData).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
+  await db.update(clients).set(encryptClient(data)).where(and(eq(clients.id, clientId), eq(clients.userId, userId)));
 }
 
 export async function deleteClientById(clientId: string, userId: number) {

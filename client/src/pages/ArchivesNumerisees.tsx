@@ -22,10 +22,9 @@ export default function ArchivesNumerisees() {
   const [dateVisite, setDateVisite] = useState(new Date().toISOString().split('T')[0]);
   const photoRef = useRef<HTMLInputElement>(null);
 
-  const getArchives = (): ArchiveDossier[] => {
-    return [];
-  };
-  const [archives, setArchives] = useState<ArchiveDossier[]>(getArchives);
+  // Archives stockées en mémoire (session uniquement) — migration vers BDD OVH prévue
+  // Aucun localStorage utilisé
+  const [archives, setArchives] = useState<ArchiveDossier[]>([]);
 
   const saveArchives = (data: ArchiveDossier[]) => {
     setArchives(data);

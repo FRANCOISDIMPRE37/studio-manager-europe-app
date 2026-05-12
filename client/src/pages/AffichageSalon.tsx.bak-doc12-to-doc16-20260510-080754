@@ -61,7 +61,7 @@ export default function AffichageSalon() {
         </h1>
       </div>
       <p className="text-sm mb-8" style={{ color: 'var(--brand-text-muted)' }}>
-        Doc 16 — RGPD Art. 13 &amp; 14 · Affichage obligatoire dans le salon
+        Doc 12 — RGPD Art. 13 &amp; 14 · Affichage obligatoire dans le salon
       </p>
 
       <div

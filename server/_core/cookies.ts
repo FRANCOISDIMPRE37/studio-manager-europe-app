@@ -17,13 +17,12 @@ export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure" | "maxAge"> {
   return {
-    domain: ".intemporelle.eu",
     httpOnly: true,
     path: "/",
-    // iPad/Safari (PWA) nécessite souvent SameSite=None + Secure pour persister.
-    // On utilise Lax par défaut mais on s'assure que Secure est activé si possible.
+    // iPad/Safari est plus fiable en contexte first-party avec SameSite=Lax.
+    // Cela évite les comportements ITP/None tout en gardant la session sur app.intemporelle.eu.
     sameSite: "lax",
-    secure: true, // Forcer Secure pour iPad
+    secure: isSecureRequest(req),
     maxAge: ONE_YEAR_MS,
   };
 }
