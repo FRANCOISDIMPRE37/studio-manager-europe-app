@@ -18,6 +18,23 @@ function decryptClient<T extends Record<string, any>>(data: T): T {
   for (const field of CLIENT_SENSITIVE_FIELDS) {
     if (result[field]) result[field] = decryptStr(result[field]);
   }
+  
+  // Parsing JSON pour les champs stockés en texte
+  if (typeof result.prestationsSouhaitees === 'string') {
+    try {
+      result.prestationsSouhaitees = JSON.parse(result.prestationsSouhaitees);
+    } catch {
+      result.prestationsSouhaitees = [];
+    }
+  }
+  if (typeof result.rgpdDroitsExerces === 'string') {
+    try {
+      result.rgpdDroitsExerces = JSON.parse(result.rgpdDroitsExerces);
+    } catch {
+      result.rgpdDroitsExerces = [];
+    }
+  }
+  
   return result;
 }
 import { drizzle } from "drizzle-orm/mysql2";
