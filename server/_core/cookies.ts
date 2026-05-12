@@ -20,10 +20,10 @@ export function getSessionCookieOptions(
     domain: ".intemporelle.eu",
     httpOnly: true,
     path: "/",
-    // iPad/Safari est plus fiable en contexte first-party avec SameSite=Lax.
-    // Cela évite les comportements ITP/None tout en gardant la session sur app.intemporelle.eu.
+    // iPad/Safari (PWA) nécessite souvent SameSite=None + Secure pour persister.
+    // On utilise Lax par défaut mais on s'assure que Secure est activé si possible.
     sameSite: "lax",
-    secure: isSecureRequest(req),
+    secure: true, // Forcer Secure pour iPad
     maxAge: ONE_YEAR_MS,
   };
 }

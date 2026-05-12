@@ -44,7 +44,7 @@ async function authenticateLocal(req: any): Promise<User | null> {
     // Cohérence PC/iPad : toutes les variantes de reconnexion valides doivent
     // retrouver le propriétaire cloud du studio, sinon les clients semblent
     // disparaître après déconnexion/reconnexion sur un autre appareil.
-    const token = cookies["local_session"] || cookies["employee_session"];
+    const token = cookies["app_session_id"] || cookies["local_session"] || cookies["employee_session"];
     if (!token) return null;
 
     const { payload } = await jwtVerify(token, JWT_SECRET);
