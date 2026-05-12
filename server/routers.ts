@@ -45,10 +45,14 @@ export const appRouter = router({
       const cookieOptions = getSessionCookieOptions(ctx.req);
       const { maxAge: _maxAge, ...clearOptions } = cookieOptions;
       const expired = new Date(0);
-      ctx.res.clearCookie(COOKIE_NAME, { ...clearOptions, sameSite: "lax" });
-      ctx.res.clearCookie(COOKIE_NAME, { ...clearOptions, sameSite: "none" });
-      ctx.res.cookie(COOKIE_NAME, "", { ...clearOptions, sameSite: "lax", expires: expired, maxAge: 0 });
-      ctx.res.cookie(COOKIE_NAME, "", { ...clearOptions, sameSite: "none", expires: expired, maxAge: 0 });
+      const cookieNames = [COOKIE_NAME, "local_session", "employee_session", "studio_session", "temp_studio_id"];
+      
+      for (const name of cookieNames) {
+        ctx.res.clearCookie(name, { ...clearOptions, sameSite: "lax" });
+        ctx.res.clearCookie(name, { ...clearOptions, sameSite: "none" });
+        ctx.res.cookie(name, "", { ...clearOptions, sameSite: "lax", expires: expired, maxAge: 0 });
+        ctx.res.cookie(name, "", { ...clearOptions, sameSite: "none", expires: expired, maxAge: 0 });
+      }
       return { success: true } as const;
     }),
     // Connexion par PIN — crée un cookie de session JWT sans passer par Manus OAuth
