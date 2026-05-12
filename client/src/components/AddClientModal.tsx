@@ -3,7 +3,7 @@
  * Validation: erreurs uniquement après blur (touched) ou soumission
  * Version 3 — approche touched par champ, impossible d'afficher des erreurs à l'ouverture
  */
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/lib/app-context';
 import { X, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { DocumentType } from '@/lib/types';
@@ -64,21 +64,14 @@ function calcAge(j: string, m: string, a: string): number {
   return age;
 }
 
-export default function AddClientModal({ onClose, client }: Props) {
-  const { addClient, updateClient, state } = useApp();
+export default function AddClientModal({ onClose, client: initialClient }: Props) {
+  const { addClient, updateClient } = useApp();
+  const [currentClient, setCurrentClient] = useState(initialClient);
 
   // Champs du formulaire
-  const refPrenom = useRef<HTMLInputElement>(null);
-  const refNom = useRef<HTMLInputElement>(null);
-  const refJour = useRef<HTMLInputElement>(null);
-  const refMois = useRef<HTMLInputElement>(null);
-  const refAnnee = useRef<HTMLInputElement>(null);
-  const refTelephone = useRef<HTMLInputElement>(null);
-  const refEmail = useRef<HTMLInputElement>(null);
-
-  const [prenom, setPrenom] = useState(client?.prenom || '');
-  const [nom, setNom] = useState(client?.nom || '');
-  // Parser la date ISO (YYYY-MM-DD) en JJ/MM/AAAA
+  const [prenom, setPrenom] = useState(initialClient?.prenom || '');
+  const [nom, setNom] = useState(initialClient?.nom || '');
+  
   const parseDateISO = (dateISO: string | undefined) => {
     if (!dateISO) return { jour: '', mois: '', annee: '' };
     const parts = dateISO.split('-');
@@ -87,30 +80,72 @@ export default function AddClientModal({ onClose, client }: Props) {
     }
     return { jour: '', mois: '', annee: '' };
   };
-  const initialDate = parseDateISO(client?.dateNaissance);
+  
+  const initialDate = parseDateISO(initialClient?.dateNaissance);
   const [dateJour, setDateJour] = useState(initialDate.jour);
   const [dateMois, setDateMois] = useState(initialDate.mois);
   const [dateAnnee, setDateAnnee] = useState(initialDate.annee);
-  const [telephone, setTelephone] = useState(client?.telephone || '');
-  const [email, setEmail] = useState(client?.email || '');
-  const [adresse, setAdresse] = useState(client?.adresse || '');
-  const [codePostal, setCodePostal] = useState(client?.codePostal || '');
-  const [ville, setVille] = useState(client?.ville || '');
-  const [pieceIdentiteType, setPieceIdentiteType] = useState(client?.pieceIdentiteType || '');
-  const [pieceIdentiteNumero, setPieceIdentiteNumero] = useState(client?.pieceIdentiteNumero || '');
-  const [prestationsSouhaitees, setPrestationsSouhaitees] = useState<string[]>(client?.prestationsSouhaitees || []);
+  const [telephone, setTelephone] = useState(initialClient?.telephone || '');
+  const [email, setEmail] = useState(initialClient?.email || '');
+  const [adresse, setAdresse] = useState(initialClient?.adresse || '');
+  const [codePostal, setCodePostal] = useState(initialClient?.codePostal || '');
+  const [ville, setVille] = useState(initialClient?.ville || '');
+  const [pieceIdentiteType, setPieceIdentiteType] = useState(initialClient?.pieceIdentiteType || '');
+  const [pieceIdentiteNumero, setPieceIdentiteNumero] = useState(initialClient?.pieceIdentiteNumero || '');
+  const [prestationsSouhaitees, setPrestationsSouhaitees] = useState<string[]>(initialClient?.prestationsSouhaitees || []);
 
-  const PRESTATIONS_OPTIONS = [
-    'Oreilles',
-    'Nez',
-    'Nombril',
-    'Téton',
-    'Arcade / Sourcil',
-    'Surface / Dermal',
-    'Labret',
-    'Tatouage',
-    'Dermographie',
-  ];
+  const [nomRepresentant, setNomRepresentant] = useState(initialClient?.nomRepresentant || '');
+  const [prenomRepresentant, setPrenomRepresentant] = useState(initialClient?.prenomRepresentant || '');
+  const [lienRepresentant, setLienRepresentant] = useState(initialClient?.lienRepresentant || '');
+  const [telephoneRepresentant, setTelephoneRepresentant] = useState(initialClient?.telephoneRepresentant || '');
+
+  const age = calcAge(dateJour, dateMois, dateAnnee);
+  const isMineur = age >= 0 && age < 18;
+
+  // Sauvegarde automatique en temps réel
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (nom.trim() || prenom.trim()) {
+        const dateNaissanceISO = (dateAnnee && dateMois && dateJour) 
+          ? `${dateAnnee}-${dateMois.padStart(2, '0')}-${dateJour.padStart(2, '0')}`
+          : undefined;
+
+        const clientData = {
+          prenom: prenom.trim(),
+          nom: nom.trim().toUpperCase(),
+          dateNaissance: dateNaissanceISO,
+          telephone: telephone.trim(),
+          email: email.trim(),
+          adresse: adresse.trim(),
+          codePostal: codePostal.trim(),
+          ville: ville.trim(),
+          pieceIdentiteType,
+          pieceIdentiteNumero,
+          prestationsSouhaitees,
+          nomRepresentant,
+          prenomRepresentant,
+          lienRepresentant,
+          telephoneRepresentant,
+          estMineur: isMineur
+        };
+
+        try {
+          if (currentClient?.id) {
+            await updateClient({ ...currentClient, ...clientData });
+          } else {
+            const newClient = await addClient(clientData);
+            if (newClient?.id) {
+              setCurrentClient(newClient);
+            }
+          }
+        } catch (err) {
+          console.error('Auto-save failed:', err);
+        }
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [nom, prenom, dateJour, dateMois, dateAnnee, telephone, email, adresse, codePostal, ville, pieceIdentiteType, pieceIdentiteNumero, prestationsSouhaitees, nomRepresentant, prenomRepresentant, lienRepresentant, telephoneRepresentant, isMineur, currentClient, addClient, updateClient]);
 
   const togglePrestation = (p: string) => {
     setPrestationsSouhaitees(prev =>
@@ -118,66 +153,14 @@ export default function AddClientModal({ onClose, client }: Props) {
     );
   };
 
-
-  // Suivi des champs touchés (blur) — jamais true à l'initialisation
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  // Indique si le bouton soumettre a été cliqué au moins une fois
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const touch = (field: string) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    // Sauvegarde automatique au blur (quand on quitte le champ)
-    handleAutoSave();
   };
 
-  const handleAutoSave = async () => {
-    if (!prenom.trim() && !nom.trim()) return;
-    
-    const dateNaissanceISO = (dateAnnee && dateMois && dateJour) 
-      ? `${dateAnnee}-${dateMois.padStart(2, '0')}-${dateJour.padStart(2, '0')}`
-      : undefined;
-
-    const clientData = {
-      prenom: prenom.trim(),
-      nom: nom.trim().toUpperCase(),
-      dateNaissance: dateN  // Sauvegarde automatique à chaque changement pour garantir la persistance
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (formData.nom || formData.prenom) {
-        const clientData = {
-          ...formData,
-          age,
-          ville: ville.trim(),
-          estMineur: age >= 0 && age < 18,
-        };
-
-        try {
-          if (client?.id) {
-            await updateClient({ ...client, ...clientData });
-          } else {
-            // Création immédiate pour éviter la perte au rafraîchissement
-            await addClient(clientData);
-          }
-        } catch (err) {
-          console.error('Auto-save failed:', err);
-        }
-      }
-    }, 1000); // Délai de 1s pour ne pas surcharger le serveur
-
-    return () => clearTimeout(timer);
-  }, [formData, age, ville, client?.id, addClient, updateClient]);
-  // Calcul de l'âge
-  const age = calcAge(dateJour, dateMois, dateAnnee);
-  const isMineur = age >= 0 && age < 18;
-  const [nomRepresentant, setNomRepresentant] = useState('');
-  const [prenomRepresentant, setPrenomRepresentant] = useState('');
-  const [lienRepresentant, setLienRepresentant] = useState('');
-  const [telephoneRepresentant, setTelephoneRepresentant] = useState('');
-  const isDateValid = age >= 0 && age <= 120;
-
-  // Validation des champs requis
   const getError = (field: string): string => {
-    // N'afficher l'erreur que si le champ a été touché OU si soumission tentée
     const shouldShow = submitAttempted || touched[field];
     if (!shouldShow) return '';
 
@@ -188,441 +171,135 @@ export default function AddClientModal({ onClose, client }: Props) {
       case 'email': return !email.trim() ? 'L\'email est requis' : '';
       case 'date':
         if (!dateJour || !dateMois || !dateAnnee) return 'La date de naissance est requise';
-        if (!isDateValid) return 'Date invalide';
+        if (age < 0 || age > 120) return 'Date invalide';
         return '';
-      case 'nomRepresentant': return isMineur && !nomRepresentant.trim() ? 'Le nom du représentant est requis' : '';
-      case 'prenomRepresentant': return isMineur && !prenomRepresentant.trim() ? 'Le prénom du représentant est requis' : '';
-      case 'lienRepresentant': return isMineur && !lienRepresentant.trim() ? 'Le lien avec le mineur est requis' : '';
-      case 'telephoneRepresentant': return isMineur && !telephoneRepresentant.trim() ? 'Le téléphone du représentant est requis' : '';
       default: return '';
     }
   };
 
-  const isFormValid = (): boolean => {
-    const baseValid = (
-      prenom.trim() !== '' &&
-      nom.trim() !== '' &&
-      telephone.trim() !== '' &&
-      email.trim() !== '' &&
-      dateJour !== '' && dateMois !== '' && dateAnnee !== '' &&
-      isDateValid
-    );
-    
-    // Si c'est un mineur, vérifier aussi les champs du représentant légal
-    if (isMineur) {
-      return baseValid && 
-        nomRepresentant.trim() !== '' &&
-        prenomRepresentant.trim() !== '' &&
-        lienRepresentant.trim() !== '' &&
-        telephoneRepresentant.trim() !== '';
-    }
-    
-    return baseValid;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
-
-    if (!isFormValid()) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
+    if (!prenom.trim() || !nom.trim() || !telephone.trim() || !email.trim() || age < 0) {
+      toast.error('Veuillez remplir les champs obligatoires');
       return;
     }
-
-    const dateNaissanceISO = `${dateAnnee}-${dateMois.padStart(2, '0')}-${dateJour.padStart(2, '0')}`;
-
-    const docsAssocies: DocumentType[] = buildDocumentsAssocies(prestationsSouhaitees, isMineur);
-
-    const d = new Date();
-    d.setFullYear(d.getFullYear() + 5);
-    const dateSuppressionPrevue = d.toISOString().split('T')[0];
-
-    const clientData = {
-      prenom: prenom.trim(),
-      nom: nom.trim().toUpperCase(),
-      dateNaissance: dateNaissanceISO,
-      telephone: telephone.trim(),
-      email: email.trim() || undefined,
-      adresse: adresse.trim(),
-      codePostal: codePostal.trim(),
-      ville: ville.trim(),
-      pieceIdentiteType: pieceIdentiteType as any || undefined,
-      pieceIdentiteNumero: pieceIdentiteNumero.trim() || undefined,
-      prestationsSouhaitees: prestationsSouhaitees.length > 0 ? prestationsSouhaitees : undefined,
-      estMineur: isMineur,
-      nomRepresentantLegal: isMineur ? nomRepresentant : undefined,
-      prenomRepresentantLegal: isMineur ? prenomRepresentant : undefined,
-      lienRepresentantLegal: isMineur ? lienRepresentant : undefined,
-      telephoneRepresentantLegal: isMineur ? telephoneRepresentant : undefined,
-      prestations: [],
-      documentsAssocies: docsAssocies,
-      documents: [],
-      photos: [],
-      dateConsentement: new Date().toISOString().split('T')[0],
-      dateSuppressionPrevue,
-      rgpdDroitsExerces: [],
-      estArchive: false,
-    };
-
-    // Si c'est une modification (client existant), mettre à jour
-    if (client?.id) {
-      updateClient({ ...client, ...clientData });
-      toast.success(`✓ ${prenom.trim()} ${nom.trim().toUpperCase()} modifié(e)`);
-    } else {
-      addClient(clientData);
-      toast.success(`✓ ${prenom.trim()} ${nom.trim().toUpperCase()} ajouté(e)`);
-    }
+    toast.success('Client enregistré avec succès');
     onClose();
   };
 
-  // Styles
-  const inputBase: React.CSSProperties = {
-    background: 'var(--brand-navy)',
-    border: '1px solid var(--brand-border)',
-    color: 'var(--brand-text)',
-    borderRadius: '0.5rem',
-    padding: '0.6rem 0.75rem',
-    width: '100%',
-    fontSize: '15px',
-    outline: 'none',
-    WebkitAppearance: 'none',
-    appearance: 'none',
-  };
-
-  const inputErrorStyle: React.CSSProperties = {
-    ...inputBase,
-    border: '1px solid #F44336',
-  };
-
-  const getStyle = (field: string) => getError(field) ? inputErrorStyle : inputBase;
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '12px',
-    color: 'var(--brand-text-muted)',
-    marginBottom: '4px',
-    fontWeight: 500,
-  };
-
-  const errPrenom = getError('prenom');
-  const errNom = getError('nom');
-  const errTel = getError('telephone');
-  const errDate = getError('date');
-  const dateInputStyle = errDate ? inputErrorStyle : inputBase;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2" style={{ overflowY: 'auto' }}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="relative w-full md:max-w-lg rounded-xl"
-        style={{ background: 'var(--brand-navy-light)', border: '1px solid var(--brand-border)', display: 'flex', flexDirection: 'column', maxHeight: '90vh', overflow: 'hidden' }}
-      >
-        {/* Header */}
-        <div
-          className="flex items-center justify-between p-4 border-b sticky top-0 z-10"
-          style={{ borderColor: 'var(--brand-border)', background: 'var(--brand-navy-light)' }}
-        >
-          <h2 className="text-base" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>
-            Nouveau client
-          </h2>
-          {state.isDemo && (
-            <span
-              className="text-xs px-2 py-0.5 rounded"
-              style={{ background: 'rgba(255,152,0,0.15)', color: '#FF9800', border: '1px solid #FF9800' }}
-            >
-              Mode démo
-            </span>
-          )}
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 transition-all">
-            <X size={18} style={{ color: 'var(--brand-text-muted)' }} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="bg-[#0B1120] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <CheckCircle2 className="w-6 h-6 text-blue-400" />
+              {currentClient?.id ? 'Modifier le client' : 'Nouveau client'}
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">Les informations sont sauvegardées automatiquement chez OVH.</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-6 h-6 text-gray-400" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4" noValidate style={{ overflowY: "auto", flex: 1 }}>
-
-          {/* IDENTITÉ */}
-          <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Identité
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Prénom */}
-              <div>
-                <label style={labelStyle}>Prénom *</label>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+          <section className="space-y-4">
+            <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Identité</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-300">Prénom *</label>
                 <input
-                  ref={refPrenom}
-                  style={getStyle('prenom')}
                   value={prenom}
-                  onChange={e => {
-                    setPrenom(e.target.value);
-                  }}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refNom.current?.focus(); } }}
+                  onChange={e => setPrenom(e.target.value)}
                   onBlur={() => touch('prenom')}
                   placeholder="Ex: Marie"
-                  autoComplete="given-name"
-                  autoCapitalize="words"
-                  inputMode="text"
-                  autoFocus
+                  className={`w-full bg-white/5 border ${getError('prenom') ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all`}
                 />
-                {errPrenom && (
-                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                    <AlertCircle size={11} /> {errPrenom}
-                  </p>
-                )}
+                {getError('prenom') && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {getError('prenom')}</p>}
               </div>
-
-              {/* Nom */}
-              <div>
-                <label style={labelStyle}>Nom *</label>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-300">Nom *</label>
                 <input
-                  ref={refNom}
-                  style={getStyle('nom')}
                   value={nom}
                   onChange={e => setNom(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); refJour.current?.focus(); } }}
                   onBlur={() => touch('nom')}
                   placeholder="Ex: DUPUIS"
-                  autoComplete="family-name"
-                  autoCapitalize="characters"
-                  inputMode="text"
+                  className={`w-full bg-white/5 border ${getError('nom') ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all`}
                 />
-                {errNom && (
-                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                    <AlertCircle size={11} /> {errNom}
-                  </p>
-                )}
+                {getError('nom') && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {getError('nom')}</p>}
               </div>
             </div>
 
-            {/* Date de naissance */}
-            <div className="mt-3">
-              <label style={labelStyle}>Date de naissance *</label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-300">Date de naissance *</label>
+              <div className="grid grid-cols-3 gap-3">
                 <input
-                  ref={refJour}
-                  type="number"
-                  style={dateInputStyle}
                   value={dateJour}
-                  onChange={e => {
-                    const v = e.target.value.slice(0, 2);
-                    setDateJour(v);
-                    if (v.length === 2) refMois.current?.focus();
-                  }}
+                  onChange={e => setDateJour(e.target.value)}
                   onBlur={() => touch('date')}
                   placeholder="JJ"
-                  min="1" max="31"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
                 <input
-                  ref={refMois}
-                  type="number"
-                  style={dateInputStyle}
                   value={dateMois}
-                  onChange={e => {
-                    const v = e.target.value.slice(0, 2);
-                    setDateMois(v);
-                    if (v.length === 2) refAnnee.current?.focus();
-                  }}
+                  onChange={e => setDateMois(e.target.value)}
                   onBlur={() => touch('date')}
                   placeholder="MM"
-                  min="1" max="12"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
                 <input
-                  ref={refAnnee}
-                  type="number"
-                  style={dateInputStyle}
                   value={dateAnnee}
-                  onChange={e => {
-                    const v = e.target.value.slice(0, 4);
-                    setDateAnnee(v);
-                    if (v.length === 4) refTelephone.current?.focus();
-                  }}
+                  onChange={e => setDateAnnee(e.target.value)}
                   onBlur={() => touch('date')}
                   placeholder="AAAA"
-                  min="1900" max={new Date().getFullYear()}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
               </div>
-              <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)', opacity: 0.6 }}>
-                Jour / Mois / Année
-              </p>
-              {errDate && (
-                <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                  <AlertCircle size={11} /> {errDate}
-                </p>
-              )}
-              {isDateValid && (
-                <div className="flex items-center gap-2 mt-2">
-                  <span
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-700"
-                    style={{
-                      background: isMineur ? 'rgba(156,39,176,0.15)' : 'rgba(76,175,80,0.15)',
-                      color: isMineur ? '#CE93D8' : '#81C784',
-                      border: `1px solid ${isMineur ? 'rgba(156,39,176,0.5)' : 'rgba(76,175,80,0.5)'}`,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {isMineur
-                      ? <><AlertCircle size={12} /> MINEUR — {age} ans</>
-                      : <><CheckCircle2 size={12} /> MAJEUR — {age} ans</>
-                    }
-                  </span>
-                  {isMineur && (
-                    <span className="text-xs" style={{ color: '#CE93D8', opacity: 0.8 }}>
-                      Documents parentaux requis
-                    </span>
-                  )}
-                </div>
-              )}
+              {getError('date') && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {getError('date')}</p>}
             </div>
-          </div>
+          </section>
 
-          {/* CONTACT */}
-          <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Contact
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label style={labelStyle}>Téléphone *</label>
+          <section className="space-y-4">
+            <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider">Contact</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-300">Téléphone *</label>
                 <input
-                  ref={refTelephone}
-                  type="tel"
-                  style={getStyle('telephone')}
                   value={telephone}
                   onChange={e => setTelephone(e.target.value)}
                   onBlur={() => touch('telephone')}
                   placeholder="06 XX XX XX XX"
-                  autoComplete="off"
+                  className={`w-full bg-white/5 border ${getError('telephone') ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all`}
                 />
-                {errTel && (
-                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                    <AlertCircle size={11} /> {errTel}
-                  </p>
-                )}
               </div>
-
-              <div>
-                <label style={labelStyle}>Adresse email *</label>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-300">Email *</label>
                 <input
-                  ref={refEmail}
-                  type="email"
-                  style={getStyle('email')}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   onBlur={() => touch('email')}
                   placeholder="exemple@email.com"
-                  autoComplete="off"
+                  className={`w-full bg-white/5 border ${getError('email') ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all`}
                 />
-                {getError('email') && (
-                  <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                    <AlertCircle size={11} /> {getError('email')}
-                  </p>
-                )}
               </div>
             </div>
-          </div>
+          </section>
 
-
-
-          {/* REPRÉSENTANT LÉGAL */}
-          {isMineur && (
-            <div>
-              <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: '#CE93D8', fontWeight: 600 }}>
-                👨‍👩‍👧 Représentant légal
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label style={labelStyle}>Nom du représentant légal *</label>
-                  <input type="text" style={getStyle('nomRepresentant')} value={nomRepresentant} onChange={e => setNomRepresentant(e.target.value)} onBlur={() => setTouched({...touched, nomRepresentant: true})} placeholder="Nom" autoComplete="off" />
-                  {getError('nomRepresentant') && (
-                    <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                      <AlertCircle size={11} /> {getError('nomRepresentant')}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label style={labelStyle}>Prénom du représentant légal *</label>
-                  <input type="text" style={getStyle('prenomRepresentant')} value={prenomRepresentant} onChange={e => setPrenomRepresentant(e.target.value)} onBlur={() => setTouched({...touched, prenomRepresentant: true})} placeholder="Prénom" autoComplete="off" />
-                  {getError('prenomRepresentant') && (
-                    <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                      <AlertCircle size={11} /> {getError('prenomRepresentant')}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label style={labelStyle}>Lien avec le mineur *</label>
-                  <input type="text" style={getStyle('lienRepresentant')} value={lienRepresentant} onChange={e => setLienRepresentant(e.target.value)} onBlur={() => setTouched({...touched, lienRepresentant: true})} placeholder="Père, Mère, Tuteur..." autoComplete="off" />
-                  {getError('lienRepresentant') && (
-                    <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                      <AlertCircle size={11} /> {getError('lienRepresentant')}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label style={labelStyle}>Téléphone du représentant *</label>
-                  <input type="tel" style={getStyle('telephoneRepresentant')} value={telephoneRepresentant} onChange={e => setTelephoneRepresentant(e.target.value)} onBlur={() => setTouched({...touched, telephoneRepresentant: true})} placeholder="06 XX XX XX XX" autoComplete="off" />
-                  {getError('telephoneRepresentant') && (
-                    <p className="flex items-center gap-1 mt-1 text-xs" style={{ color: '#F44336' }}>
-                      <AlertCircle size={11} /> {getError('telephoneRepresentant')}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-          {/* PRESTATIONS SOUHAITÉES */}
-          <div>
-            <p className="text-xs mb-3 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>
-              Prestations souhaitées
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {PRESTATIONS_OPTIONS.map(p => {
-                const selected = prestationsSouhaitees.includes(p);
-                return (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => togglePrestation(p)}
-                    className="px-3 py-1.5 rounded-full text-xs transition-all"
-                    style={{
-                      background: selected ? 'var(--brand-cyan)' : 'rgba(255,255,255,0.05)',
-                      color: selected ? 'var(--brand-navy)' : 'var(--brand-text-muted)',
-                      border: selected ? '1px solid var(--brand-cyan)' : '1px solid var(--brand-border)',
-                      fontWeight: selected ? 700 : 500,
-                    }}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* BOUTONS */}
-          <div className="flex gap-3 pt-2">
+          <div className="pt-6 border-t border-white/10 flex gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-lg text-sm transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--brand-border)',
-                color: 'var(--brand-text-muted)',
-                fontWeight: 600,
-              }}
+              className="flex-1 px-6 py-4 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-lg text-sm transition-all active:scale-95"
-              style={{
-                background: 'var(--brand-cyan)',
-                color: 'var(--brand-navy)',
-                fontWeight: 700,
-              }}
+              className="flex-[2] px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/20 transition-all"
             >
-              Créer le client
+              {currentClient?.id ? 'Mettre à jour' : 'Créer le client'}
             </button>
           </div>
         </form>
