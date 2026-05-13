@@ -626,11 +626,11 @@ export const appRouter = router({
         password: z.string().min(6, 'Le mot de passe doit faire au moins 6 caractères'),
         pin: z.string().length(4).regex(/^[0-9]{4}$/, 'Le PIN doit être composé de 4 chiffres').optional(),
         role: z.enum(['admin', 'employe', 'stagiaire']).default('employe'),
-        specialite: z.string().min(1, 'La spécialité est requise'),
-        typeContrat: z.string().min(1, 'Le type de contrat est requis'),
-        dateEntree: z.string().min(1, "La date d'entrée est requise"),
-        dateSortie: z.string().min(1, 'La date de sortie est requise').optional(),
-        adresse: z.string().min(1, "L'adresse est requise"),
+        specialite: z.string().optional(),
+        typeContrat: z.string().optional(),
+        dateEntree: z.string().optional(),
+        dateSortie: z.string().optional(),
+        adresse: z.string().optional(),
         actif: z.boolean().default(true),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -666,11 +666,11 @@ export const appRouter = router({
         password: z.string().min(6).optional(), // vide = ne pas changer
         pin: z.string().length(4).regex(/^[0-9]{4}$/).optional(), // vide = ne pas changer
         role: z.enum(['admin', 'employe', 'stagiaire']).optional(),
-        specialite: z.string().min(1).optional(),
-        typeContrat: z.string().min(1).optional(),
-        dateEntree: z.string().min(1).optional(),
-        dateSortie: z.string().min(1).optional(),
-        adresse: z.string().min(1).optional(),
+        specialite: z.string().optional(),
+        typeContrat: z.string().optional(),
+        dateEntree: z.string().optional(),
+        dateSortie: z.string().optional(),
+        adresse: z.string().optional(),
         actif: z.boolean().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
