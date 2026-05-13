@@ -9,6 +9,9 @@ import { protectedProcedure, router } from "../_core/trpc";
 const S = 12;
 const p4 = z.string().length(4).regex(/^\d{4}$/);
 
+// Helper pour les champs optionnels qui peuvent être des chaînes vides
+const optionalString = z.string().optional().transform(v => v === "" ? undefined : v);
+
 export const studioUsersRouter = router({
   listForPin: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
@@ -48,11 +51,11 @@ export const studioUsersRouter = router({
     password: z.string().min(6),
     pin: p4.optional(),
     role: z.enum(["admin", "employe", "stagiaire"]).default("employe"),
-    specialite: z.string().optional(),
-    typeContrat: z.string().optional(),
-    dateEntree: z.string().optional(),
-    dateSortie: z.string().optional(),
-    adresse: z.string().optional()
+    specialite: optionalString,
+    typeContrat: optionalString,
+    dateEntree: optionalString,
+    dateSortie: optionalString,
+    adresse: optionalString
   })).mutation(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) throw new Error("DB");
@@ -83,17 +86,21 @@ export const studioUsersRouter = router({
     pin: p4.optional(),
     role: z.enum(["admin", "employe", "stagiaire"]).optional(),
     actif: z.boolean().optional(),
-    specialite: z.string().optional(),
-    typeContrat: z.string().optional(),
-    dateEntree: z.string().optional(),
-    dateSortie: z.string().optional(),
-    adresse: z.string().optional()
+    specialite: optionalString,
+    typeContrat: optionalString,
+    dateEntree: optionalString,
+    dateSortie: optionalString,
+    adresse: optionalString
   })).mutation(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) throw new Error("DB");
     const { id, pin, ...f } = input;
     const data: any = { ...f, updatedAt: new Date() };
     if (pin) data.pinHash = await bcrypt.hash(pin, S);
+    
+    // Nettoyage des valeurs undefined pour Drizzle
+    Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+    
     await db.update(studioUsers).set(data).where(and(eq(studioUsers.id, id), eq(studioUsers.ownerId, ctx.user.id)));
     return { success: true };
   }),
