@@ -97,7 +97,7 @@ export default function Salaries() {
     });
 
     if (missing.length > 0) {
-      toast.error(`Tous les champs de la fiche salarié sont obligatoires : ${missing.map(f => f.label).join(', ')}`);
+      toast.error(`Champs obligatoires : ${missing.map(f => f.label).join(', ')}`);
       return false;
     }
 
@@ -192,7 +192,7 @@ export default function Salaries() {
             <div>
               <h3 style={{ margin: 0, color: 'white', fontSize: 17, fontWeight: 700 }}>{editingId ? 'Modifier la fiche salarié' : 'Nouveau salarié'}</h3>
               <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
-                Tous les champs marqués * sont obligatoires sur PC comme sur iPad.
+                Tous les champs marqués * sont obligatoires.
               </p>
             </div>
             {editingId && (
@@ -205,74 +205,76 @@ export default function Salaries() {
             )}
           </div>
 
-          {/* Prénom / Nom */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Prénom */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Prénom')}</label>
               <input required style={inp} value={form.prenom} onChange={e => setForm(f => ({ ...f, prenom: e.target.value }))} />
             </div>
+
+            {/* Nom */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Nom')}</label>
               <input required style={inp} value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))} />
             </div>
-          </div>
 
-          {/* Rôle */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Rôle')}</label>
-            <select required style={inp} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as SalarieRole }))}>
-              <option value="employe">Employé</option>
-              <option value="admin">Admin</option>
-              <option value="stagiaire">Stagiaire</option>
-            </select>
-          </div>
+            {/* Rôle */}
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Rôle')}</label>
+              <select required style={inp} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as SalarieRole }))}>
+                <option value="employe">Employé</option>
+                <option value="admin">Admin</option>
+                <option value="stagiaire">Stagiaire</option>
+              </select>
+            </div>
 
-          {/* Spécialité / Type de contrat */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+            {/* Spécialité */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Spécialité')}</label>
               <select required style={inp} value={form.specialite} onChange={e => setForm(f => ({ ...f, specialite: e.target.value }))}>
                 {SPECIALITES.map(s => <option key={s} value={s === '— Choisir —' ? '' : s}>{s}</option>)}
               </select>
             </div>
+
+            {/* Type de contrat */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Type de contrat')}</label>
               <select required style={inp} value={form.typeContrat} onChange={e => setForm(f => ({ ...f, typeContrat: e.target.value }))}>
                 {TYPES_CONTRAT.map(t => <option key={t} value={t === '— Choisir —' ? '' : t}>{t}</option>)}
               </select>
             </div>
-          </div>
 
-          {/* Dates - Correction espacement iPad */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14, marginBottom: 14 }}>
+            {/* Date d'entrée */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel("Date d'entrée")}</label>
               <input required type="date" style={inp} value={form.dateEntree} onChange={e => setForm(f => ({ ...f, dateEntree: e.target.value }))} />
             </div>
+
+            {/* Date de sortie */}
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>Date de sortie (optionnel)</label>
               <input type="date" style={inp} value={form.dateSortie} onChange={e => setForm(f => ({ ...f, dateSortie: e.target.value }))} />
             </div>
-          </div>
 
-          {/* Adresse */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Adresse')}</label>
-            <input required style={inp} value={form.adresse} onChange={e => setForm(f => ({ ...f, adresse: e.target.value }))} placeholder="Ex: 3 rue de Tours, 37000 Tours" />
-          </div>
+            {/* Adresse */}
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Adresse')}</label>
+              <input required style={inp} value={form.adresse} onChange={e => setForm(f => ({ ...f, adresse: e.target.value }))} placeholder="Ex: 3 rue de Tours, 37000 Tours" />
+            </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={isSaving}
-            style={{ width: '100%', background: '#22c55e', border: 'none', color: 'white', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: isSaving ? 0.7 : 1 }}
-          >
-            {isSaving ? 'Enregistrement...' : (editingId ? 'Enregistrer les modifications' : 'Créer le salarié')}
-          </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isSaving}
+              style={{ width: '100%', background: '#22c55e', border: 'none', color: 'white', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: isSaving ? 0.7 : 1, marginTop: 8 }}
+            >
+              {isSaving ? 'Enregistrement...' : (editingId ? 'Enregistrer les modifications' : 'Créer le salarié')}
+            </button>
+          </div>
         </div>
       )}
 
       {/* Liste des salariés */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {list.data?.map((salarie: any) => (
           <div key={salarie.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
