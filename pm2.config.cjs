@@ -7,7 +7,8 @@ module.exports = {
     max_memory_restart: "512M",
     env: {
       NODE_ENV: "production",
-      PORT: "3001"
+      PORT: "3001",
+      DATABASE_URL: "mysql://studio:Intemporelle2024!@bo810531-001.eu.clouddb.ovh.net:35120/studio_intemporelle?ssl={\"rejectUnauthorized\":false}"
     }
   }]
 }
