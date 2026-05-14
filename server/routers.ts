@@ -184,9 +184,12 @@ export const appRouter = router({
       .input(z.object({ employeeId: z.number().optional() }).optional())
       .query(async ({ ctx }) => {
         // Cohérence PC/iPad obligatoire : tous les appareils consultent la même source serveur.
-        // On ignore volontairement le filtre employé historique pour éviter qu’un client mineur
-        // créé sur PC soit invisible sur l’iPad à cause d’une session locale différente.
-        return getClientsByUserId(ctx.user.id);
+        // On ignore volontairement le filtre employé historique pour éviter qu'un client mineur
+        // créé sur PC soit invisible sur l'iPad à cause d'une session locale différente.
+        console.log('[DEBUG] clients.list called for userId:', ctx.user?.id, 'user:', ctx.user?.name);
+        const clients = await getClientsByUserId(ctx.user.id);
+        console.log('[DEBUG] clients.list returned:', clients.length, 'clients');
+        return clients;
       }),
     get: protectedProcedure
       .input(z.object({ id: z.string() }))
