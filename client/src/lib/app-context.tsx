@@ -271,12 +271,13 @@ function AppProviderInner({ children, dispatch, state }: {
         // Cohérence PC/iPad : la liste clients est toujours chargée depuis la source serveur complète.
         // La session employé reste utilisée pour les actions et signatures, mais ne doit pas masquer
         // un client mineur créé sur un autre appareil ou sous une autre session locale.
-        // Optimisation : utiliser le cache existant si disponible (staleTime: 5min)
-        utils.clients.list.fetch({ skipCache: false }),
-        utils.rdv.list.fetch({ skipCache: false }),
-        utils.salon.get.fetch({ skipCache: false }),
-        utils.prestations.listAll.fetch({ skipCache: false }),
-        utils.documents.listAll.fetch({ skipCache: false }),
+        // CORRECTION : utiliser skipCache: true pour forcer la récupération fraîche du serveur
+        // et éviter que le cache vide ne masque les clients créés
+        utils.clients.list.fetch({ skipCache: true }),
+        utils.rdv.list.fetch({ skipCache: true }),
+        utils.salon.get.fetch({ skipCache: true }),
+        utils.prestations.listAll.fetch({ skipCache: true }),
+        utils.documents.listAll.fetch({ skipCache: true }),
       ]);
 
       const clients = (dbClients as Record<string, unknown>[]).map(dbClientToClient);
