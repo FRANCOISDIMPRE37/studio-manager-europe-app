@@ -129,10 +129,8 @@ export async function getUserById(id: number) {
 export async function getClientsByUserId(userId: number, employeeId?: number) {
   const db = await getDb();
   if (!db) return [];
-  if (employeeId) {
-    const rows = await db.select().from(clients).where(and(eq(clients.userId, userId), eq(clients.employeeId, employeeId))).orderBy(desc(clients.createdAt));
-    return rows.map(decryptClient);
-  }
+  // Note: employeeId parameter is ignored as the schema doesn't have this field
+  // All clients are retrieved for the user
   const rows = await db.select().from(clients).where(eq(clients.userId, userId)).orderBy(desc(clients.createdAt));
   return rows.map(decryptClient);
 }
