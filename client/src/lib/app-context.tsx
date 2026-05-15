@@ -694,13 +694,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Chargement initial depuis le serveur OVH uniquement (aucun localStorage)
   useEffect(() => {
-    fetch('/api/studio-info', { credentials: 'include' })
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    fetch('/api/studio-info', { credentials: 'include', signal: controller.signal })
       .then(r => r.ok ? r.json() : null)
       .then(data => {
+        clearTimeout(timeoutId);
         const isAuthenticated = !!data;
         dispatch({ type: 'LOAD_STATE', payload: { isAuthenticated, isLoading: false } });
       })
-      .catch(() => {
+      .catch((err) => {
+        clearTimeout(timeoutId);
+        console.warn('[AppProvider] Initial auth check failed:', err.message);
         dispatch({ type: 'LOAD_STATE', payload: { isLoading: false } });
       });
   }, []);
