@@ -590,9 +590,6 @@ export default function AddClientModal({ onClose, client }: Props) {
                         touch('pieceIdentiteType');
                       }}
                       onBlur={() => touch('pieceIdentiteType')}
-                      onInput={e => {
-                        setPieceIdentiteType((e.target as HTMLSelectElement).value);
-                      }}
                       required
                     >
                       <option value="">Sélectionner</option>
