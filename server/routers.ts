@@ -390,15 +390,23 @@ export const appRouter = router({
     }),
     // Récupérer le statut firstLogin depuis la table studios
     getFirstLogin: protectedProcedure.query(async ({ ctx }) => {
-      const db = await getDb();
-      if (!db) return { firstLogin: false };
-      const [rows] = await (db as any).$client.query(
-        'SELECT firstLogin FROM studios WHERE userId = ? LIMIT 1',
-        [ctx.user.id]
-      );
-      const studio = (rows as any[])[0];
-      if (!studio) return { firstLogin: false };
-      return { firstLogin: studio.firstLogin === 1 || studio.firstLogin === true };
+      try {
+        const db = await getDb();
+        if (!db) return { firstLogin: false };
+        const [rows] = await Promise.race([
+          (db as any).$client.query(
+            'SELECT firstLogin FROM studios WHERE userId = ? LIMIT 1',
+            [ctx.user.id]
+          ),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Query timeout')), 5000))
+        ]);
+        const studio = (rows as any[])[0];
+        if (!studio) return { firstLogin: false };
+        return { firstLogin: studio.firstLogin === 1 || studio.firstLogin === true };
+      } catch (error) {
+        console.error('[getFirstLogin] Error:', error);
+        return { firstLogin: false };
+      }
     }),
     // Marquer l'onboarding comme terminé (firstLogin = false)
     completeOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
