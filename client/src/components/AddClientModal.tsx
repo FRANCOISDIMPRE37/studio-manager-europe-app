@@ -197,7 +197,27 @@ export default function AddClientModal({ onClose, client }: Props) {
     setSubmitAttempted(true);
 
     if (!isFormValid()) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
+      // Afficher les erreurs spécifiques
+      const errors = [];
+      if (!prenom.trim()) errors.push('Prénom requis');
+      if (!nom.trim()) errors.push('Nom requis');
+      if (!telephone.trim()) errors.push('Téléphone requis');
+      if (!dateJour || !dateMois || !dateAnnee) errors.push('Date de naissance requise');
+      if (!isDateValid) errors.push('Date invalide');
+      if (isMineur) {
+        if (!adresse.trim()) errors.push('Adresse requise');
+        if (!codePostal.trim()) errors.push('Code postal requis');
+        if (!ville.trim()) errors.push('Ville requise');
+        if (!pieceIdentiteType.trim()) errors.push('Type de pièce d\'identité requis');
+        if (!pieceIdentiteNumero.trim()) errors.push('Numéro de pièce d\'identité requis');
+        if (!nomRepresentant.trim()) errors.push('Nom du représentant légal requis');
+        if (!prenomRepresentant.trim()) errors.push('Prénom du représentant légal requis');
+        if (!lienRepresentant.trim()) errors.push('Lien avec le mineur requis');
+        if (!telephoneRepresentant.trim()) errors.push('Téléphone du représentant légal requis');
+        if (prestationsSouhaitees.length === 0) errors.push('Au moins une prestation requise');
+      }
+      const errorMessage = errors.length > 0 ? 'Erreurs :\n' + errors.join('\n') : 'Veuillez remplir tous les champs obligatoires';
+      toast.error(errorMessage);
       return;
     }
 
@@ -588,6 +608,9 @@ export default function AddClientModal({ onClose, client }: Props) {
                         const value = e.target.value;
                         setPieceIdentiteType(value);
                         touch('pieceIdentiteType');
+                        // Force re-render du dropdown
+                        e.target.blur();
+                        setTimeout(() => e.target.focus(), 0);
                       }}
                       onBlur={() => touch('pieceIdentiteType')}
                       required
