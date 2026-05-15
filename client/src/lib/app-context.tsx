@@ -30,6 +30,49 @@ type AppAction =
   | { type: 'SET_SYNCING'; payload: boolean }
   | { type: 'LOAD_STATE'; payload: Partial<AppState> };
 
+// Fonction pour générer les documents associés basés sur le type de client et la prestation
+function generateDocumentsForClient(estMineur: boolean, prestationsSouhaitees: string[]): string[] {
+  const docs: string[] = [];
+  
+  // Questionnaire de base
+  if (estMineur) {
+    docs.push('questionnaire_mineur');
+  } else {
+    docs.push('questionnaire_majeur');
+  }
+  
+  // Documents spécifiques à la prestation
+  if (prestationsSouhaitees && prestationsSouhaitees.length > 0) {
+    for (const prestation of prestationsSouhaitees) {
+      if (prestation === 'Nez') {
+        docs.push('fiche_seance_piercing', 'soins_nez');
+      } else if (prestation === 'Oreilles') {
+        docs.push('fiche_seance_piercing', 'soins_oreilles');
+      } else if (prestation === 'Nombril') {
+        docs.push('fiche_seance_piercing', 'soins_nombril');
+      } else if (prestation === 'Téton') {
+        docs.push('fiche_seance_piercing', 'soins_mamelons');
+      } else if (prestation === 'Arcade / Sourcil') {
+        docs.push('fiche_seance_piercing', 'soins_arcade_sourcil');
+      } else if (prestation === 'Surface / Dermal') {
+        docs.push('fiche_seance_piercing', 'soins_surface_dermal');
+      } else if (prestation === 'Labret') {
+        docs.push('fiche_seance_piercing', 'soins_bouche_levres');
+      } else if (prestation === 'Tatouage') {
+        docs.push('questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'fiche_seance_tatouage');
+      } else if (prestation === 'Dermographie') {
+        docs.push('questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe');
+      }
+    }
+  }
+  
+  // Ajouter les documents généraux
+  docs.push('engagement_confidentialite');
+  
+  // Retirer les doublons
+  return [...new Set(docs)];
+}
+
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'LOAD_STATE': return { ...state, ...action.payload };
@@ -432,6 +475,9 @@ function AppProviderInner({ children, dispatch, state }: {
     // Générer un numéro de client unique basé sur le nombre de clients existants
     const nextNum = (state.clients.length || 0) + 1;
     const numeroClient = `CLI-${String(nextNum).padStart(4, '0')}`;
+    // Générer les documents associés basés sur le type de client et la prestation
+    const documentsAssocies = generateDocumentsForClient(client.estMineur || false, client.prestationsSouhaitees || []);
+    
     const newClient: Client = {
       ...client,
       id: nanoid(),
@@ -439,6 +485,7 @@ function AppProviderInner({ children, dispatch, state }: {
       dateCreation,
       dateSuppressionPrevue: client.dateSuppressionPrevue || dateSuppressionPrevue,
       rgpdStatus: 'ok',
+      documentsAssocies,
     };
     dispatch({ type: 'ADD_CLIENT', payload: newClient });
     if (!state.isDemo) {
@@ -463,6 +510,11 @@ function AppProviderInner({ children, dispatch, state }: {
           dateSuppressionPrevue: newClient.dateSuppressionPrevue,
           rgpdDroitsExerces: newClient.rgpdDroitsExerces || [],
           employeeId: employeeSession?.id || undefined,
+          prestationsSouhaitees: newClient.prestationsSouhaitees || [],
+          nomRepresentantLegal: newClient.nomRepresentantLegal,
+          prenomRepresentantLegal: newClient.prenomRepresentantLegal,
+          lienRepresentantLegal: newClient.lienRepresentantLegal,
+          telephoneRepresentantLegal: newClient.telephoneRepresentantLegal,
         });
       } catch (err) {
         console.warn('[Sync] Client create failed:', err);
@@ -584,6 +636,13 @@ function AppProviderInner({ children, dispatch, state }: {
       if (syncTimeout) clearTimeout(syncTimeout);
     };
   }, [state.isAuthenticated, state.isDemo, state.isLoading, syncFromCloud]);
+
+  // Recharger les donnees a chaque rafraichissement (F5) ou rechargement de page
+  useEffect(() => {
+    if (!state.isAuthenticated || state.isDemo) return;
+    // Recharger immediatement au montage du composant (apres F5)
+    syncFromCloud();
+  }, []);
 
   const setAuthenticated = useCallback((val: boolean) => {
     if (!val) {
