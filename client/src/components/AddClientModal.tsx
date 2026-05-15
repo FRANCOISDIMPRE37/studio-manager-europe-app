@@ -77,8 +77,8 @@ function calcAge(j: string, m: string, a: string): number {
   return age;
 }
 
-export default function AddClientModal({ onClose, client }: Props) {
-  const { addClient, updateClient, state } = useApp();
+export default function AddClientModal({ isOpen, onClose, client: initialClient }: Props) {
+  const { addClient, updateClient, state, syncFromCloud } = useApp();
   const isEditMode = Boolean(client?.id);
   const initialDateParts = splitDateParts(client?.dateNaissance);
 
@@ -268,6 +268,10 @@ export default function AddClientModal({ onClose, client }: Props) {
     });
 
     toast.success(`✓ ${prenom.trim()} ${nom.trim().toUpperCase()} ajouté(e)`);
+    // Recharger les donnees depuis OVH apres la creation
+    setTimeout(() => {
+      syncFromCloud();
+    }, 500);
     onClose();
   };
 
