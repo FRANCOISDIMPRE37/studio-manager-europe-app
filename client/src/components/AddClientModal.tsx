@@ -174,7 +174,7 @@ export default function AddClientModal({ onClose, client }: Props) {
       prenom.trim() !== '' &&
       nom.trim() !== '' &&
       telephone.trim() !== '' &&
-      email.trim() !== '' &&
+      // email.trim() !== '' &&  // Email optionnel
       dateJour !== '' && dateMois !== '' && dateAnnee !== '' &&
       isDateValid &&
       (!isMineur || (
