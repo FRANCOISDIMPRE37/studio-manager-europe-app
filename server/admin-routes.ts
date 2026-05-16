@@ -520,12 +520,11 @@ router.get('/api/super-admin/studios/:id/open', superAdminAuth, async (req, res)
     // Poser le cookie et rediriger vers le tableau de bord
     res.cookie('local_session', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 8 * 60 * 60 * 1000,
       domain: '.intemporelle.eu',
-    });
-    // Redirection dynamique vers le domaine studio.intemporelle.eu
+    } );
     return res.redirect('https://studio.intemporelle.eu/');
   } catch (e: any) {
     return res.status(500).json({ error: e.message });

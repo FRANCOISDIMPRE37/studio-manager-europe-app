@@ -79,8 +79,8 @@ function calcAge(j: string, m: string, a: string): number {
 
 export default function AddClientModal({ isOpen, onClose, client: initialClient }: Props) {
   const { addClient, updateClient, state, syncFromCloud } = useApp();
-  const isEditMode = Boolean(client?.id);
-  const initialDateParts = splitDateParts(client?.dateNaissance);
+  const isEditMode = Boolean(initialClient?.id);
+  const initialDateParts = splitDateParts(initialClient?.dateNaissance);
 
   // Champs du formulaire
   const refPrenom = useRef<HTMLInputElement>(null);
@@ -91,19 +91,19 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
   const refTelephone = useRef<HTMLInputElement>(null);
   const refEmail = useRef<HTMLInputElement>(null);
 
-  const [prenom, setPrenom] = useState(client?.prenom || '');
-  const [nom, setNom] = useState(client?.nom || '');
+  const [prenom, setPrenom] = useState(initialClient?.prenom || '');
+  const [nom, setNom] = useState(initialClient?.nom || '');
   const [dateJour, setDateJour] = useState(initialDateParts.jour);
   const [dateMois, setDateMois] = useState(initialDateParts.mois);
   const [dateAnnee, setDateAnnee] = useState(initialDateParts.annee);
-  const [telephone, setTelephone] = useState(client?.telephone || '');
-  const [email, setEmail] = useState(client?.email || '');
-  const [adresse, setAdresse] = useState(client?.adresse || '');
-  const [codePostal, setCodePostal] = useState(client?.codePostal || '');
-  const [ville, setVille] = useState(client?.ville || '');
-  const [pieceIdentiteType, setPieceIdentiteType] = useState(client?.pieceIdentiteType || '');
-  const [pieceIdentiteNumero, setPieceIdentiteNumero] = useState(client?.pieceIdentiteNumero || '');
-  const [prestationsSouhaitees, setPrestationsSouhaitees] = useState<string[]>(client?.prestationsSouhaitees || []);
+  const [telephone, setTelephone] = useState(initialClient?.telephone || '');
+  const [email, setEmail] = useState(initialClient?.email || '');
+  const [adresse, setAdresse] = useState(initialClient?.adresse || '');
+  const [codePostal, setCodePostal] = useState(initialClient?.codePostal || '');
+  const [ville, setVille] = useState(initialClient?.ville || '');
+  const [pieceIdentiteType, setPieceIdentiteType] = useState(initialClient?.pieceIdentiteType || '');
+  const [pieceIdentiteNumero, setPieceIdentiteNumero] = useState(initialClient?.pieceIdentiteNumero || '');
+  const [prestationsSouhaitees, setPrestationsSouhaitees] = useState<string[]>(initialClient?.prestationsSouhaitees || []);
 
   const PRESTATIONS_OPTIONS = [
     'Oreilles',
@@ -134,10 +134,10 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
   // Calcul de l'âge
   const age = calcAge(dateJour, dateMois, dateAnnee);
   const isMineur = age >= 0 && age < 18;
-  const [nomRepresentant, setNomRepresentant] = useState(client?.nomRepresentantLegal || '');
-  const [prenomRepresentant, setPrenomRepresentant] = useState(client?.prenomRepresentantLegal || '');
-  const [lienRepresentant, setLienRepresentant] = useState(client?.lienRepresentantLegal || '');
-  const [telephoneRepresentant, setTelephoneRepresentant] = useState(client?.telephoneRepresentantLegal || '');
+  const [nomRepresentant, setNomRepresentant] = useState(initialClient?.nomRepresentantLegal || '');
+  const [prenomRepresentant, setPrenomRepresentant] = useState(initialClient?.prenomRepresentantLegal || '');
+  const [lienRepresentant, setLienRepresentant] = useState(initialClient?.lienRepresentantLegal || '');
+  const [telephoneRepresentant, setTelephoneRepresentant] = useState(initialClient?.telephoneRepresentantLegal || '');
   const isDateValid = age >= 0 && age <= 120;
 
   // Validation des champs requis
@@ -244,9 +244,9 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
       telephoneRepresentantLegal: isMineur ? telephoneRepresentant : undefined,
     };
 
-    if (isEditMode && client?.id) {
+    if (isEditMode && initialClient?.id) {
       updateClient({
-        ...client,
+        ...initialClient,
         ...commonClientFields,
         dateModification: new Date().toISOString().split('T')[0],
       });
