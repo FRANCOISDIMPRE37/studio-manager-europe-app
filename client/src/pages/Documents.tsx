@@ -48,7 +48,9 @@ const DOC_CATEGORY_KEYS = [
     titleKey: 'doc_categories.rgpd',
     icon: Shield,
     color: '#E53935',
-    docs: ['engagement_confidentialite', 'affichage_salon'] as DocumentType[],
+    // La fiche 15 — Engagement de Confidentialité (RGPD Art. 29) est réservée aux salariés.
+    // Elle est donc volontairement exclue du catalogue client et accessible depuis /salaries.
+    docs: ['affichage_salon'] as DocumentType[],
   },
 
 ];
@@ -214,7 +216,7 @@ export default function Documents() {
               </button>
             </div>
 
-            {/* Bouton accès rapide sans client — masqué pour engagement_confidentialite */}
+            {/* Bouton accès rapide sans client */}
             {selectedDoc !== 'engagement_confidentialite' && (
               <button
                 onClick={handleOpenWithoutClient}

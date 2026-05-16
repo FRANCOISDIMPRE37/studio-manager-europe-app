@@ -185,6 +185,18 @@ export default function Salaries() {
         </button>
       </div>
 
+      <div style={{ background: 'rgba(99,102,241,0.10)', border: '1px solid rgba(99,102,241,0.35)', borderRadius: 16, padding: 18, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <FileText size={20} style={{ color: '#818cf8', flexShrink: 0, marginTop: 2 }} />
+          <div>
+            <h2 style={{ margin: 0, color: 'white', fontSize: 16, fontWeight: 700 }}>Fiche 15 — Engagement de Confidentialité (RGPD Art. 29)</h2>
+            <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,0.62)', fontSize: 12, lineHeight: 1.5 }}>
+              Cette fiche est réservée aux salariés. Elle n’apparaît plus dans les documents clients et doit être signée depuis la fiche du salarié concerné.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Formulaire salarié obligatoire et prérempli en modification */}
       {showForm && (
         <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 24, marginBottom: 24 }}>
@@ -300,11 +312,11 @@ export default function Salaries() {
                 </button>
                 <button
                   onClick={() => {
-                    navigate(`/documents/engagement-confidentialite?salarieId=${salarie.id}`);
+                    navigate(`/rgpd-salarie?salarieId=${salarie.id}`);
                   }}
                   style={{ background: hasSignedEngagement(salarie.id) ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)', border: `1px solid ${hasSignedEngagement(salarie.id) ? '#22c55e' : '#6366f1'}`, color: hasSignedEngagement(salarie.id) ? '#22c55e' : '#6366f1', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
                 >
-                  <FileText size={14} /> {hasSignedEngagement(salarie.id) ? 'Signé' : 'Signer RGPD'}
+                  <FileText size={14} /> {hasSignedEngagement(salarie.id) ? 'Fiche 15 signée' : 'Signer fiche 15'}
                 </button>
                 <button
                   onClick={() => {
