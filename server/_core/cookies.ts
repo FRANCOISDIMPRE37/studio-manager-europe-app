@@ -1,4 +1,13 @@
 import type { CookieOptions, Request } from "express";
+import { ONE_YEAR_MS } from "@shared/const";
+
+function isSecureRequest(req: Request): boolean {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const forwardedProtocol = Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto;
+  const normalizedForwardedProtocol = forwardedProtocol?.split(",")[0]?.trim().toLowerCase();
+
+  return Boolean(req.secure || normalizedForwardedProtocol === "https");
+}
 
 export function getSessionCookieOptions(
   req: Request

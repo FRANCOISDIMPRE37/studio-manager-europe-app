@@ -31,10 +31,13 @@ const DOC_ORDER: DocumentType[] = [
   'questionnaire_dermographe',
   'soins_dermographe',
   'fiche_seance_dermographe',
-  // Divers
-  'engagement_confidentialite',
+  // Divers client uniquement
   'affichage_salon',
 ];
+const EMPLOYEE_ONLY_DOCUMENTS: DocumentType[] = ['engagement_confidentialite'];
+function isClientVisibleDocument(docType: DocumentType): boolean {
+  return !EMPLOYEE_ONLY_DOCUMENTS.includes(docType);
+}
 function sortDocs(docs: DocumentType[]): DocumentType[] {
   return [...docs].sort((a, b) => {
     const ia = DOC_ORDER.indexOf(a);
@@ -102,6 +105,8 @@ export default function ClientDetail() {
   }
 
   const age = Math.floor((Date.now() - new Date(client.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+  const clientDocumentTypes = sortDocs(client.documentsAssocies.filter(isClientVisibleDocument));
+  const clientDocuments = client.documents?.filter(d => isClientVisibleDocument(d.type)) || [];
 
 
   const handleArchive = () => {
@@ -111,8 +116,8 @@ export default function ClientDetail() {
 
   const handleSendDossier = () => {
     if (!dossierEmail) { toast.error('Veuillez saisir une adresse email'); return; }
-    const docs = client!.documentsAssocies.map(docType => {
-      const doc = client!.documents?.find(d => d.type === docType);
+    const docs = clientDocumentTypes.map(docType => {
+      const doc = clientDocuments.find(d => d.type === docType);
       return {
         id: doc?.id || docType,
         type: docType,
@@ -465,15 +470,15 @@ export default function ClientDetail() {
         {tab === 'documents' && (
           <div className="space-y-3">
 
-            {client.documentsAssocies.length === 0 ? (
+            {clientDocumentTypes.length === 0 ? (
               <div className="text-center py-12">
                 <FileText size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
                 <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun document associé</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {sortDocs(client.documentsAssocies).map(docType => {
-                  const doc = client.documents?.find(d => d.type === docType);
+                {clientDocumentTypes.map(docType => {
+                  const doc = clientDocuments.find(d => d.type === docType);
                   const status = doc?.status || 'empty';
                   const statusColors = { empty: '#FF9800', filled: 'var(--brand-cyan)', signed: '#4CAF50' };
                   const statusLabels = { empty: 'À remplir', filled: 'Rempli', signed: 'Signé' };
@@ -543,8 +548,8 @@ export default function ClientDetail() {
           <div className="p-3 rounded-lg" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.15)' }}>
             <p className="text-sm" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{client.prenom} {client.nom}</p>
             <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>
-              {client.documentsAssocies.length} document{client.documentsAssocies.length > 1 ? 's' : ''}
-              {' — '}{client.documents?.filter(d => d.status === 'signed').length || 0} signé{(client.documents?.filter(d => d.status === 'signed').length || 0) > 1 ? 's' : ''}
+              {clientDocumentTypes.length} document{clientDocumentTypes.length > 1 ? 's' : ''}
+              {' — '}{clientDocuments.filter(d => d.status === 'signed').length || 0} signé{clientDocuments.filter(d => d.status === 'signed').length > 1 ? 's' : ''}
             </p>
           </div>
 
@@ -562,8 +567,8 @@ export default function ClientDetail() {
 
           <div className="max-h-44 overflow-y-auto space-y-1">
             <p className="text-xs mb-2" style={{ color: 'var(--brand-text-muted)', fontWeight: 600 }}>Documents inclus :</p>
-            {sortDocs(client.documentsAssocies).map(docType => {
-              const doc = client.documents?.find(d => d.type === docType);
+            {clientDocumentTypes.map(docType => {
+              const doc = clientDocuments.find(d => d.type === docType);
               const signed = doc?.status === 'signed';
               return (
                 <div key={docType} className="flex items-center justify-between py-1.5 px-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
