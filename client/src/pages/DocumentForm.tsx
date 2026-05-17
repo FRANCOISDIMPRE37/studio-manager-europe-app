@@ -179,6 +179,13 @@ export default function DocumentForm() {
     'questionnaire_tatouage_majeur',
     'questionnaire_dermographe',
     'consentement_soins_tatouage',
+    'soins_oreilles',
+    'soins_nez',
+    'soins_nombril',
+    'soins_mamelons',
+    'soins_arcade_sourcil',
+    'soins_surface_dermal',
+    'soins_labret',
   ];
 
   const SIGNATURES_OBLIGATOIRES_PAR_DOCUMENT: Partial<Record<DocumentType, Array<{ key: string; label: string }>>> = {
@@ -235,6 +242,34 @@ export default function DocumentForm() {
     ],
     engagement_confidentialite: [
       { key: 'signatureImageSignataire', label: 'signature du signataire' },
+    ],
+    soins_oreilles: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_nez: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_nombril: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mamelons: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_arcade_sourcil: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_surface_dermal: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_labret: [
+      { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
     ],
   };
 
@@ -484,7 +519,7 @@ export default function DocumentForm() {
         type: docType,
         status: isSigned ? 'signed' as const : 'filled' as const,
         data: formData,
-        dateSigned: isSigned ? dateShort : (existingDoc ? existingDoc.dateSigned : undefined),
+        dateSigned: isSigned ? dateShort : (existingDoc ? existingDoc.dateSigned ?? undefinedd : undefined),
       };
 
       // Stratégie "Zéro Erreur" : Mise à jour si existe, sinon création
