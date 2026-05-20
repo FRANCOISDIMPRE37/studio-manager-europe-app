@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 export interface EmployeSession { id: number; prenom: string; nom: string; role: 'admin' | 'employe' | 'stagiaire'; loginAt: string; }
 interface Ctx { employe: EmployeSession | null; setEmploye: (e: EmployeSession | null) => void; logout: () => void; isLoggedIn: boolean; }
 const KEY = 'studio_employe_session';
-const TIMEOUT = 4 * 60 * 60 * 1000;
+const TIMEOUT = 30 * 24 * 60 * 60 * 1000; // 30 jours
 const EmployeSessionContext = createContext<Ctx>({ employe: null, setEmploye: () => {}, logout: () => {}, isLoggedIn: false });
 export function EmployeSessionProvider({ children }: { children: React.ReactNode }) {
   const [employe, setEmployeState] = useState<EmployeSession | null>(() => {
