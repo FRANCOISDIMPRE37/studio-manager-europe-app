@@ -90,7 +90,7 @@ function AppRoutes() {
   if (path === '/connexion') return <ConnexionEmail />;
   
   if (path === '/super-admin') {
-    if (hostname !== 'app.intemporelle.eu' && hostname !== 'studio.intemporelle.eu' && hostname !== 'localhost' && !hostname.startsWith('127.')) {
+    if (hostname !== 'app.intemporelle.eu' && hostname !== 'localhost' && !hostname.startsWith('127.')) {
       window.location.href = '/';
       return null;
     }

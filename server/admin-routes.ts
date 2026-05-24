@@ -538,7 +538,7 @@ router.get('/api/super-admin/studios/:id/open', superAdminAuth, async (req, res)
     const host = req.headers.host || '';
     const referer = req.headers.referer || req.headers.origin || '';
     const isApp = host.includes('app.intemporelle.eu') || referer.includes('app.intemporelle.eu');
-    const baseUrl = isApp ? 'https://app.intemporelle.eu' : 'https://studio.intemporelle.eu';
+    const baseUrl = 'https://app.intemporelle.eu';
     return res.redirect(baseUrl + '/');
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
