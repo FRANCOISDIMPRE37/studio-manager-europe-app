@@ -59,7 +59,11 @@ function generateDocumentsForClient(estMineur: boolean, prestationsSouhaitees: s
       } else if (prestation === 'Labret') {
         docs.push('fiche_seance_piercing', 'soins_bouche_levres');
       } else if (prestation === 'Tatouage') {
-        docs.push('questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'fiche_seance_tatouage');
+        if (estMineur) {
+          docs.push('questionnaire_tatouage_mineur', 'fiche_seance_tatouage');
+        } else {
+          docs.push('questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'fiche_seance_tatouage');
+        }
       } else if (prestation === 'Dermographie') {
         docs.push('questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe');
       }
