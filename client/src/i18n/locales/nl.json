@@ -226,7 +226,8 @@
     "soins_piercing": "Piercing Nazorg (A, B, C, D–G)",
     "tatouage": "Tatoeage (05-07)",
     "dermographie": "Dermografie (08-10)",
-    "rgpd": "AVG & Vertrouwelijkheid (11-12)"
+    "rgpd": "AVG & Vertrouwelijkheid (11-12)",
+    "momer_rgpd": "MOMER AVG"
   },
   "soins": {
     "fiche_title": "VERZORGINGSBLAD",

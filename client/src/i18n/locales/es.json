@@ -362,7 +362,8 @@
     "soins_piercing": "Cuidados Post-Piercing (A, B, C, D–G)",
     "tatouage": "Tatuaje (05-07)",
     "dermographie": "Dermografía (08-10)",
-    "rgpd": "RGPD & Confidencialidad (11-12)"
+    "rgpd": "RGPD & Confidencialidad (11-12)",
+    "momer_rgpd": "MOMER RGPD"
   },
   "soins": {
     "fiche_title": "HOJA DE CUIDADOS",

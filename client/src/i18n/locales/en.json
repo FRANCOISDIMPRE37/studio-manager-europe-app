@@ -230,7 +230,8 @@
     "soins_piercing": "Post-Piercing Care (A, B, C, D, E, F, G)",
     "tatouage": "Tattoo (05-09)",
     "dermographie": "Dermography (10-14)",
-    "rgpd": "GDPR & Confidentiality (15-16)"
+    "rgpd": "GDPR & Confidentiality (15-16)",
+    "momer_rgpd": "MOMER GDPR"
   },
   "soins": {
     "fiche_title": "CARE SHEET",

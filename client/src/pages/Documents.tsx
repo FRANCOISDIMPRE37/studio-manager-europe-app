@@ -52,6 +52,12 @@ const DOC_CATEGORY_KEYS = [
     // Elle est donc volontairement exclue du catalogue client et accessible depuis /salaries.
     docs: ['affichage_salon'] as DocumentType[],
   },
+  {
+    titleKey: 'doc_categories.momer_rgpd',
+    icon: Shield,
+    color: '#1976D2',
+    docs: ['engagement_confidentialite'] as DocumentType[],
+  },
 
 ];
 

@@ -226,7 +226,8 @@
     "soins_piercing": "Piercing-Nachsorge (A, B, C, D–G)",
     "tatouage": "Tätowierung (05-07)",
     "dermographie": "Dermographie (08-10)",
-    "rgpd": "DSGVO & Vertraulichkeit (11-12)"
+    "rgpd": "DSGVO & Vertraulichkeit (11-12)",
+    "momer_rgpd": "MOMER DSGVO"
   },
   "soins": {
     "fiche_title": "PFLEGEBLATT",
