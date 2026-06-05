@@ -290,9 +290,7 @@ function PrintHeader({ salonInfo, docTitle, clientName, date, numeroClient }: {
           {salonInfo?.email && (
             <div style={{ fontSize: 11, color: '#555' }}>Email : {salonInfo.email}</div>
           )}
-          {salonInfo?.siret && (
-            <div style={{ fontSize: 11, color: '#555' }}>SIRET : {salonInfo.siret}</div>
-          )}
+          {/* SIRET supprimé à la demande de l'utilisateur */}
         </div>
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', fontFamily: 'Outfit, sans-serif' }}>{docTitle}</div>

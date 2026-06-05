@@ -311,7 +311,7 @@ export default function Parametres() {
               { icon: MapPin, label: `${state.salonInfo.adresse}, ${state.salonInfo.codePostal} ${state.salonInfo.ville}` },
               { icon: Phone, label: state.salonInfo.telephone },
               { icon: Mail, label: state.salonInfo.email },
-              { icon: Hash, label: `SIRET : ${state.salonInfo.siret}` },
+              /* SIRET supprimé */
               { icon: User, label: `Pierceur : ${state.salonInfo.nomPierceur}` },
             ].filter(i => i.label).map((item, idx) => (
               <div key={idx} className="flex items-center gap-2">

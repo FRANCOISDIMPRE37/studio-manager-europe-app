@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: "studio-manager",
     script: "./dist/index.js",
-    cwd: "/home/ubuntu/app_v2",
+    cwd: "/home/ubuntu/studio-manager-pwa",
     watch: false,
     max_memory_restart: "512M",
     env: {

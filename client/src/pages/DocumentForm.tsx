@@ -1019,7 +1019,7 @@ export default function DocumentForm() {
                 <div>
                   <div style={{ fontWeight: 600 }}>{state.salonInfo?.nom}</div>
 
-                  {state.salonInfo?.siret && <div>SIRET : {state.salonInfo.siret}</div>}
+                  {/* SIRET supprimé */}
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div>Document confidentiel — RGPD Art. 15-17-21</div>
@@ -1206,7 +1206,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+        {/* SIRET supprimé */}
       </div>
       <FormField label={t('forms.piercer_name')} value={data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} />
       <LegalBox color="red">
@@ -1317,7 +1317,7 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
       <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+        {/* SIRET supprimé */}
       </div>
       <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueur || salonInfo?.nomTatoueur || ''} onChange={v => update('nomTatoueur', v)} />
       <LegalBox color="red">
@@ -1392,7 +1392,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
+        {/* SIRET supprimé */}
       </div>
       <FormField label="Nom du dermographe" value={data.nomDermographe || salonInfo?.nomDermographe || ''} onChange={v => update('nomDermographe', v)} />
       <LegalBox color="red">
