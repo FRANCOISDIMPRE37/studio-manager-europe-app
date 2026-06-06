@@ -80,7 +80,7 @@ router.get('/api/super-admin/studios', superAdminAuth, async (_req, res) => {
         specialites: studios.specialites,
       })
       .from(studios)
-      .orderBy(desc(studios.createdAt));
+      .orderBy(desc(studios.id)); // Utiliser l'ID pour s'assurer que les anciens studios (comme l'ID 38) apparaissent en haut si nécessaire
     return res.json(rows);
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
