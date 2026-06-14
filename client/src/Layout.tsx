@@ -117,13 +117,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <div className="flex flex-col items-center px-3 py-3 border-b flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle RGPD & Cybersécurité"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/9mU5pD6qf4H7bLtorFtFyT/logo_gold_premium.png"
+            alt="Studio Manager Europe"
             className="w-full rounded-md"
-            style={{ maxHeight: '52px', objectFit: 'contain' }}
+            style={{ maxHeight: '60px', objectFit: 'contain' }}
           />
-          <p className="text-xs mt-2 text-center leading-tight" style={{ color: 'var(--brand-cyan)', fontSize: '10px', fontFamily: 'Outfit' }}>
-            {state.salonInfo?.nom || 'Studio Manager Europe - Bienvenue François'}
+          <p className="text-xs mt-2 text-center leading-tight font-bold" style={{ color: 'var(--brand-cyan)', fontSize: '11px', fontFamily: 'Outfit', letterSpacing: '0.05em' }}>
+            STUDIO MANAGER EUROPE
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="px-1 pb-2 space-y-1 flex-shrink-0">
           <p className="block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>{t('nav.resources')}</p>
           {[
-            { href: 'https://www.studiomanagereurope.eu/', label: 'Intemporelle' },
+            { href: 'https://www.studiomanagereurope.eu/', label: 'StudioManager' },
             { href: 'https://www.ars.sante.fr/recherche-globale?search_ars=tatouage%20et%20piercing&ars_site=&submit_search=Filtrer&sort_by=date_desc', label: 'ARS Santé' },
             { href: 'https://www.cnil.fr/fr', label: 'CNIL' },
           ].map(({ href, label }) => (
