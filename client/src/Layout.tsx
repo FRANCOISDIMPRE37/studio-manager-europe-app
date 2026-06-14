@@ -123,7 +123,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             style={{ maxHeight: '52px', objectFit: 'contain' }}
           />
           <p className="text-xs mt-2 text-center leading-tight" style={{ color: 'var(--brand-cyan)', fontSize: '10px', fontFamily: 'Outfit' }}>
-            {state.salonInfo?.nom || 'Studio Pierceur Tatoueur Dermographe'}
+            {state.salonInfo?.nom || 'Studio Manager Europe - Bienvenue François'}
           </p>
         </div>
 
