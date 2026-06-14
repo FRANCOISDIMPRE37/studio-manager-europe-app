@@ -50,18 +50,18 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Intemporelle brand colors */
+/* Studio Manager Europe — Black & Gold Design */
 :root {
-  --brand-navy: #0A1628;
-  --brand-navy-light: #0F2040;
-  --brand-navy-mid: #1A3560;
-  --brand-cyan: #ffffff;
-  --brand-cyan-dim: rgba(255, 255, 255, 0.15);
-  --brand-rose: #C0396A;
-  --brand-rose-dim: rgba(192, 57, 106, 0.15);
-  --brand-text: #E8F4FF;
-  --brand-text-muted: #7A9CC4;
-  --brand-border: #1E3A5F;
+  --brand-navy: #000000;
+  --brand-navy-light: #080808;
+  --brand-navy-mid: #111111;
+  --brand-cyan: #D4AF37;
+  --brand-cyan-dim: rgba(212, 175, 55, 0.15);
+  --brand-rose: #D4AF37;
+  --brand-rose-dim: rgba(212, 175, 55, 0.15);
+  --brand-text: #ffffff;
+  --brand-text-muted: #a0a0a0;
+  --brand-border: #222222;
 }
 
 /* Dark theme (default — Studio Nocturne) */
