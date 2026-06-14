@@ -267,8 +267,8 @@ export default function SuperAdmin() {
       <div style={{ background: "#13131a", border: "1px solid #2a2a3a", borderRadius: 16, padding: 40, width: 360 }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔐</div>
-          <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>Console Admin</div>
-          <div style={{ color: "#555", fontSize: 13, marginTop: 4 }}>Intemporelle — Accès restreint</div>
+          <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>STUDIO MANAGER</div>
+          <div style={{ color: "#D4AF37", fontSize: 13, marginTop: 4, fontWeight: 600 }}>EUROPE — ACCÈS ADMINISTRATEUR</div>
         </div>
         <form onSubmit={handleLogin}>
           <input
@@ -282,7 +282,7 @@ export default function SuperAdmin() {
             style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", marginBottom: 16, boxSizing: "border-box", outline: "none" }}
           />
           {loginError && <div style={{ color: "#ef4444", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{loginError}</div>}
-          <button type="submit" style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
+          <button type="submit" style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg, #D4AF37, #B8860B)", border: "none", borderRadius: 8, color: "#000", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
             Connexion
           </button>
         </form>
@@ -298,10 +298,10 @@ export default function SuperAdmin() {
       {/* Header */}
       <div style={{ background: "#13131a", borderBottom: "1px solid #2a2a3a", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ fontSize: 24 }}>💎</div>
+          <div style={{ fontSize: 24 }}>👑</div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16 }}>Console Super-Admin</div>
-            <div style={{ color: "#555", fontSize: 12 }}>studio.studiomanagereurope.eu</div>
+            <div style={{ color: "#D4AF37", fontSize: 12, fontWeight: 600 }}>STUDIO MANAGER EUROPE</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
