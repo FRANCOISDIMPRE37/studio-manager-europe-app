@@ -32,8 +32,7 @@ export default function EcranPIN(){
   // Styles
   const pageStyle:React.CSSProperties={
     minHeight:'100vh',
-    background:'#0a0a0a',
-    backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.015) 2px,rgba(255,255,255,0.015) 4px),repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(255,255,255,0.015) 2px,rgba(255,255,255,0.015) 4px)',
+    background:'#000000',
     display:'flex',
     flexDirection:'column',
     alignItems:'center',
@@ -45,11 +44,11 @@ export default function EcranPIN(){
   const cardStyle:React.CSSProperties={
     width:'100%',
     maxWidth:420,
-    background:'linear-gradient(145deg,#1a1a1a 0%,#111 100%)',
+    background:'#000000',
     border:`2px solid ${GOLD_BORDER}`,
     borderRadius:20,
     padding:'32px 28px 28px',
-    boxShadow:`0 0 40px rgba(201,168,76,0.12), 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(201,168,76,0.2)`,
+    boxShadow:`0 0 40px rgba(212, 175, 55, 0.1), 0 20px 60px rgba(0,0,0,1)`,
     display:'flex',
     flexDirection:'column',
     alignItems:'center',
@@ -66,15 +65,15 @@ export default function EcranPIN(){
   const pinBtnStyle=(k:string):React.CSSProperties=>({
     height:68,
     borderRadius:14,
-    border:'1px solid rgba(255,255,255,0.15)',
-    background:k?'#ffffff':'transparent',
-    color:k?'#111':'transparent',
+    border:`1px solid ${k ? 'rgba(212, 175, 55, 0.3)' : 'transparent'}`,
+    background:k?'#000000':'transparent',
+    color:k?'#ffffff':'transparent',
     fontSize:22,
     fontWeight:700,
     cursor:k?'pointer':'default',
     visibility:k?'visible':'hidden',
     transition:'all 0.12s ease',
-    boxShadow:k?'0 2px 8px rgba(0,0,0,0.4)':'none',
+    boxShadow:k?'0 0 10px rgba(212, 175, 55, 0.1)':'none',
     fontFamily:"'Outfit', sans-serif",
   });
 
@@ -109,8 +108,8 @@ export default function EcranPIN(){
       <div style={cardStyle}>
         {/* Logo */}
         <div style={logoStyle}>
-          <div style={{fontSize:22,fontWeight:900,color:'#ffffff',letterSpacing:'0.15em',fontFamily:"'Outfit', sans-serif"}}>INTEMPORELLE</div>
-          <div style={{fontSize:11,fontWeight:600,color:GOLD,letterSpacing:'0.2em',marginTop:4}}>RGPD &amp; CYBERSÉCURITÉ</div>
+          <div style={{fontSize:22,fontWeight:900,color:'#ffffff',letterSpacing:'0.15em',fontFamily:"'Outfit', sans-serif"}}>STUDIO MANAGER</div>
+          <div style={{fontSize:11,fontWeight:600,color:GOLD,letterSpacing:'0.2em',marginTop:4}}>EUROPE</div>
         </div>
 
         {/* Subtitle */}
@@ -156,8 +155,8 @@ export default function EcranPIN(){
                     key={i}
                     onClick={()=>{if(!k)return;if(k==='X')setPin(p=>p.slice(0,-1));else if(pin.length<4)setPin(p=>p+k);}}
                     style={pinBtnStyle(k)}
-                    onMouseEnter={e=>{if(k)(e.currentTarget.style.background=k==='X'?'#f0f0f0':'#f5f5f5');}}
-                    onMouseLeave={e=>{if(k)(e.currentTarget.style.background='#ffffff');}}
+                    onMouseEnter={e=>{if(k)(e.currentTarget.style.background='rgba(212, 175, 55, 0.1)');}}
+                    onMouseLeave={e=>{if(k)(e.currentTarget.style.background='#000000');}}
                   >
                     {k==='X'?'⌫':k}
                   </button>
