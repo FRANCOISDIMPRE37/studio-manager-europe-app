@@ -10,55 +10,93 @@ import { useLocation } from 'wouter';
 
 const DOC_CATEGORY_KEYS = [
   {
-    titleKey: 'doc_categories.piercing_mineurs',
+    titleKey: 'documents.categories.piercing_mineurs',
     icon: Baby,
     color: '#9C27B0',
-    docs: ['questionnaire_mineur'] as DocumentType[],
+    docs: [
+      'questionnaire_mineur',
+      'autorisation_parentale',
+      'soins_mineur_oreilles',
+      'soins_mineur_nez',
+      'soins_mineur_bouche_levres',
+      'soins_mineur_nombril',
+      'soins_mineur_mamelons',
+      'soins_mineur_arcade_sourcil',
+      'soins_mineur_surface_dermal',
+    ] as DocumentType[],
     forMineur: true,
   },
   {
-    titleKey: 'doc_categories.piercing_majeurs',
+    titleKey: 'documents.categories.piercing_majeurs',
     icon: User,
     color: 'var(--brand-cyan)',
-    docs: ['questionnaire_majeur', 'fiche_seance_piercing'] as DocumentType[],
+    docs: [
+      'questionnaire_majeur',
+      'fiche_seance_piercing',
+      'soins_oreilles',
+      'soins_nez',
+      'soins_bouche_levres',
+      'soins_nombril',
+      'soins_mamelons',
+      'soins_arcade_sourcil',
+      'soins_surface_dermal',
+    ] as DocumentType[],
     forMineur: false,
   },
   {
-    titleKey: 'doc_categories.soins_piercing',
-    icon: Shield,
-    color: '#4CAF50',
-    docs: ['soins_oreilles', 'soins_nez', 'soins_bouche_levres', 'soins_nombril', 'soins_mamelons', 'soins_arcade_sourcil', 'soins_surface_dermal'] as DocumentType[],
-    forMineur: null,
-  },
-  {
-    titleKey: 'doc_categories.tatouage',
-    icon: FileText,
+    titleKey: 'documents.categories.tatouage_mineurs',
+    icon: Baby,
     color: '#FF5722',
-    docs: ['questionnaire_tatouage_mineur', 'questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'consentement_soins_tatouage'] as DocumentType[],
-    forMineur: null,
+    docs: [
+      'questionnaire_tatouage_mineur',
+      'autorisation_parentale_tatouage',
+    ] as DocumentType[],
+    forMineur: true,
   },
   {
-    titleKey: 'doc_categories.dermographie',
-    icon: FileText,
+    titleKey: 'documents.categories.tatouage_majeurs',
+    icon: User,
+    color: '#FF5722',
+    docs: [
+      'questionnaire_tatouage_majeur',
+      'fiche_seance_tatouage',
+      'consentement_soins_tatouage',
+    ] as DocumentType[],
+    forMineur: false,
+  },
+  {
+    titleKey: 'documents.categories.dermographie_mineurs',
+    icon: Baby,
     color: '#FF9800',
-    docs: ['questionnaire_dermographe_mineur', 'questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe'] as DocumentType[],
-    forMineur: null,
+    docs: [
+      'questionnaire_dermographe_mineur',
+      'autorisation_parentale_dermographie',
+    ] as DocumentType[],
+    forMineur: true,
   },
   {
-    titleKey: 'doc_categories.rgpd',
+    titleKey: 'documents.categories.dermographie_majeurs',
+    icon: User,
+    color: '#FF9800',
+    docs: [
+      'questionnaire_dermographe',
+      'fiche_seance_dermographe',
+      'soins_dermographe',
+    ] as DocumentType[],
+    forMineur: false,
+  },
+  {
+    titleKey: 'documents.categories.rgpd',
     icon: Shield,
     color: '#E53935',
-    // La fiche 15 — Engagement de Confidentialité (RGPD Art. 29) est réservée aux salariés.
-    // Elle est donc volontairement exclue du catalogue client et accessible depuis /salaries.
-    docs: ['affichage_salon'] as DocumentType[],
+    docs: [
+      'engagement_confidentialite',
+      'info_client_rgpd',
+      'affichage_salon',
+      'archivage_dossier_papier',
+    ] as DocumentType[],
+    forMineur: null,
   },
-  {
-    titleKey: 'doc_categories.momer_rgpd',
-    icon: Shield,
-    color: '#1976D2',
-    docs: ['engagement_confidentialite'] as DocumentType[],
-  },
-
 ];
 
 export default function Documents() {
@@ -85,7 +123,7 @@ export default function Documents() {
     title: t(cat.titleKey),
   })).filter(cat => {
     const key = cat.titleKey;
-    if (key.includes('piercing') || key.includes('soins_piercing')) return specialites.piercing;
+    if (key.includes('piercing')) return specialites.piercing;
     if (key.includes('tatouage')) return specialites.tatouage;
     if (key.includes('dermographie')) return specialites.dermographie;
     return true;
@@ -317,32 +355,19 @@ export default function Documents() {
                   <button
                     key={client.id}
                     onClick={() => handleSelectClient(client.id)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:bg-white/10"
-                    style={{ border: '1px solid var(--brand-border)' }}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:opacity-80"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}
                   >
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-700 flex-shrink-0"
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: client.estMineur ? 'rgba(156, 39, 176, 0.2)' : 'rgba(131, 208, 245, 0.15)',
-                        color: client.estMineur ? '#9C27B0' : 'var(--brand-cyan)',
-                        fontWeight: 700,
-                        fontFamily: 'Outfit',
-                      }}
-                    >
-                      {client.prenom[0]}{client.nom[0]}
+                        background: client.estMineur ? 'rgba(156,39,176,0.15)' : 'rgba(76,175,80,0.15)',
+                        color: client.estMineur ? '#CE93D8' : '#81C784',
+                      }}>
+                      {client.estMineur ? <Baby size={16} /> : <User size={16} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-600 truncate" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>
-                        {client.prenom} {client.nom}
-                        {client.estMineur && (
-                          <span className="ml-2 text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(156, 39, 176, 0.15)', color: '#9C27B0' }}>
-                            Mineur
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>
-                        {client.telephone || client.email || 'Aucun contact'}
-                      </p>
+                      <p className="text-sm font-600 truncate" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{client.prenom} {client.nom}</p>
+                      <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>{client.telephone}</p>
                     </div>
                     <ChevronRight size={16} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
                   </button>

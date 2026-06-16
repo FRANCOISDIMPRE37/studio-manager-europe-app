@@ -8,7 +8,7 @@ import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info, Calendar,
-  LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen, Bell
+  LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -51,10 +51,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     {
       sectionKey: 'nav.section_admin',
       items: [
-        { path: '/rgpd-salarie', icon: Shield, labelKey: 'nav.engagement_confidentialite' },
-        { path: '/engagements', icon: FileText, labelKey: 'nav.engagements' },
+        { path: '/salaries', icon: Users, labelKey: 'nav.salaries' },
+        { path: '/gestion-utilisateurs', icon: Users, labelKey: 'nav.directors' },
+        { path: '/rgpd-salarie', icon: Shield, labelKey: 'nav.rgpd_employee' },
+        { path: '/mentions-legales', icon: FileText, labelKey: 'nav.legal_cgu' },
         { path: '/parametres', icon: Settings, labelKey: 'nav.settings' },
-
       ],
     },
   ];
@@ -105,7 +106,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-center px-3 py-3 border-b flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle RGPD & Cybersécurité"
+            alt="Studio Manager Europe — RGPD & Cybersécurité"
             className="w-full rounded-md"
             style={{ maxHeight: '52px', objectFit: 'contain' }}
           />
@@ -185,7 +186,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 hover:bg-white/5 group"
               style={{ color: 'var(--brand-text-muted)' }}
             >
-              <BookOpen size={18} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.85 }} />
+              <BookOpen size={18} className="flex-shrink-0" />
               <span className="block text-sm font-500 truncate group-hover:text-white transition-colors" style={{ fontWeight: 500 }}>{t('nav.mode_emploi')}</span>
             </a>
           </div>
@@ -207,7 +208,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/5 group"
               style={{ color: 'var(--brand-text-muted)' }}
             >
-              <ExternalLink size={15} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.7 }} />
+              <ExternalLink size={15} className="flex-shrink-0" />
               <span className="block text-xs truncate group-hover:text-white transition-colors" style={{ fontWeight: 400 }}>{label}</span>
             </a>
           ))}
