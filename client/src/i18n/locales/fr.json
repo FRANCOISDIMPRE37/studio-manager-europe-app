@@ -580,5 +580,51 @@
     "user_send_custom_unverified": "Envoyer aux personnalisés non vérifiés",
     "user_send_custom_unknown": "Envoyer aux personnalisés inconnus",
     "user_send_custom_other": "Envoyer aux personnalisés autres"
+  },
+  "forms": {
+    "last_name": "Nom",
+    "first_name": "Prénom(s)",
+    "dob": "Date de naissance (JJ/MM/AAAA)",
+    "phone": "Téléphone",
+    "date": "Date",
+    "specify": "Préciser",
+    "yes": "Oui",
+    "no": "Non",
+    "dont_know": "Ne sait pas",
+    "client_name_signed": "Nom du client — Lu et approuvé",
+    "client_signature": "Signature du client",
+    "piercer_name": "Nom du pierceur",
+    "piercer_signature": "Signature du pierceur",
+    "tattooist_name": "Nom du tatoueur",
+    "tattooist_signature": "Signature du tatoueur",
+    "id_piece": "Pièce d'identité (CNI / Passeport)",
+    "id_piece_short": "Pièce d'identité",
+    "id_number": "Numéro de la pièce d'identité",
+    "id_not_presented": "Non présentée",
+    "id_options": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour"
+    ],
+    "id_options_minor": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour",
+      "Non présentée"
+    ],
+    "id_options_adult": [
+      "CNI",
+      "Passeport",
+      "Permis de conduire",
+      "Titre de séjour"
+    ],
+    "additional_medical_info": "Informations médicales complémentaires",
+    "specify_medication": "Préciser le(s) médicament(s)",
+    "specify_allergy": "Préciser l'allergie connue",
+    "describe_reaction": "Décrire la réaction",
+    "professional_notes": "Notes professionnelles",
+    "salon_name": "Nom du studio",
+    "siret": "N° SIRET",
+    "age": "Âge"
   }
 }

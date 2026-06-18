@@ -89,7 +89,9 @@ export default function Clients() {
     return state.clients.filter(c => {
       const matchSearch = search
         ? (c.nom + ' ' + c.prenom).toLowerCase().includes(search.toLowerCase()) ||
-          c.telephone.includes(search)
+          c.telephone.includes(search) ||
+          (c.dateNaissance && c.dateNaissance.includes(search)) ||
+          (c.dateNaissance && c.dateNaissance.substring(0, 4).includes(search))
         : true;
       const matchFilter =
         filter === 'mineurs' ? c.estMineur && !c.estArchive && !c.estSalarie :

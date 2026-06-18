@@ -169,8 +169,7 @@ export default function EcranPIN(){
 
         {/* Bottom links */}
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,width:'100%'}}>
-          <button onClick={()=>nav('/login-email')} style={linkBtnStyle}>Se connecter avec email →</button>
-          <button onClick={()=>nav('/premiere-connexion')} style={linkBtnStyle}>Première connexion →</button>
+          <button onClick={()=>nav('/connexion')} style={linkBtnStyle}>Se connecter avec email →</button>
         </div>
       </div>
     </div>

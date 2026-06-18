@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
-import { FileText, Pencil, Printer, Trash2, UserPlus, X } from 'lucide-react';
+import { FileText, Pencil, Printer, Trash2, UserPlus, X, KeyRound } from 'lucide-react';
 import { useApp } from '@/lib/app-context';
 import { ClientDocument } from '@/lib/types';
 
@@ -58,6 +58,33 @@ export default function Salaries() {
   const utils = trpc.useUtils();
 
   const list = trpc.studioUsers.list.useQuery();
+  const [pinModal, setPinModal] = useState<{ id: number; nom: string } | null>(null);
+  const [newPinValue, setNewPinValue] = useState('');
+  const [confirmPinValue, setConfirmPinValue] = useState('');
+  const setPin = trpc.studioUsers.setPin.useMutation({
+    onSuccess: () => {
+      toast.success('Code PIN défini avec succès !');
+      setPinModal(null);
+      setNewPinValue('');
+      setConfirmPinValue('');
+      utils.studioUsers.list.invalidate();
+    },
+    onError: (e) => toast.error(e.message)
+  });
+  const clearPin = trpc.studioUsers.clearPin.useMutation({
+    onSuccess: () => {
+      toast.success('Code PIN supprimé');
+      utils.studioUsers.list.invalidate();
+    },
+    onError: (e) => toast.error(e.message)
+  });
+
+  const handleSetPin = () => {
+    if (!pinModal) return;
+    if (!/^\d{4}$/.test(newPinValue)) { toast.error('Le PIN doit contenir exactement 4 chiffres'); return; }
+    if (newPinValue !== confirmPinValue) { toast.error('Les codes PIN ne correspondent pas'); return; }
+    setPin.mutate({ employeId: pinModal.id, pin: newPinValue });
+  };
 
   const resetForm = () => {
     setEditingId(null);
@@ -285,6 +312,34 @@ export default function Salaries() {
         </div>
       )}
 
+      {/* Modal PIN */}
+      {pinModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
+          <div style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0, color: 'white', fontSize: 16, fontWeight: 700 }}>Code PIN — {pinModal.nom}</h3>
+              <button onClick={() => { setPinModal(null); setNewPinValue(''); setConfirmPinValue(''); }} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 20 }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>Nouveau PIN (4 chiffres)</label>
+                <input type="password" maxLength={4} inputMode="numeric" style={inp} value={newPinValue} onChange={e => setNewPinValue(e.target.value.replace(/\D/g, ''))} placeholder="••••" />
+              </div>
+              <div>
+                <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>Confirmer le PIN</label>
+                <input type="password" maxLength={4} inputMode="numeric" style={inp} value={confirmPinValue} onChange={e => setConfirmPinValue(e.target.value.replace(/\D/g, ''))} placeholder="••••" />
+              </div>
+              <button onClick={handleSetPin} disabled={setPin.isPending} style={{ background: '#22c55e', border: 'none', color: 'white', borderRadius: 10, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: setPin.isPending ? 0.7 : 1 }}>
+                {setPin.isPending ? 'Enregistrement...' : 'Définir le PIN'}
+              </button>
+              <button onClick={() => clearPin.mutate({ employeId: pinModal.id })} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 10, padding: '10px', fontSize: 13, cursor: 'pointer' }}>
+                Supprimer le PIN
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Liste des salariés */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {list.data?.filter((s: any) => !(s.role === "admin" && s.login === "admin")).map((salarie: any) => (
@@ -309,6 +364,12 @@ export default function Salaries() {
                   style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
                 >
                   <Pencil size={14} /> Modifier
+                </button>
+                <button
+                  onClick={() => setPinModal({ id: Number(salarie.id), nom: `${salarie.prenom} ${salarie.nom}` })}
+                  style={{ background: salarie.hasPinSet ? 'rgba(34,197,94,0.15)' : 'rgba(201,168,76,0.15)', border: `1px solid ${salarie.hasPinSet ? '#22c55e' : '#C9A84C'}`, color: salarie.hasPinSet ? '#22c55e' : '#C9A84C', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
+                >
+                  <KeyRound size={14} /> {salarie.hasPinSet ? 'PIN ✓' : 'Définir PIN'}
                 </button>
                 <button
                   onClick={() => {
