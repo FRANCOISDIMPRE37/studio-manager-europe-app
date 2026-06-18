@@ -34,7 +34,9 @@ const PolitiqueConfidentialite = lazy(() => import("@/pages/PolitiqueConfidentia
 const MentionsLegales = lazy(() => import("@/pages/MentionsLegales"));
 const VideosDemoPage = lazy(() => import("@/pages/VideosDemoPage"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
-const APropos = lazy(() => import("@/pages/APropos"));
+const APropos = lazy(() => import('@/pages/APropos'));
+const Dirigeant = lazy(() => import('./pages/Dirigeant'));
+const Vitrine = lazy(() => import('./pages/Vitrine'));
 
 function LoadingFallback() {
   return (
@@ -84,6 +86,7 @@ function AppRoutes() {
           <Route path="/documents" component={Documents} />
           <Route path="/parametres" component={Parametres} />
           <Route path="/salaries" component={Salaries} />
+          <Route path="/dirigeant" component={Dirigeant} />
           <Route path="/engagements" component={Engagements} />
           <Route path="/archives" component={Archives} />
           <Route path="/archives-numerisees" component={ArchivesNumerisees} />
@@ -93,6 +96,7 @@ function AppRoutes() {
           <Route path="/mentions-legales" component={MentionsLegales} />
           <Route path="/videos-demo" component={VideosDemoPage} />
           <Route path="/a-propos" component={APropos} />
+          <Route path="/vitrine" component={Vitrine} />
           <Route path="/inscription" component={Inscription} />
           <Route path="/connexion" component={ConnexionEmail} />
           <Route component={NotFound} />

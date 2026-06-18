@@ -52,7 +52,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       sectionKey: 'nav.section_admin',
       items: [
         { path: '/salaries', icon: Users, labelKey: 'nav.salaries' },
-        { path: '/gestion-utilisateurs', icon: Users, labelKey: 'nav.directors' },
+        { path: '/dirigeant', icon: Users, labelKey: 'nav.directors' },
         { path: '/rgpd-salarie', icon: Shield, labelKey: 'nav.rgpd_employee' },
         { path: '/mentions-legales', icon: FileText, labelKey: 'nav.legal_cgu' },
         { path: '/parametres', icon: Settings, labelKey: 'nav.settings' },
