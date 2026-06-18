@@ -230,11 +230,11 @@ export default function RgpdSalarie() {
             <div className="mt-12 pt-8 border-t border-gray-100">
               <div className="flex items-center gap-2 mb-4">
                 <FileText size={18} className="text-green-600" />
-                <h3 className="text-lg font-bold text-gray-900">Signature du dirigeant</h3>
+                <h3 className="text-lg font-bold text-gray-900">Signature du salarié</h3>
               </div>
               
               <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-700 mb-1">Nom du dirigeant *</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Nom du salarié *</label>
                 <input
                   type="text"
                   value={formData.nomDirigeant || ''}
