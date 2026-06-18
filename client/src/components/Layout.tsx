@@ -7,7 +7,7 @@ import { Link, useLocation } from 'wouter';
 import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info, Calendar,
+  LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info, Calendar, Bell,
   LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
