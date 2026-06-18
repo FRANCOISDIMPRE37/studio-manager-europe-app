@@ -243,9 +243,15 @@ export default function DocumentForm() {
     fiche_seance_piercing: [
       { key: 'signaturePierceur', label: 'signature du pierceur' },
     ],
+    fiche_tracabilite_tatouage_mineur: [
+      { key: 'signatureImageClient', label: 'signature du tatoueur' },
+    ],
     fiche_seance_tatouage: [
       { key: 'signatureImageClient', label: 'signature du client' },
       { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
+    ],
+    fiche_tracabilite_dermographe_mineur: [
+      { key: 'signatureImageClient', label: 'signature du dermographe' },
     ],
     fiche_seance_dermographe: [
       { key: 'signatureImageClient', label: 'signature du client' },
@@ -833,8 +839,12 @@ export default function DocumentForm() {
         return <FormConsentementSoinsTatouage data={formData} update={updateField} client={effectiveClient} />;
       case 'soins_dermographe':
         return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} />;
+      case 'fiche_tracabilite_tatouage_mineur':
+        return <FormFicheSeanceTatouage data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_tatouage':
         return <FormFicheSeanceTatouage data={formData} update={updateField} client={effectiveClient} />;
+      case 'fiche_tracabilite_dermographe_mineur':
+        return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_dermographe':
         return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'engagement_confidentialite':

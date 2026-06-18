@@ -36,11 +36,15 @@ export type DocumentType =
   | 'soins_mineur_surface_dermal'
   | 'questionnaire_tatouage_mineur'
   | 'autorisation_parentale_tatouage'
+  | 'fiche_tracabilite_tatouage_mineur'
+  | 'soins_mineur_tatouage'
   | 'questionnaire_tatouage_majeur'
   | 'fiche_seance_tatouage'
   | 'consentement_soins_tatouage'
   | 'questionnaire_dermographe_mineur'
   | 'autorisation_parentale_dermographie'
+  | 'fiche_tracabilite_dermographe_mineur'
+  | 'soins_mineur_dermographe'
   | 'questionnaire_dermographe'
   | 'fiche_seance_dermographe'
   | 'soins_dermographe'
@@ -203,17 +207,21 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_mineur_arcade_sourcil: 'M — Soins Mineur Post-Piercing Arcade / Sourcil',
   soins_mineur_surface_dermal: 'N — Soins Mineur Post-Piercing Surface / Dermal',
   // Tatouage
-  questionnaire_tatouage_mineur: '04 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
-  autorisation_parentale_tatouage: '04 — Autorisation Parentale (Tatouage)',
-  questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
-  fiche_seance_tatouage: '06 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
-  consentement_soins_tatouage: '07 — Soins Majeur Post-Tatouage',
+  questionnaire_tatouage_mineur: '05 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
+  autorisation_parentale_tatouage: '05 — Autorisation Parentale (Tatouage)',
+  fiche_tracabilite_tatouage_mineur: '07 — Fiche de Traçabilité Mineur Matériel Stérile (Tatouage)',
+  soins_mineur_tatouage: '09 — Soins Mineur Post-Tatouage',
+  questionnaire_tatouage_majeur: '06 — Questionnaire Médical Tatouage Majeur',
+  fiche_seance_tatouage: '08 — Fiche de Traçabilité Majeur Matériel Stérile (Tatouage)',
+  consentement_soins_tatouage: '10 — Soins Majeur Post-Tatouage',
   // Dermographie
-  questionnaire_dermographe_mineur: '11 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
-  autorisation_parentale_dermographie: '11 — Autorisation Parentale (Dermographie)',
-  questionnaire_dermographe: '12 — Questionnaire Médical Dermographie Majeur',
-  fiche_seance_dermographe: '13 — Fiche de Traçabilité Matériel Stérile (Dermographie)',
-  soins_dermographe: '14 — Soins Majeur Post-Dermographie',
+  questionnaire_dermographe_mineur: '10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
+  autorisation_parentale_dermographie: '10 — Autorisation Parentale (Dermographie)',
+  fiche_tracabilite_dermographe_mineur: '13 — Fiche de Traçabilité Mineur Matériel Stérile (Dermographie)',
+  soins_mineur_dermographe: '15 — Soins Mineur Post-Dermographie',
+  questionnaire_dermographe: '11 — Questionnaire Médical Dermographie Majeur',
+  fiche_seance_dermographe: '12 — Fiche de Traçabilité Matériel Stérile (Dermographie)',
+  soins_dermographe: '13 — Soins Post-Dermographie',
   // RGPD
   engagement_confidentialite: '18 — Engagement de Confidentialité (RGPD Art. 29)',
   info_client_rgpd: '19 — Information Client — Protection des Données (RGPD)',

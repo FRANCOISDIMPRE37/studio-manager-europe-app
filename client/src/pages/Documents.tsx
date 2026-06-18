@@ -50,6 +50,8 @@ const DOC_CATEGORY_KEYS = [
     docs: [
       'questionnaire_tatouage_mineur',
       'autorisation_parentale_tatouage',
+      'fiche_tracabilite_tatouage_mineur',
+      'soins_mineur_tatouage',
     ] as DocumentType[],
     forMineur: true,
   },
@@ -71,6 +73,8 @@ const DOC_CATEGORY_KEYS = [
     docs: [
       'questionnaire_dermographe_mineur',
       'autorisation_parentale_dermographie',
+      'fiche_tracabilite_dermographe_mineur',
+      'soins_mineur_dermographe',
     ] as DocumentType[],
     forMineur: true,
   },
