@@ -92,15 +92,15 @@ export default function Clients() {
           c.telephone.includes(search)
         : true;
       const matchFilter =
-        filter === 'mineurs' ? c.estMineur && !c.estArchive && !c.estSalarie :
-        !c.estMineur && !c.estArchive && !c.estSalarie;
+        filter === 'mineurs' ? c.estMineur && !c.estArchive && !c.estSalarie && !c.id.startsWith('salarie-') :
+        !c.estMineur && !c.estArchive && !c.estSalarie && !c.id.startsWith('salarie-');
       return matchSearch && matchFilter;
     });
   }, [state.clients, search, filter]);
 
   const FILTERS: { key: FilterType; label: string; count: number }[] = [
-    { key: 'mineurs', label: t('clients.minor') + 's', count: (state.clients || []).filter(c => c.estMineur && !c.estArchive && !c.estSalarie).length },
-    { key: 'majeurs', label: t('clients.adult') + 's', count: (state.clients || []).filter(c => !c.estMineur && !c.estArchive && !c.estSalarie).length },
+    { key: 'mineurs', label: t('clients.minor') + 's', count: (state.clients || []).filter(c => c.estMineur && !c.estArchive && !c.estSalarie && !c.id.startsWith('salarie-')).length },
+    { key: 'majeurs', label: t('clients.adult') + 's', count: (state.clients || []).filter(c => !c.estMineur && !c.estArchive && !c.estSalarie && !c.id.startsWith('salarie-')).length },
   ];
 
   return (

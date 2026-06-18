@@ -1,0 +1,16 @@
+V
+Eimport { useTranslation } from 'react-i18next';
+
+export default function Dirigeant() {
+  const { t } = useTranslation();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, color: 'white', fontSize: 20, fontWeight: 700 }}>{t('nav.dirigeant')}</h2>
+      </div>
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
+        <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Contenu à venir</p>
+      </div>
+    </div>
+  );
+}

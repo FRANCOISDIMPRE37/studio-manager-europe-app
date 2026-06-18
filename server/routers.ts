@@ -224,7 +224,7 @@ export const appRouter = router({
         dateConsentement: z.string().optional(),
         dateSuppressionPrevue: z.string(),
         rgpdDroitsExerces: z.array(z.object({
-          type: z.string(), date: z.string(), note: z.string().optional(),
+          type: z.string().regex(/^[a-z_]+$/, "Type de document invalide"), date: z.string(), note: z.string().optional(),
         })).default([]),
         prestationsSouhaitees: z.array(z.string()).optional().default([]),
         zoneATatouer: z.string().optional(),
@@ -263,7 +263,7 @@ export const appRouter = router({
         dateConsentement: z.string().optional(),
         dateSuppressionPrevue: z.string().optional(),
         rgpdDroitsExerces: z.array(z.object({
-          type: z.string(), date: z.string(), note: z.string().optional(),
+          type: z.string().regex(/^[a-z_]+$/, "Type de document invalide"), date: z.string(), note: z.string().optional(),
         })).optional(),
         prestationsSouhaitees: z.array(z.string()).optional(),
         zoneATatouer: z.string().optional(),
@@ -335,7 +335,7 @@ export const appRouter = router({
       .input(z.object({
         id: z.string(),
         clientId: z.string(),
-        type: z.string(),
+        type: z.string().regex(/^[a-z_]+$/, "Type de document invalide"),
         status: z.enum(["empty", "filled", "signed"]).default("empty"),
         data: z.record(z.string(), z.unknown()).default({}),
         signatureClient: z.string().optional(),
@@ -1175,36 +1175,8 @@ export const appRouter = router({
           }
         }
 
-        // ── ÉTAPE 2 : Provisionnement Nginx + SSL sur le VPS OVH via SSH ──
-        try {
-          const { NodeSSH } = await import('node-ssh');
-          const ssh = new NodeSSH();
-          // Lire la clé privée SSH depuis le système de fichiers du serveur
-          const fs = await import('fs/promises');
-          let privateKey: string | undefined;
-          const keyPaths = ['/home/ubuntu/.ssh/ovh_vps', '/root/.ssh/id_rsa', '/home/ubuntu/.ssh/id_rsa'];
-          for (const kp of keyPaths) {
-            try { privateKey = await fs.readFile(kp, 'utf-8'); break; } catch {}
-          }
-          if (!privateKey) throw new Error('Clé SSH introuvable sur le serveur');
-
-          await ssh.connect({ host: VPS_HOST, username: 'ubuntu', privateKey, readyTimeout: 15000 });
-
-          // Exécuter le script nouveau-client.sh qui gère Nginx + Certbot
-          const result = await ssh.execCommand(
-            `sudo bash /home/ubuntu/nouveau-client.sh ${subdomain}`,
-            { execOptions: { pty: true } }
-          );
-          await ssh.dispose();
-
-          if (result.code === 0 || result.stdout.includes('CLIENT CREE')) {
-            steps.push({ step: 'Nginx + SSL OVH', status: 'ok', detail: `https://${domain} configuré` });
-          } else {
-            steps.push({ step: 'Nginx + SSL OVH', status: 'error', detail: result.stderr || result.stdout });
-          }
-        } catch (e: any) {
-          steps.push({ step: 'Nginx + SSL OVH', status: 'error', detail: e.message });
-        }
+        // ── ÉTAPE 2 : Nginx + SSL (gere automatiquement via wildcard *.studiomanagereurope.eu) ──
+        steps.push({ step: 'Nginx + SSL', status: 'ok', detail: `https://${domain} (certificat wildcard deja configure)` });
 
         // ── ÉTAPE 3 : Créer l'utilisateur et la licence en base de données ──
         try {

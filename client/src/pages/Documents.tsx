@@ -13,7 +13,7 @@ const DOC_CATEGORY_KEYS = [
     titleKey: 'doc_categories.piercing_mineurs',
     icon: Baby,
     color: '#9C27B0',
-    docs: ['questionnaire_mineur'] as DocumentType[],
+    docs: ['questionnaire_mineur', 'fiche_tracabilite_mineur_piercing'] as DocumentType[],
     forMineur: true,
   },
   {
@@ -41,14 +41,14 @@ const DOC_CATEGORY_KEYS = [
     titleKey: 'doc_categories.tatouage',
     icon: FileText,
     color: '#FF5722',
-    docs: ['questionnaire_tatouage_mineur', 'questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'consentement_soins_tatouage', 'consentement_soins_tatouage_mineur'] as DocumentType[],
+    docs: ['questionnaire_tatouage_mineur', 'questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'fiche_tracabilite_majeur_tatouage', 'consentement_soins_tatouage', 'consentement_soins_tatouage_mineur'] as DocumentType[],
     forMineur: null,
   },
   {
     titleKey: 'doc_categories.dermographie',
     icon: FileText,
     color: '#FF9800',
-    docs: ['questionnaire_dermographe_mineur', 'questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe', 'soins_dermographe_majeur'] as DocumentType[],
+    docs: ['questionnaire_dermographe_mineur', 'questionnaire_dermographe', 'fiche_seance_dermographe', 'fiche_tracabilite_majeur_dermographe', 'soins_dermographe', 'soins_dermographe_majeur'] as DocumentType[],
     forMineur: null,
   },
   {

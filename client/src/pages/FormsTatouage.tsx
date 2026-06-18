@@ -181,17 +181,17 @@ function FormFicheSeance({ data, update, client }: { data: Record<string, any>; 
 
 
 
-      <FormSection title="4 — SIGNATURE DU PIERCEUR" />
-      <div className="grid grid-cols-1 gap-3">
+      <FormSection title="4 — SIGNATURES" />
+      <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du client</p>
+        <FormField label="Nom du client — Lu et approuvé" value={data.nomClientLu || `${data.prenomClient || client.prenom || ""} ${data.nomClient || client.nom || ""}`.trim()} onChange={v => update("nomClientLu", v)} required />
+        <div className="mt-3"><SignaturePad label="Signature du client" value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
+      </div>
+      <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du praticien</p>
         <FormField label="Nom du praticien" value={data.nomPierceur || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} required />
         <FormField label="Date" value={data.datePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('datePierceur', v)} />
-        <div className="mt-3">
-          <SignaturePad
-            label="Signature du pierceur"
-            value={data.signaturePierceur || ''}
-            onChange={v => update('signaturePierceur', v ?? '')}
-          />
-        </div>
+        <div className="mt-3"><SignaturePad label="Signature du praticien" value={data.signaturePierceur || ''} onChange={v => update('signaturePierceur', v ?? '')} /></div>
       </div>
 
       <RgpdMentions hideLegalIdCopyMention />
@@ -560,34 +560,59 @@ function FormFicheSeanceTatouage({ data, update, client }: { data: Record<string
         <RadioField label="Style" options={['Traditionnel', 'Réaliste', 'Japonais', 'Tribal', 'Aquarelle', 'Géométrique', 'Lettering', 'Autre']} value={data.style || ''} onChange={v => update('style', v)} />
       </div>
       <FormField label="Séance précédente (observations)" value={data.seancePrecedente || ''} onChange={v => update('seancePrecedente', v)} multiline placeholder="État de la cicatrisation, retouches nécessaires..." />
-
       <FormSection title="4 — TRAÇABILITÉ DES ENCRES" />
-      <LegalBox color="orange">
-        <strong>Obligation légale :</strong> Arrêté du 3 déc. 2008 + Règlement UE 2020/2081 — traçabilité obligatoire de chaque encre utilisée (fabricant, référence, N° lot, date péremption). Conservation 5 ans minimum.
-      </LegalBox>
-      {Array.from({ length: data._nbEncres || 1 }, (_, idx) => idx + 1).map(i => (
-        <div key={i} className="p-3 rounded-lg mb-2" style={{ background: 'rgba(255,152,0,0.04)', border: '1px solid rgba(255,152,0,0.15)', position: 'relative' }}>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-600" style={{ color: '#FF9800', fontWeight: 600 }}>Encre n°{i}</p>
-            {i > 1 && (
-              <button type="button" onClick={() => { for (const k of ['couleur','fabricant','ref','lot','peremption','quantite']) update(`encre${i}_${k}`, ''); update('_nbEncres', (data._nbEncres || 1) - 1); }} className="text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>✕ Supprimer</button>
-            )}
+      {/* Photo traçabilité encres */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
+        <p className="text-sm font-medium mb-2" style={{ color: '#1e293b' }}>📷 Prendre / Ajouter une photo</p>
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          id="photo-tracabilite-encre-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const photos = data.photosTracabiliteEncres || [];
+                update('photosTracabiliteEncres', [...photos, ev.target?.result as string]);
+              };
+              reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => document.getElementById('photo-tracabilite-encre-input')?.click()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm"
+          style={{ background: 'rgba(131,208,245,0.1)', border: '2px dashed rgba(131,208,245,0.4)', color: '#1e293b' }}
+        >
+          <Camera size={18} /> Prendre / Ajouter une photo
+        </button>
+        {(data.photosTracabiliteEncres || []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {(data.photosTracabiliteEncres || []).map((photo: string, idx: number) => (
+              <div key={idx} className="relative">
+                <img src={photo} alt={`Traçabilité encre ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const photos = [...(data.photosTracabiliteEncres || [])];
+                    photos.splice(idx, 1);
+                    update('photosTracabiliteEncres', photos);
+                  }}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(244,67,54,0.9)' }}
+                >
+                  <X size={12} color="white" />
+                </button>
+              </div>
+            ))}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label="Couleur" value={data[`encre${i}_couleur`] || ''} onChange={v => update(`encre${i}_couleur`, v)} placeholder="ex : Noir, Rouge..." />
-            <FormField label="Fabricant" value={data[`encre${i}_fabricant`] || ''} onChange={v => update(`encre${i}_fabricant`, v)} placeholder="Marque" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label="Référence / Code" value={data[`encre${i}_ref`] || ''} onChange={v => update(`encre${i}_ref`, v)} placeholder="Réf. produit" />
-            <FormField label="N° de lot" value={data[`encre${i}_lot`] || ''} onChange={v => update(`encre${i}_lot`, v)} placeholder="N° lot" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label="Date de péremption" value={data[`encre${i}_peremption`] || ''} onChange={v => update(`encre${i}_peremption`, v)} type="date" />
-            <FormField label="Quantité utilisée (ml)" value={data[`encre${i}_quantite`] || ''} onChange={v => update(`encre${i}_quantite`, v)} placeholder="ml" />
-          </div>
-        </div>
-      ))}
-      <button type="button" onClick={() => update('_nbEncres', (data._nbEncres || 1) + 1)} className="w-full py-2 rounded-lg text-sm font-medium" style={{ background: 'rgba(255,152,0,0.08)', color: '#FF9800', border: '1px dashed rgba(255,152,0,0.4)' }}>+ Ajouter une encre</button>
+        )}
+      </div>
 
       <FormSection title="5 — MATÉRIEL UTILISÉ" />
       {/* Photo traçabilité (optionnel) */}
@@ -643,21 +668,6 @@ function FormFicheSeanceTatouage({ data, update, client }: { data: Record<string
         )}
       </div>
 
-      <FormSection title="5 — MATÉRIEL UTILISÉ" />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Machine / Type" value={data.machine || ''} onChange={v => update('machine', v)} placeholder="ex : Rotative, Bobine, Stylo..." />
-        <FormField label="Marque de la machine" value={data.marqueMachine || ''} onChange={v => update('marqueMachine', v)} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Aiguille(s) utilisée(s)" value={data.aiguilles || ''} onChange={v => update('aiguilles', v)} placeholder="ex : 7RL, 5M1, 9M1..." />
-        <FormField label="N° lot aiguilles" value={data.lotAiguilles || ''} onChange={v => update('lotAiguilles', v)} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label="Péremption aiguilles" value={data.peremptionAiguilles || ''} onChange={v => update('peremptionAiguilles', v)} type="date" />
-        <FormField label="Cartouches (N° lot)" value={data.lotCartouches || ''} onChange={v => update('lotCartouches', v)} />
-      </div>
-      <FormField label="Autres consommables (gants, film, savon...)" value={data.autresConsommables || ''} onChange={v => update('autresConsommables', v)} multiline placeholder="Marque, référence, lot..." />
-
       <FormSection title="6 — DÉROULEMENT DE LA SÉANCE" />
       <RadioField
         label="État de la peau avant séance"
@@ -689,24 +699,19 @@ function FormFicheSeanceTatouage({ data, update, client }: { data: Record<string
       <FormSection title="8 — SIGNATURE" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du praticien" value={data.signatureTatoueur || data.tatoueur || client.praticien || salonInfo?.nomTatoueur || ''} onChange={v => update('signatureTatoueur', v)} required />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du tatoueur"
-              value={data.signatureImageTatoueur || ''}
-              onChange={v => update('signatureImageTatoueur', v ?? '')}
-            />
-          </div>
+          <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du mineur</p>
+          <FormField label="Nom du mineur — Lu et approuvé" value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <div className="mt-3"><SignaturePad label="Signature du mineur" value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Lu et approuvé — Nom du client" value={data.signatureClient || client.nom || ''} onChange={v => update('signatureClient', v)} required />
-          <div className="mt-3">
-            <SignaturePad
-              label="Signature du client"
-              value={data.signatureImageClient || ''}
-              onChange={v => update('signatureImageClient', v ?? '')}
-            />
-          </div>
+          <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du représentant légal</p>
+          <FormField label="Nom du représentant légal — Lu et approuvé" value={data.nomRepresentantSign || ''} onChange={v => update('nomRepresentantSign', v)} required />
+          <div className="mt-3"><SignaturePad label="Signature du représentant légal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
+        </div>
+        <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+          <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du praticien</p>
+          <FormField label="Nom du praticien" value={data.signatureTatoueur || data.tatoueur || client.praticien || salonInfo?.nomTatoueur || ''} onChange={v => update('signatureTatoueur', v)} required />
+          <div className="mt-3"><SignaturePad label="Signature du tatoueur" value={data.signatureImageTatoueur || ''} onChange={v => update('signatureImageTatoueur', v ?? '')} /></div>
         </div>
       </div>
     </>
@@ -1151,4 +1156,404 @@ function FormAutorisationParentaleTatouage({ data, update, client }: { data: Rec
 // ─── Formulaire Fiche de Séance Dermographe ───────────────────────────────────────────
 
 
-export { FormFicheSeance, FormConsentementSoinsTatouage, FormFicheSeanceTatouage, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage };
+export { FormFicheSeance, FormFicheSeanceMineurPiercing, FormConsentementSoinsTatouage, FormFicheSeanceTatouage, FormFicheSeanceTatouageMajeur, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage };
+
+function FormFicheSeanceMineurPiercing({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  const { state: _s } = useApp();
+  const salonInfo = _s.salonInfo;
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
+
+  const photos: string[] = data.photosTracabilite || [];
+
+  const formatBirthDateForInput = (dateNaissance: string): string => {
+    if (!dateNaissance) return '';
+    const value = String(dateNaissance).trim();
+    const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+    return value;
+  };
+
+  const normalizeBirthDateInput = (value: string): string => {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    const day = digits.slice(0, 2);
+    const month = digits.slice(2, 4);
+    const year = digits.slice(4, 8);
+    return [day, month, year].filter(Boolean).join('/');
+  };
+
+  // Calcul automatique de l'âge
+  const calculateAge = (dateNaissance: string): string => {
+    if (!dateNaissance) return '';
+    const value = String(dateNaissance).trim();
+    let birth: Date;
+    const frMatch = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (frMatch) {
+      birth = new Date(Number(frMatch[3]), Number(frMatch[2]) - 1, Number(frMatch[1]));
+    } else {
+      birth = new Date(value);
+    }
+    if (isNaN(birth.getTime())) return '';
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age >= 0 ? String(age) : '';
+  };
+
+  const addPhotos = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const b64 = e.target?.result as string;
+        update('photosTracabilite', [...(data.photosTracabilite || []), b64]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (idx: number) => {
+    const updated = [...photos];
+    updated.splice(idx, 1);
+    update('photosTracabilite', updated);
+  };
+
+  return (
+    <>
+      <LegalBox>
+        <strong>Fiche de Traçabilité Matériel Stérile — Mineur</strong><br />
+        Conforme ARS — Arrêté du 13 mars 2009 & Décret 2008-149
+      </LegalBox>
+
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom de famille" value={data.nomClient || client.nom} onChange={v => update('nomClient', v)} required />
+        <FormField label="Prénom(s)" value={data.prenomClient || client.prenom} onChange={v => update('prenomClient', v)} required />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="mb-3">
+          <label className="block text-xs mb-1" style={{ color: '#111111', fontWeight: 700 }}>Date de naissance</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="bday"
+            placeholder="JJ/MM/AAAA"
+            value={formatBirthDateForInput(data.dateNaissanceClient || client.dateNaissance || '')}
+            onChange={e => {
+              const formatted = normalizeBirthDateInput(e.target.value);
+              update('dateNaissanceClient', formatted);
+              update('ageClient', calculateAge(formatted));
+            }}
+            className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+            style={{
+              background: '#f8f9fa',
+              border: '1px solid #aaaaaa',
+              color: '#111111',
+              fontFamily: 'Outfit',
+              WebkitAppearance: 'none',
+              touchAction: 'manipulation',
+            }}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="block text-xs mb-1" style={{ color: '#111111', fontWeight: 700 }}>Âge (calculé automatiquement)</label>
+          <div className="w-full px-3 py-2 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--brand-border)', color: '#1b5e20', opacity: 0.8 }}>
+            {data.ageClient || calculateAge(data.dateNaissanceClient || client.dateNaissance || '') || '—'} {(data.ageClient || calculateAge(data.dateNaissanceClient || client.dateNaissance || '')) ? 'ans' : ''}
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Téléphone" value={data.telephoneClient || client.telephone || ''} onChange={v => update('telephoneClient', v)} type="tel" required />
+        <FormField label="Courriel" value={data.emailClient || client.email || ''} onChange={v => update('emailClient', v)} type="email" required />
+      </div>
+
+      <FormSection title="2 — TRAÇABILITÉ DU MATÉRIEL RÉUTILISABLE STÉRILISÉ" />
+      <WarningBox>Photographiez les étiquettes de traçabilité du matériel stérile. L'emballage stérile est ouvert devant le client. Conserver les photos 5 ans minimum.</WarningBox>
+
+      <FormSection title="3 — PHOTOS MATÉRIEL STÉRILE (ARS obligatoire)" />
+      <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(0,180,216,0.05)', border: '1px solid rgba(0,180,216,0.3)' }}>
+        <p className="text-xs mb-2" style={{ color: '#0369a1', fontWeight: 600 }}>
+          Photographiez les emballages et étiquettes des produits utilisés : numéro de lot, date de péremption et fabricant.
+        </p>
+        <p className="text-xs mb-3" style={{ color: '#C0396A', fontWeight: 700 }}>
+          Photo obligatoire : au moins une photo doit être ajoutée pour sauvegarder cette fiche.
+        </p>
+        <div className="flex flex-wrap gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: '#00B4D8', color: 'white', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, border: 'none' }}
+          >
+            Prendre une photo
+          </button>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={e => addPhotos(e.target.files)} style={{ display: 'none' }} />
+          <span style={{ marginLeft: 4, fontSize: 12, color: photos.length > 0 ? '#15803d' : '#C0396A', fontWeight: 700 }}>{photos.length} photo(s) — obligatoire</span>
+        </div>
+        {photos.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8, marginTop: 12 }}>
+            {photos.map((p: any, i: number) => {
+              const src = typeof p === 'string' ? p : p?.url;
+              const label = typeof p === 'string' ? `Photo ${i + 1}` : (p?.nom || `Photo ${i + 1}`);
+              return (
+                <div key={(typeof p === 'string' ? p.slice(0, 32) : p?.id) || i} style={{ position: 'relative', border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
+                  {src && <img src={src} alt={label} onClick={() => setLightboxPhoto(src)} style={{ width: '100%', height: 100, objectFit: 'cover', cursor: 'zoom-in' }} />}
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    style={{ position: 'absolute', top: 4, right: 4, background: '#ef4444', border: 'none', borderRadius: '50%', width: 22, height: 22, color: 'white', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    aria-label="Supprimer la photo"
+                  >×</button>
+                  <p style={{ fontSize: 10, color: '#6b7280', padding: '2px 4px', textAlign: 'center' }}>{label}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <img src={lightboxPhoto} alt="Agrandissement" className="max-w-full max-h-full rounded-xl" style={{ maxWidth: '90vw', maxHeight: '90vh' }} />
+          <button
+            type="button"
+            className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-lg"
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white' }}
+            onClick={() => setLightboxPhoto(null)}
+          >×</button>
+        </div>
+      )}
+
+
+
+
+      <FormSection title="4 — SIGNATURES" />
+      <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du mineur</p>
+        <FormField label="Nom du mineur — Lu et approuvé" value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+        <div className="mt-3"><SignaturePad label="Signature du mineur" value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
+      </div>
+      <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du représentant légal</p>
+        <FormField label="Nom du représentant légal — Lu et approuvé" value={data.nomRepresentantLegal || ''} onChange={v => update('nomRepresentantLegal', v)} required />
+        <div className="mt-3"><SignaturePad label="Signature du représentant légal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
+      </div>
+      <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+        <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du praticien</p>
+        <FormField label="Nom du praticien" value={data.nomPierceur || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} required />
+        <FormField label="Date" value={data.datePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('datePierceur', v)} />
+        <div className="mt-3"><SignaturePad label="Signature du praticien" value={data.signaturePierceur || ''} onChange={v => update('signaturePierceur', v ?? '')} /></div>
+      </div>
+
+      <RgpdMentions hideLegalIdCopyMention />
+
+    </>
+  );
+}
+
+function FormFicheSeanceTatouageMajeur({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+  const { state: _s } = useApp();
+  const salonInfo = _s.salonInfo;
+  return (
+    <>
+      <LegalBox color="green">
+        <strong>Cadre réglementaire :</strong> Arrêté du 3 décembre 2008 (traitement tatouage) • Règlement UE 2020/2081 (pigments) • Art. L.1311-1 CSP • RGPD Art. 9 (données santé)
+      </LegalBox>
+
+      <FormSection title="1 — IDENTITÉ DU CLIENT" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Nom" value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
+        <FormField label="Prénom" value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Date de naissance" value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} type="date" />
+        <FormField label="Téléphone" value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
+      </div>
+      <FormSection title="2 — INFORMATIONS SÉANCE" />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Date de la séance" value={data.dateSeance || new Date().toISOString().split('T')[0]} onChange={v => update('dateSeance', v)} type="date" required />
+        <FormField label="Durée (heures)" value={data.dureeSeance || ''} onChange={v => update('dureeSeance', v)} placeholder="ex : 3h30" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Heure de début" value={data.heureDebut || ''} onChange={v => update('heureDebut', v)} type="time" />
+        <FormField label="Heure de fin" value={data.heureFin || ''} onChange={v => update('heureFin', v)} type="time" />
+      </div>
+      <FormField label="Numéro de séance" value={data.numeroSeance || ''} onChange={v => update('numeroSeance', v)} placeholder="ex : Séance 1/3" />
+      <FormField label="Tatoueur / Artiste" value={data.tatoueur || ''} onChange={v => update('tatoueur', v)} placeholder="Nom de l'artiste" required />
+
+      <FormSection title="3 — DESCRIPTION DU TATOUAGE" />
+      <FormField label="Zone(s) tatouée(s)" value={data.zones || ''} onChange={v => update('zones', v)} placeholder="ex : avant-bras gauche, épaule droite..." required />
+      <FormField label="Description du motif" value={data.motif || ''} onChange={v => update('motif', v)} multiline placeholder="Description du design, style, dimensions approximatives..." />
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Dimensions (cm)" value={data.dimensions || ''} onChange={v => update('dimensions', v)} placeholder="ex : 15 x 10 cm" />
+        <RadioField label="Style" options={['Traditionnel', 'Réaliste', 'Japonais', 'Tribal', 'Aquarelle', 'Géométrique', 'Lettering', 'Autre']} value={data.style || ''} onChange={v => update('style', v)} />
+      </div>
+      <FormField label="Séance précédente (observations)" value={data.seancePrecedente || ''} onChange={v => update('seancePrecedente', v)} multiline placeholder="État de la cicatrisation, retouches nécessaires..." />
+      <FormSection title="4 — TRAÇABILITÉ DES ENCRES" />
+      {/* Photo traçabilité encres */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
+        <p className="text-sm font-medium mb-2" style={{ color: '#1e293b' }}>📷 Prendre / Ajouter une photo</p>
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          id="photo-tracabilite-encre-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const photos = data.photosTracabiliteEncres || [];
+                update('photosTracabiliteEncres', [...photos, ev.target?.result as string]);
+              };
+              reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => document.getElementById('photo-tracabilite-encre-input')?.click()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm"
+          style={{ background: 'rgba(131,208,245,0.1)', border: '2px dashed rgba(131,208,245,0.4)', color: '#1e293b' }}
+        >
+          <Camera size={18} /> Prendre / Ajouter une photo
+        </button>
+        {(data.photosTracabiliteEncres || []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {(data.photosTracabiliteEncres || []).map((photo: string, idx: number) => (
+              <div key={idx} className="relative">
+                <img src={photo} alt={`Traçabilité encre ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const photos = [...(data.photosTracabiliteEncres || [])];
+                    photos.splice(idx, 1);
+                    update('photosTracabiliteEncres', photos);
+                  }}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(244,67,54,0.9)' }}
+                >
+                  <X size={12} color="white" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <FormSection title="5 — MATÉRIEL UTILISÉ" />
+      {/* Photo traçabilité (optionnel) */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
+        <p className="text-sm font-medium mb-2" style={{ color: '#1e293b' }}>📷 Prendre / Ajouter une photo</p>
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          id="photo-tracabilite-input"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const photos = data.photosTracabilite || [];
+                update('photosTracabilite', [...photos, ev.target?.result as string]);
+              };
+              reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => document.getElementById('photo-tracabilite-input')?.click()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm"
+          style={{ background: 'rgba(131,208,245,0.1)', border: '2px dashed rgba(131,208,245,0.4)', color: '#1e293b' }}
+        >
+          <Camera size={18} /> Prendre / Ajouter une photo
+        </button>
+        {(data.photosTracabilite || []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {(data.photosTracabilite || []).map((photo: string, idx: number) => (
+              <div key={idx} className="relative">
+                <img src={photo} alt={`Traçabilité ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const photos = [...(data.photosTracabilite || [])];
+                    photos.splice(idx, 1);
+                    update('photosTracabilite', photos);
+                  }}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
+                  style={{ background: 'rgba(244,67,54,0.9)' }}
+                >
+                  <X size={12} color="white" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <FormSection title="6 — DÉROULEMENT DE LA SÉANCE" />
+      <RadioField
+        label="État de la peau avant séance"
+        options={['Excellent', 'Bon', 'Correct', 'Sensible', 'Problème signalé']}
+        value={data.etatPeau || ''}
+        onChange={v => update('etatPeau', v)}
+      />
+      <FormField label="Test d'allergie préalable" value={data.testAllergie || ''} onChange={v => update('testAllergie', v)} placeholder="Date et résultat du test patch si réalisé" />
+      <FormField label="Préparation de la zone" value={data.preparation || ''} onChange={v => update('preparation', v)} multiline placeholder="Rasage, désinfection, transfert du gabarit..." />
+      <FormField label="Observations en cours de séance" value={data.observationsSeance || ''} onChange={v => update('observationsSeance', v)} multiline placeholder="Réactions, pauses, ajustements..." />
+      <RadioField
+        label="Résultat de la séance"
+        options={['Terminée', 'Partielle — à continuer', 'Interrompue', 'Retouche nécessaire']}
+        value={data.resultatSeance || ''}
+        onChange={v => update('resultatSeance', v)}
+      />
+      <FormField label="Prochaine séance prévue" value={data.prochaineSeance || ''} onChange={v => update('prochaineSeance', v)} type="date" />
+
+      <FormSection title="7 — SOINS REMIS AU CLIENT" />
+      <LegalBox color="cyan">
+        Documents remis au client après la séance (Arrêté du 3 déc. 2008, Art. 7).
+      </LegalBox>
+      <CheckboxField label="Fiche de soins post-tatouage remise" value={!!data.fichesSoinsRemise} onToggle={() => update('fichesSoinsRemise', !data.fichesSoinsRemise)} required />
+      <CheckboxField label="Informations sur les encres communiquées" value={!!data.infosEncresRemises} onToggle={() => update('infosEncresRemises', !data.infosEncresRemises)} required />
+      <CheckboxField label="Conseils de cicatrisation expliqués oralement" value={!!data.conseilsOraux} onToggle={() => update('conseilsOraux', !data.conseilsOraux)} required />
+      <FormField label="Autres documents remis" value={data.autresDocuments || ''} onChange={v => update('autresDocuments', v)} placeholder="Préciser si nécessaire" />
+
+
+      <FormSection title="8 — SIGNATURE" />
+      <div className="grid grid-cols-1 gap-6">
+        <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Nom du praticien" value={data.signatureTatoueur || data.tatoueur || client.praticien || salonInfo?.nomTatoueur || ''} onChange={v => update('signatureTatoueur', v)} required />
+          <div className="mt-3">
+            <SignaturePad
+              label="Signature du tatoueur"
+              value={data.signatureImageTatoueur || ''}
+              onChange={v => update('signatureImageTatoueur', v ?? '')}
+            />
+          </div>
+        </div>
+        <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+          <FormField label="Lu et approuvé — Nom du client" value={data.signatureClient || client.nom || ''} onChange={v => update('signatureClient', v)} required />
+          <div className="mt-3">
+            <SignaturePad
+              label="Signature du client"
+              value={data.signatureImageClient || ''}
+              onChange={v => update('signatureImageClient', v ?? '')}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

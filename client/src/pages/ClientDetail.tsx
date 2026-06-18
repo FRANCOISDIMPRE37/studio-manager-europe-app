@@ -2,7 +2,7 @@
  * DESIGN: Studio Nocturne — Détail client avec onglets: infos, prestations, documents, RGPD
  */
 import { useState } from 'react';
-import { useApp } from '@/lib/app-context';
+import { useApp, generateDocumentsForClient } from '@/lib/app-context';
 import { useLocation, useParams } from 'wouter';
 import { ArrowLeft, Phone, Mail, CreditCard, FileText, Trash2, Archive, Edit, PlusCircle, Send, X, Loader2, StickyNote, ShieldCheck, Clock, AlertTriangle, CheckCircle2, Lock, Printer } from 'lucide-react';
 import { DOCUMENT_LABELS, DocumentType } from '@/lib/types';
@@ -12,6 +12,7 @@ import AddClientModal from '../components/AddClientModal';
 const DOC_ORDER: DocumentType[] = [
   // Mineurs (01, 02)
   'questionnaire_mineur',
+  'fiche_tracabilite_mineur_piercing',
   // Majeurs piercing (03, 04, puis soins)
   'questionnaire_majeur',
   'fiche_seance_piercing',
@@ -23,14 +24,19 @@ const DOC_ORDER: DocumentType[] = [
   'soins_arcade_sourcil',
   'soins_surface_dermal',
   // Tatouage
+  'questionnaire_tatouage_mineur',
   'questionnaire_tatouage_majeur',
-  'consentement_soins_tatouage',
-  
   'fiche_seance_tatouage',
+  'fiche_tracabilite_majeur_tatouage',
+  'consentement_soins_tatouage',
+  'consentement_soins_tatouage_mineur',
   // Dermographie
+  'questionnaire_dermographe_mineur',
   'questionnaire_dermographe',
-  'soins_dermographe',
   'fiche_seance_dermographe',
+  'fiche_tracabilite_majeur_dermographe',
+  'soins_dermographe',
+  'soins_dermographe_majeur',
   // Divers client uniquement
   'affichage_salon',
 ];
@@ -117,13 +123,13 @@ export default function ClientDetail() {
   }
 
   const age = Math.floor((Date.now() - new Date(client.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-  const clientDocumentTypes = sortDocs(( client.documentsAssocies || []).filter(isClientVisibleDocument));
+  const clientDocumentTypes = sortDocs((client.documentsAssocies && client.documentsAssocies.length > 0 ? client.documentsAssocies : generateDocumentsForClient(client.estMineur || false, client.prestationsSouhaitees || [])).filter(isClientVisibleDocument));
   // Filtrer les documents selon les spécialités du salon
   const specialites = state.salonInfo?.specialites;
   const hasConfiguredSpecialite = Boolean(specialites && (specialites.piercing || specialites.tatouage || specialites.dermographie));
-  const PIERCING_DOCS: DocumentType[] = ["questionnaire_mineur", "questionnaire_majeur", "fiche_seance_piercing", "soins_oreilles", "soins_nez", "soins_nombril", "soins_mamelons", "soins_arcade_sourcil", "soins_surface_dermal", "soins_bouche_levres"];
-  const TATOUAGE_DOCS: DocumentType[] = ["questionnaire_tatouage_mineur", "questionnaire_tatouage_majeur", "fiche_seance_tatouage", "consentement_soins_tatouage"];
-  const DERMOGRAPHIE_DOCS: DocumentType[] = ["questionnaire_dermographe_mineur", "questionnaire_dermographe", "fiche_seance_dermographe", "soins_dermographe", "soins_dermographe_majeur"];
+  const PIERCING_DOCS: DocumentType[] = ["questionnaire_mineur", "fiche_tracabilite_mineur_piercing", "questionnaire_majeur", "fiche_seance_piercing", "soins_oreilles", "soins_nez", "soins_nombril", "soins_mamelons", "soins_arcade_sourcil", "soins_surface_dermal", "soins_bouche_levres"];
+  const TATOUAGE_DOCS: DocumentType[] = ["questionnaire_tatouage_mineur", "questionnaire_tatouage_majeur", "fiche_seance_tatouage", "fiche_tracabilite_majeur_tatouage", "consentement_soins_tatouage"];
+  const DERMOGRAPHIE_DOCS: DocumentType[] = ["questionnaire_dermographe_mineur", "questionnaire_dermographe", "fiche_seance_dermographe", "fiche_tracabilite_majeur_dermographe", "soins_dermographe", "soins_dermographe_majeur"];
   const filteredDocumentTypes = hasConfiguredSpecialite ? clientDocumentTypes.filter(docType => {
     if (PIERCING_DOCS.includes(docType) && !specialites!.piercing) return false;
     if (TATOUAGE_DOCS.includes(docType) && !specialites!.tatouage) return false;
@@ -506,7 +512,7 @@ export default function ClientDetail() {
                   const status = doc?.status || 'empty';
                   const statusColors = { empty: '#FF9800', filled: 'var(--brand-cyan)', signed: '#4CAF50' };
                   const statusLabels = { empty: 'À remplir', filled: 'Rempli', signed: 'Signé' };
-                  const isFicheTracabilitePiercingSignee = docType === 'fiche_seance_piercing' && status === 'filled';
+                  const isFicheTracabilitePiercingSignee = (docType === 'fiche_seance_piercing' || docType === 'fiche_tracabilite_mineur_piercing') && status === 'filled';
                   const statusLabel = isFicheTracabilitePiercingSignee ? 'Signé' : statusLabels[status];
                   const statusColor = isFicheTracabilitePiercingSignee ? '#4CAF50' : statusColors[status];
                   const canPrint = status === 'filled' || status === 'signed';
@@ -521,7 +527,7 @@ export default function ClientDetail() {
                         className="flex items-center gap-3 flex-1 text-left transition-all hover:opacity-80"
                       >
                         <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
-                        <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType]}</span>
+                        <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType] || docType}</span>
                         <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColor + '22', color: statusColor, border: `1px solid ${statusColor}` }}>
                           {statusLabel}
                         </span>

@@ -51,6 +51,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         { path: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
         { path: '/clients', icon: Users, labelKey: 'nav.clients' },
         { path: '/salaries', icon: Users, labelKey: 'nav.salaries' },
+        { path: '/dirigeant', icon: Users, labelKey: 'nav.dirigeant' },
         { path: '/documents', icon: FileText, labelKey: 'nav.documents' },
       ],
     },

@@ -27,6 +27,7 @@ const SetupStudio = lazy(() => import("./pages/SetupStudio"));
 const Documents = lazy(() => import("./pages/Documents"));
 const Parametres = lazy(() => import("./pages/Parametres"));
 const Salaries = lazy(() => import("./pages/Salaries"));
+const Dirigeant = lazy(() => import("./pages/Dirigeant"));
 const Engagements = lazy(() => import("./pages/Engagements"));
 const DocumentForm = lazy(() => import("./pages/DocumentForm"));
 const AffichageSalon = lazy(() => import('@/pages/AffichageSalon'));
@@ -159,6 +160,7 @@ function AppRoutes() {
           <Route path="/documents" component={Documents} />
           <Route path="/parametres" component={Parametres} />
           <Route path="/salaries" component={Salaries} />
+          <Route path="/dirigeant" component={Dirigeant} />
           <Route path="/engagements" component={Engagements} />
           <Route path="/archives" component={Archives} />
           <Route path="/archives-numerisees" component={ArchivesNumerisees} />

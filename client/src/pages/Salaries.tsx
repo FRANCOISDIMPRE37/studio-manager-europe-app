@@ -390,7 +390,7 @@ export default function Salaries() {
 
       {/* Liste des salariés */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {list.data?.filter((s: any) => !(s.role === "admin" && s.login === "admin")).map((salarie: any) => (
+        {list.data?.filter((s: any) => s.role !== "admin").map((salarie: any) => (
           <div key={salarie.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
               <div>

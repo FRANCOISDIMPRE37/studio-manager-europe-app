@@ -47,7 +47,7 @@ function SalarieSection() {
           <button onClick={handleCreate} disabled={create.isPending} style={{ background: '#22c55e', border: 'none', color: 'white', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', width: '100%' }}>{create.isPending ? 'Création...' : 'Créer le salarié'}</button>
         </div>
       )}
-      {(list.data ?? []).map((s: any) => (
+      {(list.data ?? []).filter((s: any) => Number(s.id) !== 66 && s.role !== 'admin').map((s: any) => (
         <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, marginBottom: 8 }}>
           <div>
             <p style={{ margin: 0, fontWeight: 600, color: 'white', fontSize: 14 }}>{s.prenom} {s.nom}</p>
@@ -66,7 +66,63 @@ function SalarieSection() {
           )}
         </div>
       ))}
-      {(list.data ?? []).length === 0 && !showForm && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textAlign: 'center' }}>Aucun salarié</p>}
+      {(list.data ?? []).filter((s: any) => Number(s.id) !== 66 && s.role !== 'admin').length === 0 && !showForm && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textAlign: 'center' }}>Aucun salarié</p>}
+    </div>
+  );
+}
+
+function DirigeantSection() {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ prenom: '', nom: '', login: '', password: '', pin: '', role: 'admin' as const });
+  const utils = trpc.useUtils();
+  const list = trpc.studioUsers.list.useQuery();
+  const create = trpc.studioUsers.create.useMutation({ onSuccess: () => { utils.studioUsers.list.invalidate(); setShowForm(false); setForm({ prenom: '', nom: '', login: '', password: '', pin: '', role: 'admin' }); toast.success('Dirigeant cree !'); }, onError: e => toast.error(e.message) });
+  const handleCreate = () => {
+    const login = (form.prenom + form.nom).toLowerCase().replace(/[^a-z0-9]/g, '') || 'dirigeant' + Date.now();
+    const password = Math.random().toString(36).slice(2, 10);
+    create.mutate({ ...form, login, password });
+  };
+  const del = trpc.studioUsers.delete.useMutation({ onSuccess: () => { utils.studioUsers.list.invalidate(); toast.success('Dirigeant supprime'); }, onError: e => toast.error(e.message) });
+  const [editPinId, setEditPinId] = useState<number | null>(null);
+  const [newPin, setNewPin] = useState('');
+  const updatePin = trpc.studioUsers.updatePin.useMutation({ onSuccess: () => { utils.studioUsers.list.invalidate(); setEditPinId(null); setNewPin(''); toast.success('PIN mis a jour !'); }, onError: e => toast.error(e.message) });
+  const inputStyle = { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', borderRadius: 8, padding: '8px 12px', width: '100%', fontSize: 13 };
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'white' }}>Dirigeants</h3>
+        <button onClick={() => setShowForm(!showForm)} style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', border: 'none', color: 'white', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Ajouter</button>
+      </div>
+      {showForm && (
+        <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+            <div><label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Prenom</label><input style={inputStyle} value={form.prenom} onChange={e => setForm(f => ({...f, prenom: e.target.value}))} /></div>
+            <div><label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Nom</label><input style={inputStyle} value={form.nom} onChange={e => setForm(f => ({...f, nom: e.target.value}))} /></div>
+            <div><label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>PIN (4 chiffres)</label><input style={inputStyle} maxLength={4} value={form.pin} onChange={e => setForm(f => ({...f, pin: e.target.value}))} /></div>
+          </div>
+          <button onClick={handleCreate} disabled={create.isPending} style={{ background: '#22c55e', border: 'none', color: 'white', borderRadius: 8, padding: '10px 20px', fontWeight: 700, cursor: 'pointer', width: '100%' }}>{create.isPending ? 'Creation...' : 'Creer le dirigeant'}</button>
+        </div>
+      )}
+      {(list.data ?? []).filter((s: any) => s.role === 'admin').map((s: any) => (
+        <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: 10, marginBottom: 8 }}>
+          <div>
+            <p style={{ margin: 0, fontWeight: 600, color: 'white', fontSize: 14 }}>{s.prenom} {s.nom}</p>
+            <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>@{s.login} . {s.role}</p>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => { setEditPinId(s.id); setNewPin(''); }} style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', borderRadius: 8, padding: '4px 12px', fontSize: 12, cursor: 'pointer' }}>PIN</button>
+            <button onClick={() => del.mutate({ id: s.id })} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 8, padding: '4px 12px', fontSize: 12, cursor: 'pointer' }}>Suppr.</button>
+          </div>
+          {editPinId === s.id && (
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input type="text" inputMode="numeric" maxLength={4} value={newPin} onChange={e => setNewPin(e.target.value.replace(/\D/g,'').slice(0,4))} placeholder="Nouveau PIN" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: 8, padding: '6px 10px', width: 120, fontSize: 16, letterSpacing: 8 }} />
+              <button onClick={() => updatePin.mutate({ id: s.id, pin: newPin })} disabled={newPin.length !== 4} style={{ background: newPin.length === 4 ? '#22c55e' : '#333', border: 'none', color: 'white', borderRadius: 8, padding: '6px 14px', fontSize: 12, cursor: newPin.length === 4 ? 'pointer' : 'not-allowed' }}>OK</button>
+              <button onClick={() => setEditPinId(null)} style={{ background: 'transparent', border: '1px solid #444', color: '#888', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>X</button>
+            </div>
+          )}
+        </div>
+      ))}
+      {(list.data ?? []).filter((s: any) => s.role === 'admin').length === 0 && !showForm && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textAlign: 'center' }}>Aucun dirigeant</p>}
     </div>
   );
 }
@@ -341,6 +397,7 @@ export default function Parametres() {
 
 
       <SalarieSection />
+      <DirigeantSection />
 
       {/* Logout */}
       <button

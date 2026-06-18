@@ -17,6 +17,7 @@ export interface RGPDRight {
 // Types de documents
 export type DocumentType =
   | 'questionnaire_mineur'
+  | 'fiche_tracabilite_mineur_piercing'
   | 'autorisation_parentale'
   | 'questionnaire_majeur'
   | 'fiche_seance_piercing'
@@ -47,7 +48,9 @@ export type DocumentType =
   | 'affichage_salon'
   | 'archivage_dossier_papier'
   | 'fiche_seance_tatouage'
+  | 'fiche_tracabilite_majeur_tatouage'
   | 'fiche_seance_dermographe'
+  | 'fiche_tracabilite_majeur_dermographe'
   | 'consentement_soins_tatouage_mineur'
 ;
 
@@ -190,9 +193,10 @@ export const RDV_STATUT_COLORS: Record<RDVStatut, string> = {
 export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   // Piercing — Mineurs
   questionnaire_mineur: '01 — Questionnaire Médical Mineur / Autorisation Parentale / Piercing',
+  fiche_tracabilite_mineur_piercing: '02 — Fiche de Traçabilité Mineur Matériel Stérile',
   // Piercing — Majeurs
-  questionnaire_majeur: '02 — Questionnaire Médical Majeur (Piercing)',
-  fiche_seance_piercing: '03 — Fiche de Traçabilité Matériel Stérile',
+  questionnaire_majeur: '03 — Questionnaire Médical Majeur (Piercing)',
+  fiche_seance_piercing: '04 — Fiche de Traçabilité Majeur Matériel Stérile',
   // Soins Piercing
   soins_oreilles: 'A — Soins Majeur Post-Piercing Oreilles',
   soins_nez: 'B — Soins Majeur Post-Piercing Nez',
@@ -210,22 +214,24 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_mineur_arcade_sourcil: 'M — Soins Mineur Post-Piercing Arcade / Sourcil',
   soins_mineur_surface_dermal: 'N — Soins Mineur Post-Piercing Surface / Dermal',
   // Tatouage
-  questionnaire_tatouage_mineur: '04 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
-  questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
-  fiche_seance_tatouage: '06 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
-  consentement_soins_tatouage: '07 — Soins Majeur Post-Tatouage',
-  consentement_soins_tatouage_mineur: '08 — Soins Mineur Post-Tatouage',
+  questionnaire_tatouage_mineur: '05 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
+  questionnaire_tatouage_majeur: '06 — Questionnaire Médical Tatouage Majeur',
+  fiche_tracabilite_majeur_tatouage: '08 — Fiche de Traçabilité Majeur Matériel Stérile (Tatouage)',
+  fiche_seance_tatouage: '07 — Fiche de Traçabilité Mineur Matériel Stérile (Tatouage)',
+  consentement_soins_tatouage: '09 — Soins Majeur Post-Tatouage',
+  consentement_soins_tatouage_mineur: '10 — Soins Mineur Post-Tatouage',
   // Dermographie
-  questionnaire_dermographe_mineur: '10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
-  questionnaire_dermographe: '11 — Questionnaire Médical Dermographie Majeur',
-  fiche_seance_dermographe: '12 — Fiche de Traçabilité Matériel Stérile (Dermographie)',
-  soins_dermographe: '13 — Soins Mineur Post-Dermographie',
-  soins_dermographe_majeur: '14 — Soins Majeur Post-Dermographie',
+  questionnaire_dermographe_mineur: '11 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
+  questionnaire_dermographe: '12 — Questionnaire Médical Dermographie Majeur',
+  fiche_tracabilite_majeur_dermographe: '14 — Fiche de Traçabilité Majeur Matériel Stérile (Dermographie)',
+  fiche_seance_dermographe: '13 — Fiche de Traçabilité Mineur Matériel Stérile (Dermographie)',
+  soins_dermographe: '15 — Soins Mineur Post-Dermographie',
+  soins_dermographe_majeur: '16 — Soins Majeur Post-Dermographie',
   // RGPD
-  engagement_confidentialite: '15 — Engagement de Confidentialité (RGPD Art. 29)',
-  affichage_salon: '16 — Information Client — Protection des Données (RGPD)',
-  archivage_dossier_papier: '17 — Archivage Dossier Papier',
-  dossier_mineur_piercing: '18 — Dossier Complet Mineur Piercing',
+  engagement_confidentialite: '17 — Engagement de Confidentialité (RGPD Art. 29)',
+  affichage_salon: '18 — Information Client — Protection des Données (RGPD)',
+  archivage_dossier_papier: '19 — Archivage Dossier Papier',
+  dossier_mineur_piercing: '20 — Dossier Complet Mineur Piercing',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {

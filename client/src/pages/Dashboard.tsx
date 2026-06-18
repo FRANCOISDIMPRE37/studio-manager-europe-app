@@ -89,9 +89,8 @@ export default function Dashboard() {
     state.clients.filter(c => !c.estArchive && (c.rgpdStatus === 'urgent' || c.rgpdStatus === 'expired')).slice(0, 5),
     [state.clients]
   );
-
   const recentClients = useMemo(() =>
-    state.clients.filter(c => !c.estArchive).slice(0, 5),
+    state.clients.filter(c => !c.estArchive && !String(c.id || "").startsWith("salarie-")).slice(0, 5),
     [state.clients]
   );
 
@@ -390,7 +389,7 @@ export default function Dashboard() {
         ) : (
           <div className="divide-y" style={{ borderColor: 'var(--brand-border)' }}>
             {recentClients.map(client => {
-              const lastPrestation = client.prestations[client.prestations.length - 1];
+              const lastPrestation = (client.prestations || [])[(client.prestations || []).length - 1];
               const rgpdColors: Record<string, string> = { ok: '#4CAF50', warning: '#FF9800', urgent: '#F44336', expired: '#9C27B0' };
               const rgpdLabels: Record<string, string> = { ok: 'OK', warning: '90j', urgent: '30j', expired: 'Expiré' };
               return (

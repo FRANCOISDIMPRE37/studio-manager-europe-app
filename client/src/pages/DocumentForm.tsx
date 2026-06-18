@@ -10,14 +10,14 @@ import SignaturePad from '@/components/SignaturePad';
 import { trpc } from '@/lib/trpc';
 import { FormSection, FormField, RadioField, CheckboxField, DateSlashField, LegalBox, RgpdMentions, WarningBox, AgeVerif, PrintHeader, PrintFooter } from './FormsCommuns';
 import { FormQuestionnaireMineur, FormQuestionnaireMajeur, FormAutorisationParentale, FormSoins } from './FormsPiercing';
-import { FormFicheSeance, FormConsentementSoinsTatouage, FormConsentementSoinsTatouageMineur, FormFicheSeanceTatouage, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage } from './FormsTatouage';
+import { FormFicheSeance, FormFicheSeanceMineurPiercing, FormConsentementSoinsTatouage, FormConsentementSoinsTatouageMineur, FormFicheSeanceTatouage, FormFicheSeanceTatouageMajeur, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage } from './FormsTatouage';
 import { FormFicheSeanceDermographe, FormQuestionnaireDermographe, FormSoinsDermographe } from './FormsDermographie';
 import { FormEngagementConfidentialite, FormAffichageSalon } from './FormsRGPD';
 
 export default function DocumentForm() {
   const params = useParams<{ clientId: string; docType: string }>();
   const [, navigate] = useLocation();
-  const { state, updateClient } = useApp();
+  const { state, updateClient, syncFromCloud } = useApp();
   const clientId = params.clientId;
   const docType = params.docType as DocumentType;
 
@@ -232,7 +232,10 @@ export default function DocumentForm() {
     'questionnaire_majeur',
     'questionnaire_tatouage_majeur',
     'questionnaire_dermographe',
-    'consentement_soins_tatouage',
+    'fiche_tracabilite_mineur_piercing',
+    'fiche_seance_piercing',
+    'fiche_tracabilite_majeur_tatouage',
+    'fiche_tracabilite_majeur_dermographe',
     'consentement_soins_tatouage_mineur',
     'soins_oreilles',
     'soins_nez',
@@ -279,20 +282,30 @@ export default function DocumentForm() {
       { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
     ],
     // Fiches de séance et consentements : signatures professionnelles et client obligatoires.
+    fiche_tracabilite_mineur_piercing: [
+      { key: "signatureImageClient", label: "signature du mineur" },
+      { key: "signatureImageRepresentant", label: "signature du représentant légal" },
+    ],
     fiche_seance_piercing: [
       { key: 'signaturePierceur', label: 'signature du pierceur' },
+      { key: 'signatureImageClient', label: 'signature du client' },
     ],
     fiche_seance_tatouage: [
       { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
       { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
+    ],
+    fiche_tracabilite_majeur_tatouage: [
+      { key: "signatureImageClient", label: "signature du client" },
+      { key: "signatureImageTatoueur", label: "signature du tatoueur" },
     ],
     fiche_seance_dermographe: [
       { key: 'signatureImageClient', label: 'signature du client' },
       { key: 'signatureImageDermographe', label: 'signature du dermographe' },
     ],
-    questionnaire_tatouage_majeur: [
+    fiche_tracabilite_majeur_dermographe: [
       { key: 'signatureImageClient', label: 'signature du client' },
-      { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
+      { key: 'signatureImageDermographe', label: 'signature du dermographe' },
     ],
     questionnaire_dermographe: [
       { key: 'signatureImageClient', label: 'signature du client' },
@@ -566,12 +579,12 @@ export default function DocumentForm() {
       return;
     }
     // Validation photo obligatoire pour la fiche de traçabilité matériel stérile piercing.
-    if (docType === 'fiche_seance_piercing' && (!Array.isArray(formData.photosTracabilite) || formData.photosTracabilite.length === 0)) {
+    if ((docType === 'fiche_seance_piercing' || docType === 'fiche_tracabilite_mineur_piercing') && (!Array.isArray(formData.photosTracabilite) || formData.photosTracabilite.length === 0)) {
       toast.error('Photo obligatoire : veuillez photographier le matériel stérile avant de sauvegarder la fiche de traçabilité.');
       return;
     }
     // Validation obligatoire : Nom du praticien pour la fiche de traçabilité matériel stérile piercing.
-    if (docType === 'fiche_seance_piercing') {
+    if (docType === 'fiche_seance_piercing' || docType === 'fiche_tracabilite_mineur_piercing') {
       const nomPierceurFiche03 = formData.nomPierceur || state.salonInfo?.nomPierceur || '';
       if (!nomPierceurFiche03 || nomPierceurFiche03.trim() === '') {
         toast.error('Le nom du pierceur est obligatoire pour valider la fiche de traçabilité matériel stérile.');
@@ -658,12 +671,10 @@ export default function DocumentForm() {
       } else {
         newDocs.push({ ...docData, dateCreation: now });
       }
-      
       updateClient({ ...client, documents: newDocs });
-      
-      clientFreshQuery.refetch();
       toast.success('Données sécurisées chez OVH à l\'instant T');
-      setTimeout(() => navigate(-1), 1000);
+      const backUrl = isStandaloneMode ? '/documents' : `/clients/${client.id}`;
+      setTimeout(() => { window.location.href = backUrl; }, 800);
     } catch (error: any) {
       console.error('[Save] Error:', error);
       const msg = error?.message || 'Erreur inconnue';
@@ -965,6 +976,8 @@ export default function DocumentForm() {
         return <FormAutorisationParentale data={formData} update={updateField} client={effectiveClient} salonInfo={state.salonInfo} />;
       case 'questionnaire_majeur':
         return <FormQuestionnaireMajeur data={formData} update={updateField} client={effectiveClient} />;
+      case 'fiche_tracabilite_mineur_piercing':
+        return <FormFicheSeanceMineurPiercing data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_piercing':
         return <FormFicheSeance data={formData} update={updateField} client={effectiveClient} />;
       case 'questionnaire_tatouage_mineur':
@@ -985,11 +998,15 @@ export default function DocumentForm() {
         return <FormConsentementSoinsTatouageMineur data={formData} update={updateField} client={effectiveClient} />;
       case 'soins_dermographe':
       case 'soins_dermographe_majeur':
-        return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} docType={docType} docType={docType} docType={docType} />;
+        return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} docType={docType} />;
       case 'fiche_seance_tatouage':
         return <FormFicheSeanceTatouage data={formData} update={updateField} client={effectiveClient} />;
+      case 'fiche_tracabilite_majeur_tatouage':
+        return <FormFicheSeanceTatouageMajeur data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_dermographe':
-        return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} />;
+        return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} docType={docType} />;
+      case 'fiche_tracabilite_majeur_dermographe':
+        return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} docType={docType} />;
       case 'engagement_confidentialite':
         return <FormEngagementConfidentialite data={formData} update={updateField} client={effectiveClient} />;
       case 'affichage_salon':
@@ -1101,11 +1118,6 @@ export default function DocumentForm() {
           date={today}
           numeroClient={effectiveClient.numeroClient}
         />
-        {/* Message champs obligatoires */}
-        <div className="no-print mb-3 px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)' }}>
-          <span style={{ color: '#F59E0B', fontSize: 14 }}>⚠️</span>
-
-        </div>
         {renderForm()}
 
         {/* Pied de page visible uniquement à l'impression */}
@@ -1647,6 +1659,10 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       </div>
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
+      <RadioField label="Pièce d'identité (CNI / Passeport)" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdMineurType || ''} onChange={v => update('pieceIdMineurType', v)} required />
+      {data.pieceIdMineurType && data.pieceIdMineurType !== 'Non présentée' && (
+        <FormField label="Numéro de la pièce d'identité" value={data.pieceIdMineurNumero || ''} onChange={v => update('pieceIdMineurNumero', v)} required />
+      )}
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
       <FormSection title="2 — PRESTATION DERMOGRAPHIE DEMANDEE" />
       <FormField label="Zone a traiter" value={data.zoneATatouer || ''} onChange={v => update('zoneATatouer', v)} required />
@@ -1658,7 +1674,7 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       <RadioField label={t('q09.autoimmune_dermo')} options={yesNo} value={data.maladiesAutoImmunes || t('forms.no')} onChange={v => update('maladiesAutoImmunes', v)} />
       <RadioField label={t('q09.skin_diseases_zone')} options={yesNo} value={data.maladiesPeau || t('forms.no')} onChange={v => update('maladiesPeau', v)} />
       <RadioField label={t('q01.keloid')} options={yesNo} value={data.cheloide || t('forms.no')} onChange={v => update('cheloide', v)} />
-      <RadioField label={t('q09.herpes_labial')} options={[t('forms.no'), t('forms.yes'), t('q09.not_applicable')]} value={data.herpesLabial || t('q09.not_applicable')} onChange={v => update('herpesLabial', v)} />
+      <RadioField label={t('q09.herpes_labial')} options={[t('forms.no'), t('forms.yes')]} value={data.herpesLabial && data.herpesLabial !== t('q09.not_applicable') ? data.herpesLabial : t('forms.no')} onChange={v => update('herpesLabial', v)} />
       <RadioField label={t('q09.allergy_pigments')} options={yesNo} value={data.allergiesPigments || t('forms.no')} onChange={v => update('allergiesPigments', v)} />
       <RadioField label={t('q01.allergy_latex')} options={yesNo} value={data.allergieLatex || t('forms.no')} onChange={v => update('allergieLatex', v)} />
       <RadioField label={t('q01.immunodepression')} options={yesNo} value={data.immunodepression || t('forms.no')} onChange={v => update('immunodepression', v)} />

@@ -23,13 +23,6 @@ function FormEngagementConfidentialite({ data, update, client }: { data: Record<
         </div>
         <div className="space-y-3">
           <FormField label="Nom et Prénom" value={data.nomSignataire || ''} onChange={v => update('nomSignataire', v)} required />
-          <FormField label="Poste / Fonction" value={data.posteSignataire || ''} onChange={v => update('posteSignataire', v)} required />
-          <div className="grid grid-cols-2 gap-3">
-            <FormField label="Type de contrat" value={data.typeContrat || ''} onChange={v => update('typeContrat', v)} required />
-            <DateSlashField label="Date de début de mission" value={data.dateDebutMission || ''} onChange={v => update('dateDebutMission', v)} required />
-          </div>
-          <DateSlashField label="Date de fin de mission (si connue)" value={data.dateFinMission || ''} onChange={v => update('dateFinMission', v)} />
-          <FormField label="Nom du salon / Établissement" value={data.nomSalon || ''} onChange={v => update('nomSalon', v)} required />
         </div>
       </div>
 
@@ -85,24 +78,6 @@ function FormEngagementConfidentialite({ data, update, client }: { data: Record<
         </div>
       </div>
 
-      {/* Signatures */}
-      <div className="mb-4">
-        <div className="px-3 py-2 mb-3" style={{ background: 'var(--brand-navy)', borderRadius: 6 }}>
-          <p className="text-xs font-700 uppercase tracking-wider" style={{ color: '#fff', fontWeight: 700 }}>SIGNATURES</p>
-        </div>
-        <div className="grid grid-cols-1 gap-6">
-          <div className="p-4 rounded-xl space-y-3" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-            <p className="text-xs font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>SALARIÉ — Lu et approuvé <span aria-hidden="true" style={{ color: '#b71c1c', fontWeight: 900 }}>*</span></p>
-            <FormField label="Nom, Prénom" value={data.signataireNomSignature || ''} onChange={v => update('signataireNomSignature', v)} required />
-            <DateSlashField label="Date" value={data.signataireDate || ''} onChange={v => update('signataireDate', v)} required />
-            <SignaturePad
-              label="Signature du salarié"
-              value={data.signatureImageSignataire || ''}
-              onChange={v => update('signatureImageSignataire', v ?? '')}
-            />
-          </div>
-        </div>
-      </div>
       <div className="text-center mt-4">
         <p className="text-xs italic" style={{ color: '#1e293b', fontWeight: 600 }}>Document à établir en deux exemplaires originaux — Un exemplaire conservé par le salon, un exemplaire remis au signataire.</p>
       </div>

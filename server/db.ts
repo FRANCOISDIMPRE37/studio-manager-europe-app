@@ -142,7 +142,11 @@ export async function getClientById(clientId: string, userId: number) {
     .where(and(eq(clients.id, clientId), eq(clients.userId, userId)))
     .limit(1);
   if (!result[0]) return undefined;
-  return decryptClient(result[0]);
+  const client = decryptClient(result[0]);
+  const docs = await getDocumentsByClientId(clientId, userId);
+  console.log("[DEBUG getClientById]", client.id, "nomRep:", client.nomRepresentantLegal, "prenomRep:", client.prenomRepresentantLegal);
+  const dbg = docs.find(d => d.type === 'fiche_seance_dermographe'); if (dbg) console.log('[DEBUG doc13]', JSON.stringify(dbg.data));
+  return { ...client, documents: docs };
 }
 
 export async function createClient(data: InsertClient) {

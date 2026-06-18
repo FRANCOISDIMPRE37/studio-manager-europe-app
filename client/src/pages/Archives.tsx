@@ -163,10 +163,10 @@ export default function Archives() {
                 </div>
 
                 {/* Documents */}
-                {client.documentsAssocies.length > 0 && (
+                {(client.documentsAssocies || []).length > 0 && (
                   <div className="mt-2 pt-2 flex flex-wrap gap-1" style={{ borderTop: '1px solid var(--brand-border)' }}>
                     <span className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>
-                      {client.documentsAssocies.length} document{client.documentsAssocies.length > 1 ? 's' : ''} conservé{client.documentsAssocies.length > 1 ? 's' : ''}
+                      {(client.documentsAssocies || []).length} document{(client.documentsAssocies || []).length > 1 ? 's' : ''} conservé{(client.documentsAssocies || []).length > 1 ? 's' : ''}
                     </span>
                     <span className="text-xs ml-1" style={{ color: 'var(--brand-text-muted)', opacity: 0.6 }}>
                       — {client.documents?.filter(d => d.status === 'signed').length || 0} signé{(client.documents?.filter(d => d.status === 'signed').length || 0) > 1 ? 's' : ''}

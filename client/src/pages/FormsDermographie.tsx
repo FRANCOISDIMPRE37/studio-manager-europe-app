@@ -6,7 +6,7 @@ import SignaturePad from '@/components/SignaturePad';
 import { Client } from '@/lib/types';
 import { FormSection, FormField, RadioField, DateSlashField, CheckboxField, LegalBox, RgpdMentions, WarningBox, AgeVerif, PrintHeader, PrintFooter } from './FormsCommuns';
 
-function FormFicheSeanceDermographe({ data, update, client }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client }) {
+function FormFicheSeanceDermographe({ data, update, client, docType }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client; docType?: string }) {
   const { state: _s } = useApp();
   const salonInfo = _s.salonInfo;
   const { t } = useTranslation();
@@ -44,29 +44,7 @@ function FormFicheSeanceDermographe({ data, update, client }: { data: Record<str
       <FormSection title="3 — ZONES TRAITÉES" />
       <FormField label="Zone traitée" value={data.zoneATatouer || ''} onChange={v => update('zoneATatouer', v)} placeholder="Ex: sourcils, lèvres, eye-liner..." required />
 
-      <FormSection title={t('q08.section_pigment_traceability')} />
-      <LegalBox color="orange">
-        {t('q08.pigment_legal_obligation')}
-      </LegalBox>
-      {[1, 2, 3].map(i => (
-        <div key={i} className="p-3 rounded-lg mb-2" style={{ background: 'rgba(255,152,0,0.04)', border: '1px solid rgba(255,152,0,0.15)' }}>
-          <p className="text-xs font-600 mb-2" style={{ color: '#FF9800', fontWeight: 600 }}>{t('q08.pigment_n', { n: i })}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label={t('q08.pigment_color')} value={data[`pigment${i}_couleur`] || ''} onChange={v => update(`pigment${i}_couleur`, v)} placeholder={t('q08.pigment_color_placeholder')} />
-            <FormField label={t('q08.pigment_manufacturer')} value={data[`pigment${i}_fabricant`] || ''} onChange={v => update(`pigment${i}_fabricant`, v)} placeholder={t('q08.pigment_manufacturer_placeholder')} />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label={t('q08.pigment_ref')} value={data[`pigment${i}_ref`] || ''} onChange={v => update(`pigment${i}_ref`, v)} placeholder={t('q08.pigment_ref_placeholder')} />
-            <FormField label={t('q08.pigment_lot')} value={data[`pigment${i}_lot`] || ''} onChange={v => update(`pigment${i}_lot`, v)} placeholder={t('q08.pigment_lot_placeholder')} />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <FormField label={t('forms.expiry_date')} value={data[`pigment${i}_peremption`] || ''} onChange={v => update(`pigment${i}_peremption`, v)} type="date" />
-            <FormField label={t('q08.pigment_quantity')} value={data[`pigment${i}_quantite`] || ''} onChange={v => update(`pigment${i}_quantite`, v)} placeholder="ml" />
-          </div>
-          <RadioField label={t('q08.pigment_compliant')} options={yesNo} value={data[`pigment${i}_conforme`] || t('forms.yes')} onChange={v => update(`pigment${i}_conforme`, v)} />
-        </div>
-      ))}
-
+      <FormSection title="4 — TRAÇABILITÉ DES PIGMENTS" />
 
       {/* Photo traçabilité */}
       <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
@@ -102,22 +80,38 @@ function FormFicheSeanceDermographe({ data, update, client }: { data: Record<str
         )}
       </div>
       <FormSection title={t('q08.section_machine')} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('q08.machine_used')} value={data.machine || ''} onChange={v => update('machine', v)} placeholder={t('q08.machine_used_placeholder')} />
-        <FormField label={t('q08.machine_speed')} value={data.vitesseMachine || ''} onChange={v => update('vitesseMachine', v)} placeholder={t('q08.machine_speed_placeholder')} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('q08.needle_type')} value={data.typeAiguille || ''} onChange={v => update('typeAiguille', v)} placeholder={t('q08.needle_type_placeholder')} />
-        <FormField label={t('q08.needle_lot')} value={data.lotAiguille || ''} onChange={v => update('lotAiguille', v)} placeholder={t('q08.needle_lot_placeholder')} />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('q08.needle_expiry')} value={data.peremptionAiguille || ''} onChange={v => update('peremptionAiguille', v)} type="date" />
-        <FormField label={t('q08.needle_manufacturer')} value={data.fabricantAiguille || ''} onChange={v => update('fabricantAiguille', v)} placeholder={t('q08.needle_manufacturer_placeholder')} />
-      </div>
-      <FormField label={t('q08.anesthetic')} value={data.anesthesiant || ''} onChange={v => update('anesthesiant', v)} placeholder={t('q08.anesthetic_placeholder')} />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('q08.anesthetic_lot')} value={data.lotAnesthesiant || ''} onChange={v => update('lotAnesthesiant', v)} />
-        <FormField label={t('q08.anesthetic_expiry')} value={data.peremptionAnesthesiant || ''} onChange={v => update('peremptionAnesthesiant', v)} type="date" />
+      {/* Photo materiel utilise */}
+      <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(131,208,245,0.05)', border: '1px solid rgba(131,208,245,0.2)' }}>
+        <p className="text-sm font-medium mb-2" style={{ color: '#1e293b' }}>📷 Prendre / Ajouter une photo</p>
+        <input type="file" accept="image/*" capture="environment" className="hidden" id="photo-dermo-input-2"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (ev) => { const photos = data.photosTracabilite2 || []; update('photosTracabilite2', [...photos, ev.target?.result as string]); };
+              reader.readAsDataURL(file);
+            }
+            e.target.value = '';
+          }}
+        />
+        <button type="button" onClick={() => document.getElementById('photo-dermo-input-2')?.click()}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm"
+          style={{ background: 'rgba(131,208,245,0.1)', border: '2px dashed rgba(131,208,245,0.4)', color: '#1e293b' }}>
+          <Camera size={18} /> Prendre / Ajouter une photo
+        </button>
+        {(data.photosTracabilite2 || []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {(data.photosTracabilite2 || []).map((photo: string, idx: number) => (
+              <div key={idx} className="relative">
+                <img src={photo} alt={`Photo ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                <button type="button" onClick={() => { const photos = [...(data.photosTracabilite2 || [])]; photos.splice(idx, 1); update('photosTracabilite2', photos); }}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'rgba(244,67,54,0.9)' }}>
+                  <X size={12} color="white" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <FormSection title={t('q08.section_session_progress')} />
@@ -130,14 +124,6 @@ function FormFicheSeanceDermographe({ data, update, client }: { data: Record<str
         <FormField label={t('q08.incident_details')} value={data.incidentDetail || ''} onChange={v => update('incidentDetail', v)} multiline />
       )}
       <FormField label={t('q08.general_observations')} value={data.observations || ''} onChange={v => update('observations', v)} multiline placeholder={t('q08.general_observations_placeholder')} />
-
-      <FormSection title={t('q08.section_followup')} />
-      <RadioField label={t('q08.touchup_planned')} options={yesNo} value={data.retouchePrevue || t('forms.yes')} onChange={v => update('retouchePrevue', v)} />
-      {data.retouchePrevue === t('forms.yes') && (
-        <FormField label={t('q08.touchup_date')} value={data.dateRetouche || ''} onChange={v => update('dateRetouche', v)} type="date" />
-      )}
-      <FormField label={t('q08.post_session_advice')} value={data.conseilsPostSeance || ''} onChange={v => update('conseilsPostSeance', v)} multiline placeholder={t('q08.post_session_advice_placeholder')} />
-      <CheckboxField label={t('q08.care_sheet_given')} value={data.ficheSoinsRemise || false} onToggle={() => update('ficheSoinsRemise', !data.ficheSoinsRemise)} required />
 
 
 
@@ -156,10 +142,10 @@ function FormFicheSeanceDermographe({ data, update, client }: { data: Record<str
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          {docType !== 'soins_dermographe_majeur' && <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || data.nomRep || ''} onChange={v => update('nomRepresentantSign', v)} required />}
-          {docType !== 'soins_dermographe_majeur' && <FormField label="Date" value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />}
+          {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <FormField label="Nom du représentant légal" value={(`${client.prenomRepresentantLegal || ''} ${client.nomRepresentantLegal || ''}`.trim()) || data.nomRepresentantSign || data.nomRep || ''} onChange={v => update('nomRepresentantSign', v)} required />}
+          {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <FormField label="Date" value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />}
           <div className="mt-3">
-            {docType !== 'soins_dermographe_majeur' && <SignaturePad
+            {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <SignaturePad
               label="Signature du représentant légal"
               value={data.signatureImageRepresentant || ''}
               onChange={v => update('signatureImageRepresentant', v ?? '')}
@@ -250,7 +236,7 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
         <FormField label={t('forms.specify_pathology')} value={data.maladiesPeauDetail || ''} onChange={v => update('maladiesPeauDetail', v)} />
       )}
       <RadioField label={t('q01.keloid')} options={yesNo} value={data.cheloide || t('forms.no')} onChange={v => update('cheloide', v)} />
-      <RadioField label={t('q09.herpes_labial')} options={[t('forms.no'), t('forms.yes'), t('q09.not_applicable')]} value={data.herpesLabial || t('q09.not_applicable')} onChange={v => update('herpesLabial', v)} />
+      <RadioField label={t('q09.herpes_labial')} options={[t('forms.no'), t('forms.yes')]} value={data.herpesLabial && data.herpesLabial !== t('q09.not_applicable') ? data.herpesLabial : t('forms.no')} onChange={v => update('herpesLabial', v)} />
       {data.herpesLabial === t('forms.yes') && (
         <WarningBox>{t('q09.herpes_warning')}</WarningBox>
       )}
@@ -270,15 +256,6 @@ function FormQuestionnaireDermographe({ data, update, client }: { data: Record<s
         <FormField label={t('forms.specify_medication')} value={data.autreMedicamentDetail || ''} onChange={v => update('autreMedicamentDetail', v)} multiline />
       )}
       <FormField label={t('forms.additional_medical_info')} value={data.autresInfosMedicales || ''} onChange={v => update('autresInfosMedicales', v)} multiline />
-
-      <FormSection title={t('q09.section_pigment_traceability')} />
-      <WarningBox>{t('q09.pigment_warning')}</WarningBox>
-      <FormField label={t('q09.pigment_brand')} value={data.marquePigment || ''} onChange={v => update('marquePigment', v)} />
-      <FormField label={t('q09.pigment_ref_color')} value={data.referencePigment || ''} onChange={v => update('referencePigment', v)} />
-      <FormField label={t('q08.pigment_lot')} value={data.lotPigment || ''} onChange={v => update('lotPigment', v)} />
-      <FormField label={t('q09.pigment_expiry')} value={data.perempPigment || ''} onChange={v => update('perempPigment', v)} />
-      <RadioField label={t('q05.ink_cert')} options={[t('forms.yes'), t('forms.no')]} value={data.certifPigment || t('forms.yes')} onChange={v => update('certifPigment', v)} />
-      <FormField label={t('q09.anesthetic_used')} value={data.anesthesiant || ''} onChange={v => update('anesthesiant', v)} />
 
       <FormSection title={t('q09.section_consent')} />
       <CheckboxField label={t('q09.consent_risks')} value={data.informeRisques || false} onToggle={() => update('informeRisques', !data.informeRisques)} required />
@@ -567,21 +544,22 @@ function FormSoinsDermographe({ data, update, client, docType }: { data: Record<
       <FormSection title="9 — SIGNATURES" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <FormField label={docType === 'soins_dermographe_majeur' || docType === 'fiche_tracabilite_majeur_dermographe' ? "Nom du client — Lu et approuvé" : "Nom du mineur — Lu et approuvé"} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
           <FormField label="Date" value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
           <div className="mt-3">
             <SignaturePad
-              label="Signature du client"
+              label={docType === 'soins_dermographe_majeur' || docType === 'fiche_tracabilite_majeur_dermographe' ? "Signature du client" : "Signature du mineur"}
               value={data.signatureImageClient || ''}
               onChange={v => update('signatureImageClient', v ?? '')}
             />
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          {docType !== 'soins_dermographe_majeur' && <FormField label="Nom du représentant légal" value={data.nomRepresentantSign || data.nomRep || ''} onChange={v => update('nomRepresentantSign', v)} required />}
-          {docType !== 'soins_dermographe_majeur' && <FormField label="Date" value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />}
+          <div style={{background:'yellow',padding:8,fontSize:12,color:'black'}}>DEBUG: client.prenom=[{client.prenomRepresentantLegal}] client.nom=[{client.nomRepresentantLegal}] data.sign=[{data.nomRepresentantSign}] data.nomRep=[{data.nomRep}]</div>
+          {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <FormField label="Nom du représentant légal" value={(`${client.prenomRepresentantLegal || ''} ${client.nomRepresentantLegal || ''}`.trim()) || data.nomRepresentantSign || data.nomRep || ''} onChange={v => update('nomRepresentantSign', v)} required />}
+          {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <FormField label="Date" value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />}
           <div className="mt-3">
-            {docType !== 'soins_dermographe_majeur' && <SignaturePad
+            {docType !== 'soins_dermographe_majeur' && docType !== 'fiche_tracabilite_majeur_dermographe' && <SignaturePad
               label="Signature du représentant légal"
               value={data.signatureImageRepresentant || ''}
               onChange={v => update('signatureImageRepresentant', v ?? '')}
