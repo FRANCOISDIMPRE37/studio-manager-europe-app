@@ -8,7 +8,7 @@ import { useApp } from '@/lib/app-context';
 import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, FileText, Settings, Archive, Shield, Info, Calendar,
-  LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen
+  LogOut, AlertTriangle, ExternalLink, RotateCcw, BookOpen, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
