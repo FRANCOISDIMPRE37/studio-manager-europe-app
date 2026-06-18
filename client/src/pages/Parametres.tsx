@@ -25,6 +25,9 @@ function SalarieSection() {
     create.mutate({ ...form, login, password });
   };
   const del = trpc.studioUsers.delete.useMutation({ onSuccess: () => { utils.studioUsers.list.invalidate(); toast.success('Salarié supprimé'); }, onError: e => toast.error(e.message) });
+  const [editPinId, setEditPinId] = useState<number | null>(null);
+  const [newPin, setNewPin] = useState('');
+  const updatePin = trpc.studioUsers.updatePin.useMutation({ onSuccess: () => { utils.studioUsers.list.invalidate(); setEditPinId(null); setNewPin(''); toast.success('PIN mis a jour !'); }, onError: e => toast.error(e.message) });
   const inputStyle = { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', borderRadius: 8, padding: '8px 12px', width: '100%', fontSize: 13 };
   return (
     <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px' }}>
@@ -50,7 +53,17 @@ function SalarieSection() {
             <p style={{ margin: 0, fontWeight: 600, color: 'white', fontSize: 14 }}>{s.prenom} {s.nom}</p>
             <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>@{s.login} · {s.role}</p>
           </div>
-          <button onClick={() => del.mutate({ id: s.id })} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 8, padding: '4px 12px', fontSize: 12, cursor: 'pointer' }}>Suppr.</button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => { setEditPinId(s.id); setNewPin(''); }} style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#818cf8', borderRadius: 8, padding: '4px 12px', fontSize: 12, cursor: 'pointer' }}>PIN</button>
+            <button onClick={() => del.mutate({ id: s.id })} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 8, padding: '4px 12px', fontSize: 12, cursor: 'pointer' }}>Suppr.</button>
+          </div>
+          {editPinId === s.id && (
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input type="text" inputMode="numeric" maxLength={4} value={newPin} onChange={e => setNewPin(e.target.value.replace(/\D/g,'').slice(0,4))} placeholder="Nouveau PIN" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: 8, padding: '6px 10px', width: 120, fontSize: 16, letterSpacing: 8 }} />
+              <button onClick={() => updatePin.mutate({ id: s.id, pin: newPin })} disabled={newPin.length !== 4} style={{ background: newPin.length === 4 ? '#22c55e' : '#333', border: 'none', color: 'white', borderRadius: 8, padding: '6px 14px', fontSize: 12, cursor: newPin.length === 4 ? 'pointer' : 'not-allowed' }}>OK</button>
+              <button onClick={() => setEditPinId(null)} style={{ background: 'transparent', border: '1px solid #444', color: '#888', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>✕</button>
+            </div>
+          )}
         </div>
       ))}
       {(list.data ?? []).length === 0 && !showForm && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textAlign: 'center' }}>Aucun salarié</p>}
@@ -248,23 +261,6 @@ export default function Parametres() {
               <div><label style={labelStyle}>{t('settings.salon_phone')}</label><input type="tel" style={inputStyle} value={salonForm.telephone} onChange={e => setSalonForm(f => ({ ...f, telephone: e.target.value }))} /></div>
               <div><label style={labelStyle}>{t('settings.salon_email')}</label><input type="email" style={inputStyle} value={salonForm.email} onChange={e => setSalonForm(f => ({ ...f, email: e.target.value }))} /></div>
             </div>
-            <div><label style={labelStyle}>SIRET</label><input style={inputStyle} value={salonForm.siret} onChange={e => setSalonForm(f => ({ ...f, siret: e.target.value }))} /></div>
-            <div>
-              <label style={labelStyle}>Mentions légales personnalisées <span style={{ color: 'var(--brand-text-muted)', fontWeight: 400 }}>(pied de page imprimable)</span></label>
-              <textarea
-                style={{ ...inputStyle, resize: 'vertical', minHeight: 56 }}
-                value={salonForm.mentionsLegales || ''}
-                onChange={e => setSalonForm(f => ({ ...f, mentionsLegales: e.target.value }))}
-                placeholder="Ex : Agrément préfectoral n° XXX — Membre de la Fédération Française du Tatouage"
-                rows={2}
-              />
-              <p className="text-xs mt-1" style={{ color: 'var(--brand-text-muted)' }}>Cette ligne apparaît dans le pied de page de toutes les fiches imprimées.</p>
-            </div>
-            <div className="grid grid-cols-1 gap-3">
-              <div><label style={labelStyle}>Nom du pierceur</label><input style={inputStyle} value={salonForm.nomPierceur} onChange={e => setSalonForm(f => ({ ...f, nomPierceur: e.target.value }))} /></div>
-              <div><label style={labelStyle}>Nom du tatoueur</label><input style={inputStyle} value={salonForm.nomTatoueur || ''} onChange={e => setSalonForm(f => ({ ...f, nomTatoueur: e.target.value }))} /></div>
-              <div><label style={labelStyle}>Nom du dermographe</label><input style={inputStyle} value={salonForm.nomDermographe || ''} onChange={e => setSalonForm(f => ({ ...f, nomDermographe: e.target.value }))} /></div>
-            </div>
             {/* Logo du salon */}
             <div>
               <label style={labelStyle}>Logo du salon</label>
@@ -311,8 +307,6 @@ export default function Parametres() {
               { icon: MapPin, label: `${state.salonInfo.adresse}, ${state.salonInfo.codePostal} ${state.salonInfo.ville}` },
               { icon: Phone, label: state.salonInfo.telephone },
               { icon: Mail, label: state.salonInfo.email },
-              /* SIRET supprimé */
-              { icon: User, label: `Pierceur : ${state.salonInfo.nomPierceur}` },
             ].filter(i => i.label).map((item, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <item.icon size={13} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
@@ -331,9 +325,9 @@ export default function Parametres() {
         <div className="studio-card p-4 cursor-pointer transition-all hover:border-cyan-400/40" style={{ borderColor: 'var(--brand-border)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg" alt="Intemporelle" className="w-9 h-9" />
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg" alt="Studio Manager Europe" className="w-9 h-9" />
               <div>
-                <p className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>À propos — Intemporelle</p>
+                <p className="text-sm font-700" style={{ color: 'var(--brand-text)', fontWeight: 700 }}>À propos — Studio Manager Europe</p>
                 <p className="text-xs" style={{ color: 'var(--brand-cyan)' }}>Propriété, support & informations légales</p>
               </div>
             </div>
@@ -342,83 +336,11 @@ export default function Parametres() {
         </div>
       </Link>
 
-      {/* Export / Import */}
-      <div className="studio-card p-4">
-        {/* Exporter */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <Download size={16} style={{ color: 'var(--brand-cyan)' }} />
-            <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{t('settings.export_data')}</h2>
-          </div>
-          <p className="text-xs mb-4" style={{ color: 'var(--brand-text-muted)' }}>Exportez l'intégralité de vos données (clients, soins, questionnaires, autorisations) dans un fichier sécurisé. Sauvegardez-le sur votre cloud personnel (iCloud, Google Drive…), une clé USB ou tout autre support de votre choix.</p>
-
-          {/* 4 compteurs */}
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            {[
-              { icon: Users, label: 'Clients', count: totalClients, color: 'var(--brand-cyan)' },
-              { icon: Archive, label: 'Archives', count: totalArchives, color: '#a78bfa' },
-              { icon: Stethoscope, label: 'Soins', count: totalSoins, color: '#34d399' },
-              { icon: FileText, label: 'Documents', count: totalDocuments, color: '#fb923c' },
-            ].map(({ icon: Icon, label, count, color }) => (
-              <div key={label} className="rounded-lg p-3 flex flex-col items-center gap-1" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--brand-border)' }}>
-                <Icon size={18} style={{ color }} />
-                <span className="text-lg font-700" style={{ color: 'var(--brand-text)', fontWeight: 700, lineHeight: 1 }}>{count}</span>
-                <span className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>{label}</span>
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-600 transition-all hover:opacity-90"
-            style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 600 }}
-          >
-            <Download size={15} />
-            {t('settings.export_data')}
-          </button>
-          <p className="text-xs mt-2" style={{ color: 'var(--brand-text-muted)' }}>
-            💾 Le fichier généré s'appelle <em>studio-backup-[date].json</em>. Conservez-le sur votre cloud (iCloud, Google Drive, Dropbox…) ou une clé USB. Il vous permettra de restaurer toutes vos données en cas de changement de tablette ou de réinitialisation.
-          </p>
-        </div>
-
-        {/* Séparateur */}
-        <div className="border-t my-4" style={{ borderColor: 'var(--brand-border)' }} />
-
-        {/* Importer */}
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Upload size={16} style={{ color: 'var(--brand-cyan)' }} />
-            <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{t('settings.import_data')}</h2>
-          </div>
-          <p className="text-xs mb-3" style={{ color: 'var(--brand-text-muted)' }}>Restaurez votre base de données depuis un fichier de sauvegarde précédemment exporté. Idéal lors d'un changement de tablette, d'une réinitialisation ou d'une migration vers une nouvelle installation.</p>
-
-          <div className="flex items-start gap-2 p-3 rounded-lg mb-3" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.3)' }}>
-            <AlertTriangle size={14} style={{ color: '#fb923c', flexShrink: 0, marginTop: 1 }} />
-            <p className="text-xs" style={{ color: '#fb923c' }}>
-              <strong>L'import remplace toutes les données actuelles.</strong> Effectuez d'abord un export de sauvegarde avant d'importer, afin de ne perdre aucune donnée existante.
-            </p>
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleImport}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-600 transition-all hover:opacity-90"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--brand-border)', color: 'var(--brand-text)', fontWeight: 600 }}
-          >
-            <Upload size={15} />
-            {t('settings.import_data')}
-          </button>
-        </div>
-      </div>
 
 
 
+
+      <SalarieSection />
 
       {/* Logout */}
       <button

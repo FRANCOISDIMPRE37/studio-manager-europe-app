@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Studio Manager",
-    "subtitle": "by Intemporelle — GDPR & Cybersecurity",
+    "subtitle": "by Studio Manager Europe — GDPR & Cybersecurity",
     "tagline": "The digital solution for tattoo and piercing professionals"
   },
   "nav": {
@@ -230,8 +230,7 @@
     "soins_piercing": "Post-Piercing Care (A, B, C, D, E, F, G)",
     "tatouage": "Tattoo (05-09)",
     "dermographie": "Dermography (10-14)",
-    "rgpd": "GDPR & Confidentiality (15-16)",
-    "momer_rgpd": "MOMER GDPR"
+    "rgpd": "GDPR & Confidentiality (15-16)"
   },
   "soins": {
     "fiche_title": "CARE SHEET",
@@ -567,6 +566,11 @@
       "National ID",
       "Passport",
       "Residence permit"
+    ],
+    "id_options_adult": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour"
     ],
     "id_options_minor": [
       "National ID",

@@ -2,13 +2,12 @@ import { useState, type CSSProperties } from 'react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
-import { FileText, Pencil, Printer, Trash2, UserPlus, X, KeyRound } from 'lucide-react';
+import { FileText, KeyRound, Pencil, Printer, Trash2, UserPlus, X } from 'lucide-react';
 import { useApp } from '@/lib/app-context';
 import { ClientDocument } from '@/lib/types';
 
 const SPECIALITES = [
-  '— Choisir —', 'Tatouage', 'Piercing', 'Dermographie', 'Microblading',
-  'Maquillage permanent', 'Esthétique', 'Coiffure', 'Autre'
+  "— Choisir —", "Tatouage", "Piercing", "Dermographie"
 ];
 
 const TYPES_CONTRAT = [
@@ -26,6 +25,7 @@ type SalarieForm = {
   dateEntree: string;
   dateSortie: string;
   adresse: string;
+  pin: string;
 };
 
 const EMPTY_FORM: SalarieForm = {
@@ -37,6 +37,7 @@ const EMPTY_FORM: SalarieForm = {
   dateEntree: '',
   dateSortie: '',
   adresse: '',
+  pin: '',
 };
 
 const REQUIRED_FIELDS: Array<{ key: keyof SalarieForm; label: string }> = [
@@ -55,36 +56,10 @@ export default function Salaries() {
   const [showForm, setShowForm] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<SalarieForm>(EMPTY_FORM);
+  const [pinModal, setPinModal] = useState<{ id: number; nom: string; pin: string; confirmPin: string } | null>(null);
   const utils = trpc.useUtils();
 
   const list = trpc.studioUsers.list.useQuery();
-  const [pinModal, setPinModal] = useState<{ id: number; nom: string } | null>(null);
-  const [newPinValue, setNewPinValue] = useState('');
-  const [confirmPinValue, setConfirmPinValue] = useState('');
-  const setPin = trpc.studioUsers.setPin.useMutation({
-    onSuccess: () => {
-      toast.success('Code PIN défini avec succès !');
-      setPinModal(null);
-      setNewPinValue('');
-      setConfirmPinValue('');
-      utils.studioUsers.list.invalidate();
-    },
-    onError: (e) => toast.error(e.message)
-  });
-  const clearPin = trpc.studioUsers.clearPin.useMutation({
-    onSuccess: () => {
-      toast.success('Code PIN supprimé');
-      utils.studioUsers.list.invalidate();
-    },
-    onError: (e) => toast.error(e.message)
-  });
-
-  const handleSetPin = () => {
-    if (!pinModal) return;
-    if (!/^\d{4}$/.test(newPinValue)) { toast.error('Le PIN doit contenir exactement 4 chiffres'); return; }
-    if (newPinValue !== confirmPinValue) { toast.error('Les codes PIN ne correspondent pas'); return; }
-    setPin.mutate({ employeId: pinModal.id, pin: newPinValue });
-  };
 
   const resetForm = () => {
     setEditingId(null);
@@ -118,6 +93,15 @@ export default function Salaries() {
     onError: (e) => toast.error(e.message)
   });
 
+  const savePin = trpc.studioUsers.update.useMutation({
+    onSuccess: () => {
+      utils.studioUsers.list.invalidate();
+      setPinModal(null);
+      toast.success('Code PIN tablette enregistré');
+    },
+    onError: (e) => toast.error(e.message)
+  });
+
   const validateRequiredFields = () => {
     const missing = REQUIRED_FIELDS.filter(({ key }) => {
       return !String(form[key] ?? '').trim();
@@ -143,19 +127,28 @@ export default function Salaries() {
       dateEntree: form.dateEntree.trim(),
       dateSortie: form.dateSortie.trim(),
       adresse: form.adresse.trim(),
+      pin: form.pin.trim(),
     };
+
+    if (cleanForm.pin && !/^\d{4}$/.test(cleanForm.pin)) {
+      toast.error('Le code PIN tablette doit contenir exactement 4 chiffres.');
+      return;
+    }
+
+    const { pin, ...basePayload } = cleanForm;
+    const payload = pin ? { ...basePayload, pin } : basePayload;
 
     if (editingId) {
       update.mutate({
         id: editingId,
-        ...cleanForm,
+        ...payload,
       });
       return;
     }
 
     const login = (cleanForm.prenom + cleanForm.nom).toLowerCase().replace(/[^a-z0-9]/g, '') + Date.now();
     const password = Math.random().toString(36).slice(2, 10);
-    create.mutate({ ...cleanForm, login, password });
+    create.mutate({ ...payload, login, password });
   };
 
   const startEdit = (salarie: any) => {
@@ -168,14 +161,37 @@ export default function Salaries() {
       dateEntree: salarie.dateEntree || '',
       dateSortie: salarie.dateSortie || '',
       adresse: salarie.adresse || '',
+      pin: '',
     });
     setEditingId(Number(salarie.id));
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const openPinModal = (salarie: any) => {
+    setPinModal({
+      id: Number(salarie.id),
+      nom: `${salarie.prenom || ''} ${salarie.nom || ''}`.trim(),
+      pin: '',
+      confirmPin: '',
+    });
+  };
+
+  const handleSavePin = () => {
+    if (!pinModal) return;
+    if (!/^\d{4}$/.test(pinModal.pin)) {
+      toast.error('Le code PIN tablette doit contenir exactement 4 chiffres.');
+      return;
+    }
+    if (pinModal.pin !== pinModal.confirmPin) {
+      toast.error('La confirmation du PIN ne correspond pas.');
+      return;
+    }
+    savePin.mutate({ id: pinModal.id, pin: pinModal.pin });
+  };
+
   const hasSignedEngagement = (salarieId: string): boolean => {
-    const salarieAsClient = state.clients.find(c => c.id === salarieId);
+    const salarieAsClient = state.clients.find(c => c.id === `salarie-${salarieId}` || c.id === salarieId);
     return salarieAsClient?.documents?.some(
       (doc: ClientDocument) => doc.type === 'engagement_confidentialite' && doc.status === 'signed'
     ) ?? false;
@@ -192,8 +208,14 @@ export default function Salaries() {
     boxSizing: 'border-box' as const,
   } as CSSProperties;
 
+  const optionStyle = {
+    background: '#ffffff',
+    color: '#111827',
+  } as CSSProperties;
+
   const requiredLabel = (label: string) => `${label} *`;
   const isSaving = create.isPending || update.isPending;
+  const isSavingPin = savePin.isPending;
 
   return (
     <div style={{ padding: 24, maxWidth: 640, margin: '0 auto' }}>
@@ -226,7 +248,7 @@ export default function Salaries() {
 
       {/* Formulaire salarié obligatoire et prérempli en modification */}
       {showForm && (
-        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 24, marginBottom: 24 }}>
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 16, padding: 24, marginBottom: 24, maxHeight: '80vh', overflowY: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
               <h3 style={{ margin: 0, color: 'white', fontSize: 17, fontWeight: 700 }}>{editingId ? 'Modifier la fiche salarié' : 'Nouveau salarié'}</h3>
@@ -261,9 +283,9 @@ export default function Salaries() {
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Rôle')}</label>
               <select required style={inp} value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as SalarieRole }))}>
-                <option value="employe">Employé</option>
-                <option value="admin">Admin</option>
-                <option value="stagiaire">Stagiaire</option>
+                <option style={optionStyle} value="employe">Employé</option>
+                <option style={optionStyle} value="admin">Admin</option>
+                <option style={optionStyle} value="stagiaire">Stagiaire</option>
               </select>
             </div>
 
@@ -271,7 +293,7 @@ export default function Salaries() {
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Spécialité')}</label>
               <select required style={inp} value={form.specialite} onChange={e => setForm(f => ({ ...f, specialite: e.target.value }))}>
-                {SPECIALITES.map(s => <option key={s} value={s === '— Choisir —' ? '' : s}>{s}</option>)}
+                {SPECIALITES.map(s => <option key={s} style={optionStyle} value={s === '— Choisir —' ? '' : s}>{s}</option>)}
               </select>
             </div>
 
@@ -279,7 +301,7 @@ export default function Salaries() {
             <div>
               <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>{requiredLabel('Type de contrat')}</label>
               <select required style={inp} value={form.typeContrat} onChange={e => setForm(f => ({ ...f, typeContrat: e.target.value }))}>
-                {TYPES_CONTRAT.map(t => <option key={t} value={t === '— Choisir —' ? '' : t}>{t}</option>)}
+                {TYPES_CONTRAT.map(t => <option key={t} style={optionStyle} value={t === '— Choisir —' ? '' : t}>{t}</option>)}
               </select>
             </div>
 
@@ -301,6 +323,7 @@ export default function Salaries() {
               <input required style={inp} value={form.adresse} onChange={e => setForm(f => ({ ...f, adresse: e.target.value }))} placeholder="Ex: 3 rue de Tours, 37000 Tours" />
             </div>
 
+
             <button
               onClick={handleSubmit}
               disabled={isSaving}
@@ -312,28 +335,53 @@ export default function Salaries() {
         </div>
       )}
 
-      {/* Modal PIN */}
+
+
       {pinModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
-          <div style={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ margin: 0, color: 'white', fontSize: 16, fontWeight: 700 }}>Code PIN — {pinModal.nom}</h3>
-              <button onClick={() => { setPinModal(null); setNewPinValue(''); setConfirmPinValue(''); }} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', fontSize: 20 }}>✕</button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.62)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 18 }}>
+          <div style={{ width: '100%', maxWidth: 420, background: '#0A1628', border: '1px solid rgba(201,168,76,0.55)', borderRadius: 18, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,0.45)' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 18 }}>
+              <div>
+                <h3 style={{ margin: 0, color: 'white', fontSize: 18, fontWeight: 800 }}>Code PIN tablette</h3>
+                <p style={{ margin: '6px 0 0', color: 'rgba(255,255,255,0.58)', fontSize: 12 }}>Créer ou modifier le PIN de {pinModal.nom}. Le code doit contenir exactement 4 chiffres.</p>
+              </div>
+              <button onClick={() => setPinModal(null)} style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', borderRadius: 8, padding: 8, cursor: 'pointer' }}><X size={16} /></button>
             </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>Nouveau PIN (4 chiffres)</label>
-                <input type="password" maxLength={4} inputMode="numeric" style={inp} value={newPinValue} onChange={e => setNewPinValue(e.target.value.replace(/\D/g, ''))} placeholder="••••" />
+                <label style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, display: 'block', marginBottom: 6 }}>Nouveau PIN *</label>
+                <input
+                  style={inp}
+                  value={pinModal.pin}
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  autoComplete="off"
+                  onChange={e => setPinModal(m => m ? { ...m, pin: e.target.value.replace(/\D/g, '').slice(0, 4) } : m)}
+                  placeholder="4 chiffres"
+                />
               </div>
               <div>
-                <label style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, display: 'block', marginBottom: 6 }}>Confirmer le PIN</label>
-                <input type="password" maxLength={4} inputMode="numeric" style={inp} value={confirmPinValue} onChange={e => setConfirmPinValue(e.target.value.replace(/\D/g, ''))} placeholder="••••" />
+                <label style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, display: 'block', marginBottom: 6 }}>Confirmer le PIN *</label>
+                <input
+                  style={inp}
+                  value={pinModal.confirmPin}
+                  inputMode="numeric"
+                  pattern="[0-9]{4}"
+                  maxLength={4}
+                  autoComplete="off"
+                  onChange={e => setPinModal(m => m ? { ...m, confirmPin: e.target.value.replace(/\D/g, '').slice(0, 4) } : m)}
+                  placeholder="Retaper les 4 chiffres"
+                />
               </div>
-              <button onClick={handleSetPin} disabled={setPin.isPending} style={{ background: '#22c55e', border: 'none', color: 'white', borderRadius: 10, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', opacity: setPin.isPending ? 0.7 : 1 }}>
-                {setPin.isPending ? 'Enregistrement...' : 'Définir le PIN'}
-              </button>
-              <button onClick={() => clearPin.mutate({ employeId: pinModal.id })} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 10, padding: '10px', fontSize: 13, cursor: 'pointer' }}>
-                Supprimer le PIN
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.42)', fontSize: 11, lineHeight: 1.45 }}>Le PIN n’est jamais affiché après enregistrement. Il est stocké sous forme sécurisée et sert à ouvrir la tablette sur le parcours client.</p>
+              <button
+                onClick={handleSavePin}
+                disabled={isSavingPin}
+                style={{ width: '100%', background: '#C9A84C', border: 'none', color: '#111827', borderRadius: 12, padding: '13px', fontSize: 15, fontWeight: 800, cursor: 'pointer', opacity: isSavingPin ? 0.7 : 1 }}
+              >
+                {isSavingPin ? 'Enregistrement...' : 'Enregistrer le code PIN'}
               </button>
             </div>
           </div>
@@ -357,6 +405,9 @@ export default function Salaries() {
                 <p style={{ margin: '4px 0 0', color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
                   Adresse : {salarie.adresse || 'non renseignée'}
                 </p>
+                <p style={{ margin: '4px 0 0', color: salarie.hasPinSet ? '#22c55e' : 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+                  PIN tablette : {salarie.hasPinSet ? 'configuré' : 'non configuré'}
+                </p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
@@ -366,18 +417,12 @@ export default function Salaries() {
                   <Pencil size={14} /> Modifier
                 </button>
                 <button
-                  onClick={() => setPinModal({ id: Number(salarie.id), nom: `${salarie.prenom} ${salarie.nom}` })}
-                  style={{ background: salarie.hasPinSet ? 'rgba(34,197,94,0.15)' : 'rgba(201,168,76,0.15)', border: `1px solid ${salarie.hasPinSet ? '#22c55e' : '#C9A84C'}`, color: salarie.hasPinSet ? '#22c55e' : '#C9A84C', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
-                >
-                  <KeyRound size={14} /> {salarie.hasPinSet ? 'PIN ✓' : 'Définir PIN'}
-                </button>
-                <button
                   onClick={() => {
                     navigate(`/rgpd-salarie?salarieId=${salarie.id}`);
                   }}
                   style={{ background: hasSignedEngagement(salarie.id) ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.15)', border: `1px solid ${hasSignedEngagement(salarie.id) ? '#22c55e' : '#6366f1'}`, color: hasSignedEngagement(salarie.id) ? '#22c55e' : '#6366f1', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
                 >
-                  <FileText size={14} /> {hasSignedEngagement(salarie.id) ? 'Fiche 15 signée' : 'Signer fiche 15'}
+                  <FileText size={14} /> {hasSignedEngagement(salarie.id) ? 'Signer' : 'Signer fiche 15'}
                 </button>
                 <button
                   onClick={() => navigate(`/rgpd-salarie?salarieId=${salarie.id}&print=1`)}

@@ -8,6 +8,8 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  employeeRole?: string;
+  employeeId?: number;
 };
 
 if (!process.env.JWT_SECRET) throw new Error("❌ JWT_SECRET manquant dans .env");
@@ -93,5 +95,20 @@ export async function createContext(
       user = null;
     }
   }
-  return { req: opts.req, res: opts.res, user };
+  // Extraire le rôle employé depuis le JWT
+  let employeeRole: string | undefined;
+  let employeeId: number | undefined;
+  try {
+    const cookieHeader = opts.req.headers.cookie || '';
+    const cookies = Object.fromEntries(cookieHeader.split(';').filter(Boolean).map((c: string) => { const [k,...v]=c.trim().split('='); return [k,v.join('=')]; }));
+    const token = cookies['local_session'];
+    if (token) {
+      const { jwtVerify } = await import('jose');
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'Intemporelle2026!');
+      const { payload } = await jwtVerify(token, secret);
+      if (payload.role) { employeeRole = payload.role as string; }
+      if (payload.employeeId && payload.role && payload.role !== 'admin') { employeeId = Number(payload.employeeId); }
+    }
+  } catch {}
+  return { req: opts.req, res: opts.res, user, employeeRole, employeeId };
 }

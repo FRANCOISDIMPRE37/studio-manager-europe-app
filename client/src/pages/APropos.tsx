@@ -29,14 +29,14 @@ export default function APropos() {
         <div className="flex items-center gap-4 mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_white_d12a3c81.svg"
-            alt="Intemporelle"
+            alt="Studio Manager Europe"
             className="w-14 h-14 flex-shrink-0"
           />
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-700 leading-tight" style={{ color: 'white', fontFamily: 'Outfit', fontWeight: 700 }}>
               Studio Manager
             </h2>
-            <p className="text-sm" style={{ color: 'rgba(201,168,76,0.9)' }}>by Société Intemporelle</p>
+            <p className="text-sm" style={{ color: 'rgba(201,168,76,0.9)' }}>by Studio Manager Europe</p>
             <p className="text-xs mt-0.5" style={{ color: 'var(--brand-text-muted)' }}>RGPD & Cybersécurité · Tours (37)</p>
           </div>
           {/* Badge CNIL */}
@@ -54,7 +54,7 @@ export default function APropos() {
         {/* Mention propriété */}
         <div className="p-3 rounded-lg mb-4" style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)' }}>
           <p className="text-xs" style={{ color: 'rgba(201,168,76,0.9)', lineHeight: 1.7 }}>
-            ⚖️ Cette application est la <strong>propriété exclusive de la Société Intemporelle</strong>.
+            ⚖️ Cette application est la <strong>propriété exclusive de la Studio Manager Europe</strong>.
             La tablette et le logiciel sont mis à disposition sous licence. Toute reproduction,
             modification ou redistribution est strictement interdite sans autorisation écrite.
           </p>
@@ -218,7 +218,7 @@ export default function APropos() {
         <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs" style={{ color: 'var(--brand-text-muted)' }}>
           {[
             ['Version', 'Mars 2026'],
-            ['Propriétaire', 'Société Intemporelle'],
+            ['Propriétaire', 'Studio Manager Europe'],
             ['Siège', 'Tours (37)'],
             ['Certification', 'CNIL 2019'],
             ['Licence', 'Usage exclusif — non transférable'],

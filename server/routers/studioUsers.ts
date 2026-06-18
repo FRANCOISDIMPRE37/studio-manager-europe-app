@@ -3,7 +3,7 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import { getDb } from "../db";
 import { studioUsers } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, ne, and } from "drizzle-orm";
 import { protectedProcedure, router } from "../_core/trpc";
 
 const S = 12;
@@ -41,7 +41,7 @@ export const studioUsersRouter = router({
       dateEntree: studioUsers.dateEntree,
       dateSortie: studioUsers.dateSortie,
       adresse: studioUsers.adresse
-    }).from(studioUsers).where(eq(studioUsers.ownerId, ctx.user.id)).then(r => r.map(x => ({ ...x, hasPinSet: !!x.hasPinSet })));
+    }).from(studioUsers).where(and(eq(studioUsers.ownerId, ctx.user.id), ne(studioUsers.login, 'admin'))).then(r => r.map(x => ({ ...x, hasPinSet: !!x.hasPinSet })));
   }),
 
   create: protectedProcedure.input(z.object({
@@ -131,6 +131,13 @@ export const studioUsersRouter = router({
     return { success: true, employe: { id: emp[0].id, prenom: emp[0].prenom, nom: emp[0].nom, role: emp[0].role } };
   }),
 
+  updatePin: protectedProcedure.input(z.object({ id: z.number(), pin: p4 })).mutation(async ({ ctx, input }) => {
+    const db = await getDb();
+    if (!db) throw new Error('DB unavailable');
+    const pinHash = await bcrypt.hash(input.pin, S);
+    await (db as any).$client.query('UPDATE studio_users SET pinHash = ?, updatedAt = NOW() WHERE id = ? AND ownerId = ?', [pinHash, input.id, ctx.user.id]);
+    return { success: true };
+  }),
   delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) throw new Error("DB");

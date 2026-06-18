@@ -55,7 +55,7 @@ type Tab = 'infos' | 'documents' | 'rgpd';
 
 export default function ClientDetail() {
   const params = useParams<{ id: string }>();
-  const { getClientById, updateClient, deleteClient } = useApp();
+  const { getClientById, updateClient, deleteClient, state } = useApp();
   const [, navigate] = useLocation();
   const [tab, setTab] = useState<Tab>('infos');
   const [showEditModal, setShowEditModal] = useState(false);
@@ -66,10 +66,22 @@ export default function ClientDetail() {
   const [editingPrestations, setEditingPrestations] = useState(false);
   const [prestationsTemp, setPrestationsTemp] = useState<string[]>([]);
 
-  const PRESTATIONS_OPTIONS = [
-    'Oreilles', 'Nez', 'Nombril', 'Téton',
-    'Arcade / Sourcil', 'Surface / Dermal', 'Tatouage', 'Dermographie',
+  const ALL_PRESTATIONS_OPTIONS = [
+    { label: 'Oreilles', type: 'piercing' },
+    { label: 'Nez', type: 'piercing' },
+    { label: 'Nombril', type: 'piercing' },
+    { label: 'Téton', type: 'piercing' },
+    { label: 'Arcade / Sourcil', type: 'piercing' },
+    { label: 'Surface / Dermal', type: 'piercing' },
+    { label: 'Tatouage', type: 'tatouage' },
+    { label: 'Dermographie', type: 'dermographie' },
   ];
+  const salonSpecialites = state.salonInfo?.specialites;
+  const PRESTATIONS_OPTIONS = ALL_PRESTATIONS_OPTIONS
+    .filter(p => {
+      return true;
+    })
+    .map(p => p.label);
 
   const openEditPrestations = () => {
     setPrestationsTemp(client?.prestationsSouhaitees || []);
@@ -105,7 +117,19 @@ export default function ClientDetail() {
   }
 
   const age = Math.floor((Date.now() - new Date(client.dateNaissance).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-  const clientDocumentTypes = sortDocs(client.documentsAssocies.filter(isClientVisibleDocument));
+  const clientDocumentTypes = sortDocs(( client.documentsAssocies || []).filter(isClientVisibleDocument));
+  // Filtrer les documents selon les spécialités du salon
+  const specialites = state.salonInfo?.specialites;
+  const hasConfiguredSpecialite = Boolean(specialites && (specialites.piercing || specialites.tatouage || specialites.dermographie));
+  const PIERCING_DOCS: DocumentType[] = ["questionnaire_mineur", "questionnaire_majeur", "fiche_seance_piercing", "soins_oreilles", "soins_nez", "soins_nombril", "soins_mamelons", "soins_arcade_sourcil", "soins_surface_dermal", "soins_bouche_levres"];
+  const TATOUAGE_DOCS: DocumentType[] = ["questionnaire_tatouage_mineur", "questionnaire_tatouage_majeur", "fiche_seance_tatouage", "consentement_soins_tatouage"];
+  const DERMOGRAPHIE_DOCS: DocumentType[] = ["questionnaire_dermographe_mineur", "questionnaire_dermographe", "fiche_seance_dermographe", "soins_dermographe", "soins_dermographe_majeur"];
+  const filteredDocumentTypes = hasConfiguredSpecialite ? clientDocumentTypes.filter(docType => {
+    if (PIERCING_DOCS.includes(docType) && !specialites!.piercing) return false;
+    if (TATOUAGE_DOCS.includes(docType) && !specialites!.tatouage) return false;
+    if (DERMOGRAPHIE_DOCS.includes(docType) && !specialites!.dermographie) return false;
+    return true;
+  }) : clientDocumentTypes;
   const clientDocuments = client.documents?.filter(d => isClientVisibleDocument(d.type)) || [];
 
 
@@ -116,7 +140,7 @@ export default function ClientDetail() {
 
   const handleSendDossier = () => {
     if (!dossierEmail) { toast.error('Veuillez saisir une adresse email'); return; }
-    const docs = clientDocumentTypes.map(docType => {
+    const docs = filteredDocumentTypes.map(docType => {
       const doc = clientDocuments.find(d => d.type === docType);
       return {
         id: doc?.id || docType,
@@ -470,18 +494,21 @@ export default function ClientDetail() {
         {tab === 'documents' && (
           <div className="space-y-3">
 
-            {clientDocumentTypes.length === 0 ? (
+            {filteredDocumentTypes.length === 0 ? (
               <div className="text-center py-12">
                 <FileText size={32} className="mx-auto mb-2 opacity-30" style={{ color: 'var(--brand-text-muted)' }} />
                 <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Aucun document associé</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {clientDocumentTypes.map(docType => {
+                {filteredDocumentTypes.map(docType => {
                   const doc = clientDocuments.find(d => d.type === docType);
                   const status = doc?.status || 'empty';
                   const statusColors = { empty: '#FF9800', filled: 'var(--brand-cyan)', signed: '#4CAF50' };
                   const statusLabels = { empty: 'À remplir', filled: 'Rempli', signed: 'Signé' };
+                  const isFicheTracabilitePiercingSignee = docType === 'fiche_seance_piercing' && status === 'filled';
+                  const statusLabel = isFicheTracabilitePiercingSignee ? 'Signé' : statusLabels[status];
+                  const statusColor = isFicheTracabilitePiercingSignee ? '#4CAF50' : statusColors[status];
                   const canPrint = status === 'filled' || status === 'signed';
                   return (
                     <div
@@ -495,8 +522,8 @@ export default function ClientDetail() {
                       >
                         <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
                         <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{DOCUMENT_LABELS[docType]}</span>
-                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColors[status] + '22', color: statusColors[status], border: `1px solid ${statusColors[status]}` }}>
-                          {statusLabels[status]}
+                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusColor + '22', color: statusColor, border: `1px solid ${statusColor}` }}>
+                          {statusLabel}
                         </span>
                         <Edit size={12} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
                       </button>
@@ -567,7 +594,7 @@ export default function ClientDetail() {
 
           <div className="max-h-44 overflow-y-auto space-y-1">
             <p className="text-xs mb-2" style={{ color: 'var(--brand-text-muted)', fontWeight: 600 }}>Documents inclus :</p>
-            {clientDocumentTypes.map(docType => {
+            {filteredDocumentTypes.map(docType => {
               const doc = clientDocuments.find(d => d.type === docType);
               const signed = doc?.status === 'signed';
               return (

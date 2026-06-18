@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Studio Manager",
-    "subtitle": "von Intemporelle — DSGVO & Cybersicherheit",
+    "subtitle": "von Studio Manager Europe — DSGVO & Cybersicherheit",
     "tagline": "Die digitale Lösung für Tätowier- und Piercingprofis"
   },
   "nav": {
@@ -226,8 +226,7 @@
     "soins_piercing": "Piercing-Nachsorge (A, B, C, D–G)",
     "tatouage": "Tätowierung (05-07)",
     "dermographie": "Dermographie (08-10)",
-    "rgpd": "DSGVO & Vertraulichkeit (11-12)",
-    "momer_rgpd": "MOMER DSGVO"
+    "rgpd": "DSGVO & Vertraulichkeit (11-12)"
   },
   "soins": {
     "fiche_title": "PFLEGEBLATT",
@@ -553,6 +552,11 @@
       "Personalausweis",
       "Reisepass",
       "Aufenthaltstitel"
+    ],
+    "id_options_adult": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour"
     ],
     "id_options_minor": [
       "Personalausweis",

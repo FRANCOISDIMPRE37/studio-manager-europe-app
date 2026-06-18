@@ -21,7 +21,7 @@ const PRESTATION_DOCS_MAJEUR: Record<string, DocumentType[]> = {
   'Surface / Dermal':  ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_surface_dermal'],
   'Labret':   ['questionnaire_majeur', 'fiche_seance_piercing', 'soins_bouche_levres'],
   'Tatouage':          ['questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'consentement_soins_tatouage'],
-  'Dermographie':      ['questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe'],
+  'Dermographie':      ['questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe_majeur'],
 };
 
 const PRESTATION_DOCS_MINEUR: Record<string, DocumentType[]> = {
@@ -32,7 +32,7 @@ const PRESTATION_DOCS_MINEUR: Record<string, DocumentType[]> = {
   'Arcade / Sourcil':  ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_arcade_sourcil'],
   'Surface / Dermal':  ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_surface_dermal'],
   'Labret':   ['questionnaire_mineur', 'fiche_seance_piercing', 'soins_bouche_levres'],
-  'Tatouage':   ['questionnaire_tatouage_mineur', 'fiche_seance_tatouage'],
+  'Tatouage':   ['questionnaire_tatouage_mineur', 'fiche_seance_tatouage', 'consentement_soins_tatouage_mineur'],
   'Dermographie': ['questionnaire_dermographe_mineur', 'fiche_seance_dermographe', 'soins_dermographe'],
 };
 
@@ -101,21 +101,35 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
   const [adresse, setAdresse] = useState(initialClient?.adresse || '');
   const [codePostal, setCodePostal] = useState(initialClient?.codePostal || '');
   const [ville, setVille] = useState(initialClient?.ville || '');
+  const [nomPraticien, setNomPraticien] = useState(initialClient?.praticien || state.salonInfo?.nomPierceur || state.salonInfo?.nomTatoueur || state.salonInfo?.nomDermographe || '');
   const [pieceIdentiteType, setPieceIdentiteType] = useState(initialClient?.pieceIdentiteType || '');
   const [pieceIdentiteNumero, setPieceIdentiteNumero] = useState(initialClient?.pieceIdentiteNumero || '');
   const [prestationsSouhaitees, setPrestationsSouhaitees] = useState<string[]>(initialClient?.prestationsSouhaitees || []);
+  const [zoneATatouer, setZoneATatouer] = useState(initialClient?.zoneATatouer || '');
+  const [zoneDermographie, setZoneDermographie] = useState<string[]>(initialClient?.zoneDermographie || []);
 
-  const PRESTATIONS_OPTIONS = [
-    'Oreilles',
-    'Nez',
-    'Nombril',
-    'Téton',
-    'Arcade / Sourcil',
-    'Surface / Dermal',
-    'Labret',
-    'Tatouage',
-    'Dermographie',
+  const ALL_PRESTATIONS_OPTIONS = [
+    { label: 'Oreilles', type: 'piercing' },
+    { label: 'Nez', type: 'piercing' },
+    { label: 'Nombril', type: 'piercing' },
+    { label: 'T\u00e9ton', type: 'piercing' },
+    { label: 'Arcade / Sourcil', type: 'piercing' },
+    { label: 'Surface / Dermal', type: 'piercing' },
+    { label: 'Labret', type: 'piercing' },
+    { label: 'Tatouage', type: 'tatouage' },
+    { label: 'Dermographie', type: 'dermographie' },
   ];
+  const salonSpecialites = state.salonInfo?.specialites;
+  const PRESTATIONS_OPTIONS = ALL_PRESTATIONS_OPTIONS
+    .filter(p => {
+      if (!salonSpecialites) return true;
+      if (!salonSpecialites.piercing && !salonSpecialites.tatouage && !salonSpecialites.dermographie) return true;
+      if (p.type === 'piercing' && !salonSpecialites.piercing) return false;
+      if (p.type === 'tatouage' && !salonSpecialites.tatouage) return false;
+      if (p.type === 'dermographie' && !salonSpecialites.dermographie) return false;
+      return true;
+    })
+    .map(p => p.label);
 
   const togglePrestation = (p: string) => {
     setPrestationsSouhaitees(prev =>
@@ -196,13 +210,20 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
       if (!telephone.trim()) errors.push('Téléphone requis');
       if (!dateJour || !dateMois || !dateAnnee) errors.push('Date de naissance requise');
       if (!isDateValid) errors.push('Date invalide');
+      if (!email.trim()) errors.push('Email requis');
+      if (!adresse.trim()) errors.push('Adresse requise');
+      if (!codePostal.trim()) errors.push('Code postal requis');
+      if (!ville.trim()) errors.push('Ville requise');
+      if (!pieceIdentiteType) errors.push('Pièce d identité requise');
+      if (pieceIdentiteType && pieceIdentiteType !== 'Autre' && !pieceIdentiteNumero.trim()) errors.push('Numéro de pièce d identité requis');
+      if (prestationsSouhaitees.length === 0) errors.push('Au moins une prestation requise');
+      if (prestationsSouhaitees.includes('Tatouage') && !zoneATatouer.trim()) errors.push('Zone à tatouer requise');
+      if (prestationsSouhaitees.includes('Dermographie') && !zoneATatouer.trim()) errors.push('Zone à traiter requise');
       if (isMineur) {
-        if (!adresse.trim()) errors.push('Adresse requise');
         if (!nomRepresentant.trim()) errors.push('Nom du représentant légal requis');
         if (!prenomRepresentant.trim()) errors.push('Prénom du représentant légal requis');
         if (!lienRepresentant.trim()) errors.push('Lien avec le mineur requis');
         if (!telephoneRepresentant.trim()) errors.push('Téléphone du représentant légal requis');
-        if (prestationsSouhaitees.length === 0) errors.push('Au moins une prestation requise');
       }
       const errorMessage = errors.length > 0 ? 'Erreurs :\n' + errors.join('\n') : 'Veuillez remplir tous les champs obligatoires';
       toast.error(errorMessage);
@@ -226,9 +247,12 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
       adresse: adresse.trim(),
       codePostal: codePostal.trim(),
       ville: ville.trim(),
+      praticien: nomPraticien.trim() || undefined,
       pieceIdentiteType: pieceIdentiteType as any || undefined,
       pieceIdentiteNumero: pieceIdentiteNumero.trim() || undefined,
       prestationsSouhaitees: prestationsSouhaitees.length > 0 ? prestationsSouhaitees : undefined,
+      zoneATatouer: zoneATatouer.trim() || undefined,
+      zoneDermographie: zoneDermographie.length > 0 ? zoneDermographie : undefined,
       estMineur: isMineur,
       nomRepresentantLegal: isMineur ? nomRepresentant : undefined,
       prenomRepresentantLegal: isMineur ? prenomRepresentant : undefined,
@@ -318,7 +342,7 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div
         className="relative w-full md:max-w-lg rounded-xl"
-        style={{ background: 'var(--brand-navy-light)', border: '1px solid var(--brand-border)', display: 'flex', flexDirection: 'column', maxHeight: '95vh', overflow: 'hidden' }}
+        style={{ background: 'var(--brand-navy-light)', border: '1px solid var(--brand-border)', display: 'flex', flexDirection: 'column', maxHeight: '95vh', overflow: 'auto' }}
       >
         {/* Header */}
         <div
@@ -537,6 +561,19 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
               </div>
             </div>
           </div>
+          {/* PRATICIEN */}
+          <div style={{ marginTop: 8 }}>
+            <label style={labelStyle}>👤 Nom du praticien (pierceur / tatoueur / dermographe)</label>
+            <input
+              type="text"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'white', borderRadius: 8, padding: '8px 12px', width: '100%', fontSize: 13, boxSizing: 'border-box' as const }}
+              value={nomPraticien}
+              onChange={e => setNomPraticien(e.target.value)}
+              placeholder="Nom du praticien"
+              autoComplete="off"
+              autoCapitalize="none"
+            />
+          </div>
 
           {/* COORDONNÉES ET IDENTITÉ — obligatoires pour les mineurs */}
 
@@ -601,8 +638,30 @@ export default function AddClientModal({ isOpen, onClose, client: initialClient 
                 <AlertCircle size={11} /> {errPrestations}
               </p>
             )}
+            {prestationsSouhaitees.includes('Tatouage') && (
+              <div className="mt-2">
+                <p className="text-xs mb-1 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>Zone à tatouer</p>
+                <input
+                  value={zoneATatouer}
+                  onChange={e => setZoneATatouer(e.target.value)}
+                  placeholder="Ex: avant-bras gauche, épaule droite..."
+                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', borderRadius: 8, color: 'var(--brand-text)', fontSize: 13, boxSizing: 'border-box' as any }}
+                />
+              </div>
+            )}
           </div>
 
+            {prestationsSouhaitees.includes('Dermographie') && (
+              <div className="mt-2">
+                <p className="text-xs mb-1 uppercase tracking-wide" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>Zone à traiter</p>
+                <input
+                  value={zoneATatouer}
+                  onChange={e => setZoneATatouer(e.target.value)}
+                  placeholder="Ex: sourcils, lèvres, eye-liner..."
+                  style={{ width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--brand-border)', borderRadius: 8, color: 'var(--brand-text)', fontSize: 13, boxSizing: 'border-box' }}
+                />
+              </div>
+            )}
           {/* BOUTONS */}
           <div className="flex gap-2 pt-1">
             <button

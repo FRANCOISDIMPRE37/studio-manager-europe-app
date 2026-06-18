@@ -17,7 +17,7 @@ import rateLimit from "express-rate-limit";
 
 const pinLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 20,
   message: { error: "Trop de tentatives, réessayez dans 15 minutes" },
   standardHeaders: true,
   legacyHeaders: false,
@@ -38,7 +38,7 @@ export function registerAuthRoutes(app: Express) {
 
       // Prioriser l'utilisateur avec passwordHash (évite les doublons OAuth sans mot de passe)
       const [rows] = await (db as any).$client.query(
-        "SELECT * FROM users WHERE email = ? ORDER BY (passwordHash IS NOT NULL) DESC LIMIT 1", [email]
+        "SELECT * FROM users WHERE email = ? ORDER BY (passwordHash IS NOT NULL) DESC, id DESC LIMIT 1", [email]
       );
       const user = (rows as any[])[0];
 

@@ -4,14 +4,14 @@ export default function MentionsLegales() {
       <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--brand-cyan)' }}>
         Mentions Légales & CGU
       </h1>
-      <p className="mb-10 text-xs" style={{ color: 'var(--brand-text-muted)' }}>Version 1.0 — Mars 2026 — Studio Pierceur Tatoueur Dermographe by Intemporelle</p>
+      <p className="mb-10 text-xs" style={{ color: 'var(--brand-text-muted)' }}>Version 1.0 — Mars 2026 — Studio Manager Europe</p>
 
       {/* Mentions légales */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--brand-cyan)' }}>Mentions Légales</h2>
         <div className="p-5 rounded-lg space-y-2" style={{ background: 'var(--brand-surface)' }}>
           <p><strong>Éditeur :</strong> Intemporelle — François Dimpre</p>
-          <p><strong>Site :</strong> studio.studiomanagereurope.eu</p>
+          <p><strong>Site :</strong> app.studiomanagereurope.eu</p>
           <p><strong>Contact :</strong> <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a></p>
           <p><strong>Hébergeur :</strong> OVHcloud — Gravelines (France)</p>
           <p><strong>Nom de domaine :</strong> IONOS SARL — 7 place de la Gare, BP 70109, 57201 Sarreguemines Cedex</p>
@@ -115,7 +115,7 @@ export default function MentionsLegales() {
       </section>
 
       <div className="mt-10 pt-6 text-xs text-center" style={{ borderTop: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}>
-        Studio Pierceur Tatoueur Dermographe by Intemporelle — <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a>
+        Studio Manager Europe — <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a>
       </div>
     </div>
   );

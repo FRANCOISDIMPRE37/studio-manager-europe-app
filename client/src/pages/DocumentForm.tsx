@@ -10,7 +10,7 @@ import SignaturePad from '@/components/SignaturePad';
 import { trpc } from '@/lib/trpc';
 import { FormSection, FormField, RadioField, CheckboxField, DateSlashField, LegalBox, RgpdMentions, WarningBox, AgeVerif, PrintHeader, PrintFooter } from './FormsCommuns';
 import { FormQuestionnaireMineur, FormQuestionnaireMajeur, FormAutorisationParentale, FormSoins } from './FormsPiercing';
-import { FormFicheSeance, FormConsentementSoinsTatouage, FormFicheSeanceTatouage, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage } from './FormsTatouage';
+import { FormFicheSeance, FormConsentementSoinsTatouage, FormConsentementSoinsTatouageMineur, FormFicheSeanceTatouage, FormQuestionnaireTatouageMineur, FormQuestionnaireDermographeMineur, FormAutorisationParentaleDermographie, FormQuestionnaireTatouageMajeur, FormAutorisationParentaleTatouage } from './FormsTatouage';
 import { FormFicheSeanceDermographe, FormQuestionnaireDermographe, FormSoinsDermographe } from './FormsDermographie';
 import { FormEngagementConfidentialite, FormAffichageSalon } from './FormsRGPD';
 
@@ -68,12 +68,15 @@ export default function DocumentForm() {
   // Détection du paramètre ?print=1 dans l'URL pour impression automatique
   const autoPrint = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('print') === '1';
 
-  const client = isStandaloneMode ? STANDALONE_CLIENT : state.clients.find(c => c.id === clientId);
+  const clientFromCache = isStandaloneMode ? STANDALONE_CLIENT : state.clients.find(c => c.id === clientId);
+  const clientFreshQuery = trpc.clients.get.useQuery({ id: clientId! }, { enabled: !!clientId });
+  const client = isStandaloneMode ? STANDALONE_CLIENT : (clientFreshQuery.data || clientFromCache);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const printLockRef = useRef(false);
 
   useEffect(() => {
-    if (client) {
+    if (client && (!clientId || !clientFreshQuery.isLoading)) {
       const existingDoc = client.documents?.find(d => d.type === docType);
       const today = new Date().toLocaleDateString('fr-FR');
 
@@ -104,6 +107,19 @@ export default function DocumentForm() {
         // Champs radio + numéro (Questionnaire tatouage majeur, dermographe, fiche séance tatouage)
         pieceIdType: client.pieceIdentiteType || '',
         pieceIdNumero: client.pieceIdentiteNumero || '',
+        zoneATatouer: client.zoneATatouer || '',
+        zones: client.zoneATatouer || '',
+        nomRepresentant: client.nomRepresentantLegal || '',
+        prenomRepresentant: client.prenomRepresentantLegal || '',
+        lienRepresentant: client.lienRepresentantLegal || '',
+        telephoneRepresentant: client.telephoneRepresentantLegal || '',
+        zoneTatouage: client.zoneATatouer || '',
+        zoneDermographie: client.zoneDermographie || [],
+        zone_sourcils: (client.zoneDermographie || []).includes('sourcils'),
+        zone_levres: (client.zoneDermographie || []).includes('levres'),
+        zone_eye_liner_superieur: (client.zoneDermographie || []).includes('eye_liner_superieur'),
+        zone_eye_liner_inferieur: (client.zoneDermographie || []).includes('eye_liner_inferieur'),
+        zone_autre_zone: (client.zoneDermographie || []).includes('autre_zone'),
         // Champs mineur (Questionnaire médical mineur piercing)
         pieceIdMineurType: client.pieceIdentiteType || '',
         pieceIdMineurNumero: client.pieceIdentiteNumero || '',
@@ -138,6 +154,22 @@ export default function DocumentForm() {
         dateSignatureParent: today,
       };
 
+      const professionalName = (client.praticien || '').trim();
+      const professionalAliases = [
+        'praticien',
+        'nomPierceur',
+        'nomPierceurSign',
+        'nomTatoueur',
+        'nomTatoueurSign',
+        'tatoueur',
+        'signatureTatoueur',
+        'nomDermographe',
+        'nomDermographeSign',
+      ];
+      const professionalData: Record<string, string> = professionalName
+        ? Object.fromEntries(professionalAliases.map(key => [key, professionalName]))
+        : {};
+
       if (existingDoc?.data) {
         // Document existant : on fusionne en prioritisant les données sauvegardées,
         // mais on met à jour les champs d'identité si le client a été modifié
@@ -154,30 +186,29 @@ export default function DocumentForm() {
           'nomClient', 'prenomClient', 'telephoneClient', 'emailClient',
           'nomMineur', 'prenomMineur', 'dateNaissanceMineur', 'nomClientSign',
           'pieceId', 'numeroPiece', 'pieceIdType', 'pieceIdNumero',
-          'pieceIdMineurType', 'pieceIdMineurNumero'];
+          'pieceIdMineurType', 'pieceIdMineurNumero',
+          'zoneATatouer', 'zoneTatouage', 'zoneDermographie', 'zones', 'zone', 'zonePiercing', 'zone_sourcils', 'zone_levres', 'zone_eye_liner_superieur', 'zone_eye_liner_inferieur', 'zone_autre_zone',
+          'nomPierceurSign', 'nomTatoueurSign', 'nomDermographeSign', 'praticien'];
         for (const key of identityKeys) {
           if (clientIdentity[key]) merged[key] = clientIdentity[key];
         }
-        // S'assurer que les noms des professionnels sont toujours synchronisés depuis salonInfo
-        if (state.salonInfo?.nomPierceur) merged.nomPierceurSign = state.salonInfo.nomPierceur;
-        if (state.salonInfo?.nomTatoueur) merged.nomTatoueurSign = state.salonInfo.nomTatoueur;
-        if (state.salonInfo?.nomDermographe) merged.nomDermographeSign = state.salonInfo.nomDermographe;
+        // Forcer zoneATatouer depuis le client si le doc a une valeur vide
+        if (client.zoneATatouer && !merged.zoneATatouer) merged.zoneATatouer = client.zoneATatouer;
+        // S'assurer que les alias professionnels sont toujours synchronisés depuis la fiche client
+        Object.assign(merged, professionalData);
         // Document 16 : synchroniser systématiquement les informations du salon depuis Paramètres
         if (docType === 'affichage_salon') Object.assign(merged, getSalonDocumentData(state.salonInfo));
         setFormData(merged);
       } else {
         // Nouveau document : on pré-remplit avec toutes les données du client
         // Nouveau document : on pré-remplit avec toutes les données du client et les noms des professionnels
-        const initialFormData = { ...clientIdentity };
-        if (state.salonInfo?.nomPierceur) initialFormData.nomPierceurSign = state.salonInfo.nomPierceur;
-        if (state.salonInfo?.nomTatoueur) initialFormData.nomTatoueurSign = state.salonInfo.nomTatoueur;
-        if (state.salonInfo?.nomDermographe) initialFormData.nomDermographeSign = state.salonInfo.nomDermographe;
+        const initialFormData = { ...clientIdentity, ...professionalData };
         // Document 16 : préremplir automatiquement les informations du salon depuis Paramètres
         if (docType === 'affichage_salon') Object.assign(initialFormData, getSalonDocumentData(state.salonInfo));
         setFormData(initialFormData);
       }
     }
-   }, [client?.id, docType, state.salonInfo?.nom, state.salonInfo?.raisonSociale, state.salonInfo?.adresse, state.salonInfo?.codePostal, state.salonInfo?.ville, state.salonInfo?.telephone, state.salonInfo?.email, state.salonInfo?.siret, state.salonInfo?.siteWeb, state.salonInfo?.mentionsLegales]);
+   }, [client?.id, client?.praticien, client?.zoneATatouer, client?.prestationsSouhaitees, docType, state.salonInfo?.nom, state.salonInfo?.raisonSociale, state.salonInfo?.adresse, state.salonInfo?.codePostal, state.salonInfo?.ville, state.salonInfo?.telephone, state.salonInfo?.email, state.salonInfo?.siret, state.salonInfo?.siteWeb, state.salonInfo?.mentionsLegales]);
 
   // Impression automatique si ?print=1 dans l'URL (déclenché après chargement des données)
   useEffect(() => {
@@ -202,6 +233,7 @@ export default function DocumentForm() {
     'questionnaire_tatouage_majeur',
     'questionnaire_dermographe',
     'consentement_soins_tatouage',
+    'consentement_soins_tatouage_mineur',
     'soins_oreilles',
     'soins_nez',
     'soins_nombril',
@@ -209,6 +241,13 @@ export default function DocumentForm() {
     'soins_arcade_sourcil',
     'soins_surface_dermal',
     'soins_labret',
+    'soins_mineur_oreilles',
+    'soins_mineur_nez',
+    'soins_mineur_bouche_levres',
+    'soins_mineur_nombril',
+    'soins_mineur_mamelons',
+    'soins_mineur_arcade_sourcil',
+    'soins_mineur_surface_dermal',
   ];
 
   const SIGNATURES_OBLIGATOIRES_PAR_DOCUMENT: Partial<Record<DocumentType, Array<{ key: string; label: string }>>> = {
@@ -243,15 +282,9 @@ export default function DocumentForm() {
     fiche_seance_piercing: [
       { key: 'signaturePierceur', label: 'signature du pierceur' },
     ],
-    fiche_tracabilite_tatouage_mineur: [
-      { key: 'signatureImageClient', label: 'signature du tatoueur' },
-    ],
     fiche_seance_tatouage: [
       { key: 'signatureImageClient', label: 'signature du client' },
       { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
-    ],
-    fiche_tracabilite_dermographe_mineur: [
-      { key: 'signatureImageClient', label: 'signature du dermographe' },
     ],
     fiche_seance_dermographe: [
       { key: 'signatureImageClient', label: 'signature du client' },
@@ -267,6 +300,11 @@ export default function DocumentForm() {
     ],
     consentement_soins_tatouage: [
       { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
+    ],
+    consentement_soins_tatouage_mineur: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
       { key: 'signatureImageTatoueur', label: 'signature du tatoueur' },
     ],
     engagement_confidentialite: [
@@ -298,6 +336,41 @@ export default function DocumentForm() {
     ],
     soins_labret: [
       { key: 'signatureImageClient', label: 'signature du client' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_oreilles: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_nez: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_bouche_levres: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_nombril: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_mamelons: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_arcade_sourcil: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
+      { key: 'signatureImagePierceur', label: 'signature du pierceur' },
+    ],
+    soins_mineur_surface_dermal: [
+      { key: 'signatureImageClient', label: 'signature du mineur' },
+      { key: 'signatureImageRepresentant', label: 'signature du représentant légal' },
       { key: 'signatureImagePierceur', label: 'signature du pierceur' },
     ],
   };
@@ -350,8 +423,8 @@ export default function DocumentForm() {
       } catch (e) { console.error(e); toast.error('Erreur lors de l\'archivage'); } finally { setIsSaving(false); }
       return;
     }
-    if (isStandaloneMode) { handlePrint(); return; }
-    if (!client) return;
+    if (isStandaloneMode && docType !== 'consentement_soins_tatouage_mineur' && docType !== 'consentement_soins_tatouage') { handlePrint(); return; }
+    if (!client && docType !== 'consentement_soins_tatouage_mineur' && docType !== 'consentement_soins_tatouage') return;
     if (signatureManquante) {
       toast.error('La signature du client est obligatoire pour valider ce document.');
       return;
@@ -372,14 +445,7 @@ export default function DocumentForm() {
     });
     // Validation numéro pièce identité mineur (conditionnel)
     // RGPD : pièce identité mineur obligatoire
-    if (fichesMineurAvecRepresentant.includes(docType)) {
-      if (!formData.pieceId || formData.pieceId === "Non présentée" || formData.pieceId === "Non presentee") {
-        emptyFields.push("Pièce d'identité du représentant légal (obligatoire RGPD)");
-      }
-      if (formData.pieceId && formData.pieceId !== "Non présentée" && formData.pieceId !== "Non presentee" && !formData.numeroPiece) {
-        emptyFields.push("Numéro de la pièce d'identité du représentant légal");
-      }
-    }
+
     if (formData.pieceId && formData.pieceId !== 'Non présentée' && formData.pieceId !== 'Non presentee' && !formData.numeroPiece) {
       emptyFields.push("Numero de la piece d'identite du mineur");
     }
@@ -504,8 +570,16 @@ export default function DocumentForm() {
       toast.error('Photo obligatoire : veuillez photographier le matériel stérile avant de sauvegarder la fiche de traçabilité.');
       return;
     }
+    // Validation obligatoire : Nom du praticien pour la fiche de traçabilité matériel stérile piercing.
+    if (docType === 'fiche_seance_piercing') {
+      const nomPierceurFiche03 = formData.nomPierceur || state.salonInfo?.nomPierceur || '';
+      if (!nomPierceurFiche03 || nomPierceurFiche03.trim() === '') {
+        toast.error('Le nom du pierceur est obligatoire pour valider la fiche de traçabilité matériel stérile.');
+        return;
+      }
+    }
     // Validation obligatoire : cases à cocher pour les fiches Soins Post-Piercing (A à G)
-    const fichesSoins = ['soins_oreilles', 'soins_nez', 'soins_nombril', 'soins_teton', 'soins_arcade_sourcil', 'soins_surface_dermal', 'soins_labret'];
+    const fichesSoins = ['soins_oreilles', 'soins_nez', 'soins_bouche_levres', 'soins_nombril', 'soins_mamelons', 'soins_arcade_sourcil', 'soins_surface_dermal', 'soins_mineur_oreilles', 'soins_mineur_nez', 'soins_mineur_bouche_levres', 'soins_mineur_nombril', 'soins_mineur_mamelons', 'soins_mineur_arcade_sourcil', 'soins_mineur_surface_dermal'];
     if (fichesSoins.includes(docType)) {
       if (!formData.declarePrisConnaissance) {
         toast.error('Veuillez cocher : « Je déclare avoir pris connaissance des risques liés à la pratique du piercing »');
@@ -516,7 +590,7 @@ export default function DocumentForm() {
         return;
       }
     }
-    // Validation obligatoire : Nom du pierceur pour le questionnaire majeur piercing
+    // Validation obligatoire : Nom du praticien pour le questionnaire majeur piercing
     if (docType === 'questionnaire_majeur') {
       const nomPierceur = formData.nomPierceurSign || formData.nomPierceur || '';
       if (!nomPierceur || nomPierceur.trim() === '') {
@@ -546,7 +620,8 @@ export default function DocumentForm() {
     }
     setIsSaving(true);
     try {
-      const existingDoc = (client.documents || []).find(d => d.type === docType);
+      const freshClient = clientFreshQuery.data || client;
+      const existingDoc = (freshClient.documents || client.documents || []).find(d => d.type === docType);
       const now = new Date().toISOString();
       const dateShort = new Date().toISOString().split('T')[0]; // Format AAAA-MM-JJ (10 chars)
       const isSigned = !!formData.signatureImageClient || docType === 'engagement_confidentialite';
@@ -586,6 +661,7 @@ export default function DocumentForm() {
       
       updateClient({ ...client, documents: newDocs });
       
+      clientFreshQuery.refetch();
       toast.success('Données sécurisées chez OVH à l\'instant T');
       setTimeout(() => navigate(-1), 1000);
     } catch (error: any) {
@@ -615,6 +691,12 @@ export default function DocumentForm() {
   const today = new Date().toLocaleDateString('fr-FR');
 
   function handlePrint() {
+    if (printLockRef.current) return;
+    printLockRef.current = true;
+
+    const existingStyle = document.getElementById('__print_style__');
+    if (existingStyle) existingStyle.remove();
+
     const style = document.createElement('style');
     style.id = '__print_style__';
     style.innerHTML = `
@@ -670,9 +752,21 @@ export default function DocumentForm() {
           color-adjust: exact !important;
         }
 
-        /* Texte lisible */
-        p, span, label, td, th, li, h1, h2, h3, h4, h5, h6 {
+        /* Texte lisible sans écraser les couleurs métier des encadrés et bandeaux */
+        .max-w-3xl {
           color: #111 !important;
+        }
+
+        /* Préserver explicitement les couleurs de fond des sections, alertes, RGPD, radios et cases */
+        .max-w-3xl div,
+        .max-w-3xl button,
+        .max-w-3xl span,
+        .max-w-3xl strong,
+        .max-w-3xl svg,
+        .max-w-3xl path {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
 
         /* Champs de formulaire */
@@ -684,17 +778,20 @@ export default function DocumentForm() {
           print-color-adjust: exact !important;
         }
 
-        /* Cartes */
-        .studio-card, [class*='rounded'] {
+        /* Cartes : ne pas blanchir tous les éléments arrondis, car les bandeaux et alertes utilisent rounded-* */
+        .studio-card {
           border: 1px solid #ccc !important;
           box-shadow: none !important;
-          background: white !important;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        [class*='rounded'] {
           break-inside: avoid;
           page-break-inside: avoid;
         }
 
-        /* Masquer les boutons */
-        button { display: none !important; }
+        /* Masquer uniquement les actions non imprimables, pas les radios/checkboxes du formulaire */
+        .no-print, .no-print * { display: none !important; }
 
         /* En-tête et pied de page d'impression */
         .print-header { display: block !important; margin-bottom: 16px; }
@@ -736,6 +833,33 @@ export default function DocumentForm() {
           page-break-inside: avoid;
         }
 
+
+        /* COMPRESSION IMPRESSION — économie de papier */
+        .my-4 { margin-top: 4px !important; margin-bottom: 4px !important; }
+        .my-3 { margin-top: 3px !important; margin-bottom: 3px !important; }
+        .mb-4 { margin-bottom: 4px !important; }
+        .mb-3 { margin-bottom: 3px !important; }
+        .mb-6 { margin-bottom: 4px !important; }
+        .mb-8 { margin-bottom: 4px !important; }
+        .mt-4 { margin-top: 4px !important; }
+        .mt-3 { margin-top: 3px !important; }
+        .py-4 { padding-top: 4px !important; padding-bottom: 4px !important; }
+        .py-3 { padding-top: 3px !important; padding-bottom: 3px !important; }
+        .py-2 { padding-top: 2px !important; padding-bottom: 2px !important; }
+        .p-4 { padding: 4px !important; }
+        .p-3 { padding: 3px !important; }
+        .gap-3 { gap: 4px !important; }
+        .gap-4 { gap: 4px !important; }
+        .space-y-3 > * + * { margin-top: 3px !important; }
+        .space-y-4 > * + * { margin-top: 3px !important; }
+        .rounded-xl { border-radius: 6px !important; }
+        .rounded-lg { border-radius: 4px !important; }
+        .text-base { font-size: 11px !important; }
+        .text-sm { font-size: 10px !important; }
+        .text-xs { font-size: 9px !important; }
+        h2, h3, h4 { margin-top: 4px !important; margin-bottom: 2px !important; }
+        /* Réduire les marges de page */
+        @page { margin: 12mm 10mm 12mm 10mm; }
         /* Assurer que le contenu principal prend toute la largeur */
         .p-4, .p-6, .max-w-3xl {
           padding: 0 !important;
@@ -757,9 +881,29 @@ export default function DocumentForm() {
         }
       }
     `;
+
+    const unlockAndCleanup = () => {
+      const s = document.getElementById('__print_style__');
+      if (s) s.remove();
+      printLockRef.current = false;
+      window.removeEventListener('afterprint', unlockAndCleanup);
+    };
+
     document.head.appendChild(style);
-    window.print();
-    setTimeout(() => { const s = document.getElementById('__print_style__'); if (s) s.remove(); }, 2000);
+    window.addEventListener('afterprint', unlockAndCleanup);
+
+    try {
+      // iPad/Safari exige que l'appel soit synchronisé avec le tap utilisateur.
+      window.print();
+    } finally {
+      setTimeout(unlockAndCleanup, 2500);
+    }
+  }
+
+  function handlePrintTouch(event?: any) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    handlePrint();
   }
   // Télécharger le document affichage_salon en image PNG
   async function handleDownloadImage() {
@@ -807,7 +951,7 @@ export default function DocumentForm() {
       subject: `${docTitle} — ${clientName}`,
       body: `<p>Veuillez trouver ci-dessous le résumé du document : <strong>${docTitle}</strong></p>
              <p>Client : <strong>${clientName}</strong><br>Date : ${today}</p>
-             <p>Ce document a été généré depuis Studio Pierceur Tatoueur Dermographe by Intemporelle.</p>`,
+             <p>Ce document a été généré depuis Studio Manager Europe.</p>`,
       documentTitle: docTitle,
       clientNom: clientName,
     });
@@ -837,14 +981,13 @@ export default function DocumentForm() {
         return <FormQuestionnaireDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'consentement_soins_tatouage':
         return <FormConsentementSoinsTatouage data={formData} update={updateField} client={effectiveClient} />;
+      case 'consentement_soins_tatouage_mineur':
+        return <FormConsentementSoinsTatouageMineur data={formData} update={updateField} client={effectiveClient} />;
       case 'soins_dermographe':
-        return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} />;
-      case 'fiche_tracabilite_tatouage_mineur':
-        return <FormFicheSeanceTatouage data={formData} update={updateField} client={effectiveClient} />;
+      case 'soins_dermographe_majeur':
+        return <FormSoinsDermographe data={formData} update={updateField} client={effectiveClient} docType={docType} docType={docType} docType={docType} />;
       case 'fiche_seance_tatouage':
         return <FormFicheSeanceTatouage data={formData} update={updateField} client={effectiveClient} />;
-      case 'fiche_tracabilite_dermographe_mineur':
-        return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'fiche_seance_dermographe':
         return <FormFicheSeanceDermographe data={formData} update={updateField} client={effectiveClient} />;
       case 'engagement_confidentialite':
@@ -914,7 +1057,9 @@ export default function DocumentForm() {
             </button>
           ) : (
             <button
+              type="button"
               onClick={handlePrint}
+              onTouchEnd={handlePrintTouch}
               title="Imprimer le document"
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-600 transition-all hover:bg-white/10"
               style={{ color: 'var(--brand-text)', border: '1px solid var(--brand-border)', fontWeight: 600 }}
@@ -959,7 +1104,7 @@ export default function DocumentForm() {
         {/* Message champs obligatoires */}
         <div className="no-print mb-3 px-3 py-2 rounded-lg flex items-center gap-2" style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)' }}>
           <span style={{ color: '#F59E0B', fontSize: 14 }}>⚠️</span>
-          <span style={{ color: '#92400E', fontSize: 12 }}>Les champs marqués <strong style={{ color: '#DC2626' }}>*</strong> sont obligatoires. Veuillez les remplir avant de sauvegarder.</span>
+
         </div>
         {renderForm()}
 
@@ -967,10 +1112,13 @@ export default function DocumentForm() {
         <PrintFooter
           salonInfo={state.salonInfo}
           docTitle={docTitle}
+          hideLegalIdCopyMention={docType === 'questionnaire_mineur' || docType === 'dossier_mineur_piercing'}
+          hideRgpdBlock={docType === 'questionnaire_majeur'}
+          hideDeveloperCredit={docType === 'questionnaire_majeur'}
         />
 
         {/* Save button at bottom */}
-        <div className="mt-6 pt-4" style={{ borderTop: '1px solid var(--brand-border)' }}>
+        <div className="no-print mt-6 pt-4" style={{ borderTop: '1px solid var(--brand-border)' }}>
           {signatureManquante && (
             <div className="flex items-center gap-2 mb-3 px-4 py-2 rounded-lg text-xs" style={{ background: 'rgba(192,57,106,0.1)', border: '1px solid rgba(192,57,106,0.3)', color: '#C0396A' }}>
               <AlertTriangle size={14} />
@@ -1013,7 +1161,9 @@ export default function DocumentForm() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => { setShowPreview(false); setTimeout(handlePrint, 100); }}
+                type="button"
+                onClick={() => { setShowPreview(false); handlePrint(); }}
+                onTouchEnd={(event) => { event.preventDefault(); event.stopPropagation(); setShowPreview(false); handlePrint(); }}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-700 transition-all"
                 style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}
               >
@@ -1073,20 +1223,20 @@ export default function DocumentForm() {
                 } as React.CSSProperties}
               >
                 <style>{`
-                  .preview-content * { color: #111 !important; }
+                  .preview-content, .preview-content * {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                    color-adjust: exact !important;
+                  }
                   .preview-content input, .preview-content textarea, .preview-content select {
                     border: 1px solid #ccc !important;
-                    background: white !important;
                     color: #111 !important;
                     padding: 2px 6px !important;
                     border-radius: 4px !important;
                     font-size: 9pt !important;
                   }
-                  .preview-content label { color: #333 !important; font-size: 9pt !important; }
-                  .preview-content h2, .preview-content h3 { color: #0A1628 !important; }
-                  .preview-content .section-divider { border-color: #0A1628 !important; }
+                  .preview-content label { font-size: 9pt !important; }
                   .preview-content canvas { border: 1px solid #ccc !important; background: #f9f9f9 !important; }
-                  .preview-content button { display: none !important; }
                   .preview-content [class*="sticky"] { position: relative !important; }
                 `}</style>
                 {renderForm()}
@@ -1105,7 +1255,7 @@ export default function DocumentForm() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   {state.salonInfo?.siteWeb && <div>{state.salonInfo.siteWeb}</div>}
-                  <div>Société Intemporelle</div>
+                  <div>Studio Manager Europe</div>
                 </div>
               </div>
             </div>
@@ -1115,7 +1265,9 @@ export default function DocumentForm() {
           <div className="flex items-center justify-center gap-4 px-4 py-3 flex-shrink-0" style={{ background: '#1a2540', borderTop: '1px solid rgba(131,208,245,0.2)' }}>
             <p className="text-xs" style={{ color: '#1e293b', fontWeight: 600 }}>Vérifiez le contenu avant d'imprimer. Les couleurs et la mise en page peuvent légèrement différer selon votre navigateur.</p>
             <button
-              onClick={() => { setShowPreview(false); setTimeout(handlePrint, 100); }}
+              type="button"
+              onClick={() => { setShowPreview(false); handlePrint(); }}
+              onTouchEnd={(event) => { event.preventDefault(); event.stopPropagation(); setShowPreview(false); handlePrint(); }}
               className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-700 flex-shrink-0"
               style={{ background: 'var(--brand-cyan)', color: 'var(--brand-navy)', fontWeight: 700 }}
             >
@@ -1277,7 +1429,6 @@ function FormArchivageDossier({ data, update, client }: { data: Record<string, a
 function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: Record<string, any>; update: (k: string, v: any) => void; client: Client; salonInfo: any }) {
   const { t } = useTranslation();
   const yesNo = [t('forms.no'), t('forms.yes')];
-  const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
       <FormSection title="1 — IDENTITE DU SALON" />
@@ -1286,7 +1437,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
         <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
         <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
       </div>
-      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)}
+      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)}
   required
 />
       <LegalBox color="red">
@@ -1301,7 +1452,7 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       </div>
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
       <RadioField label="Pièce d'identité du mineur" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} required />
       {data.pieceId && data.pieceId !== t('forms.id_not_presented') && (
         <FormField label={t('forms.id_number')} value={data.numeroPiece || ''} onChange={v => update('numeroPiece', v)} />
@@ -1345,12 +1496,12 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <FormSection title="5 — DECLARATION CLIENT" />
       <CheckboxField label={t('q01.answered_honestly')} value={data.reponduHonnetement || false} onToggle={() => update('reponduHonnetement', !data.reponduHonnetement)} required />
       <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
-      <RgpdMentions />
+      <RgpdMentions hideLegalIdCopyMention />
       <FormSection title="6 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
       <FormField label={t('forms.first_name')} value={data.prenomRepresentant || client.prenomRepresentantLegal || ''} onChange={v => update('prenomRepresentant', v)} required />
       <FormField label="Lien avec le mineur" value={data.lienRepresentant || client.lienRepresentantLegal || ''} onChange={v => update('lienRepresentant', v)} required />
-      <FormField label="Telephone" value={data.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" required />
+      <FormField label="Téléphone du représentant légal" value={data.telephoneRepresentant || client.telephoneRepresentantLegal || client.telephone || ''} onChange={v => update('telephoneRepresentant', v)} type="tel" required />
       <RadioField label="Pièce d'identité du représentant légal" options={['CNI', 'Passeport', 'Titre de séjour', 'Non présentée']} value={data.pieceIdRepresentantType || ''} onChange={v => update('pieceIdRepresentantType', v)} required />
       {data.pieceIdRepresentantType && data.pieceIdRepresentantType !== 'Non presentee' && (
         <FormField label="Numéro de la pièce d'identité" value={data.pieceIdRepresentantNumero || ''} onChange={v => update('pieceIdRepresentantNumero', v)} required />
@@ -1362,13 +1513,13 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
       <CheckboxField label="S engager a superviser les soins post-prestation" value={data.engageSoins || false} onToggle={() => update('engageSoins', !data.engageSoins)} required />
       <FormSection title="9 — PRESENCE SEANCE" />
       <CheckboxField label={t('q02.presence_physical')} value={data.presencePhysique || false} onToggle={() => update('presencePhysique', !data.presencePhysique)} required />
-      <RgpdMentions />
+      <RgpdMentions hideLegalIdCopyMention />
       <FormSection title="10 — SIGNATURES" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du mineur — obligatoire</p>
-          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
+          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} required />
           <div className="mt-3"><SignaturePad label={`${t('forms.client_signature')} *`} value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
@@ -1378,10 +1529,10 @@ function FormDossierMineurPiercing({ data, update, client, salonInfo }: { data: 
           <div className="mt-3"><SignaturePad label="Signature du representant legal *" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)}
+          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || data.nomPierceur || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)}
   required
 />
-          <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
+          <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} required />
           <div className="mt-3"><SignaturePad label={`${t('forms.piercer_signature')} *`} value={data.signatureImagePierceur || ''} onChange={v => update('signatureImagePierceur', v ?? '')} /></div>
         </div>
       </div>
@@ -1395,39 +1546,54 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
-      <FormSection title="1 — IDENTITE DU SALON" />
-      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
-      </div>
-      <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueur || salonInfo?.nomTatoueur || ''} onChange={v => update('nomTatoueur', v)} />
-      <LegalBox color="red">
-        <strong>Cadre legal — Art. 371-1 Code civil</strong><br/>
-        Toute prestation de tatouage sur mineur requiert le consentement ecrit du representant legal et sa presence physique.<br/>
-        Conservation : 3 ans minimum apres la majorite (Art. L1110-4 CSP).
-      </LegalBox>
-      <FormSection title="2 — IDENTITE DU MINEUR" />
+      <FormSection title="1 — IDENTITE DU MINEUR" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
       </div>
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
       <RadioField label="Pièce d'identité (CNI / Passeport)" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceIdMineurType || ''} onChange={v => update('pieceIdMineurType', v)} required />
       {data.pieceIdMineurType && data.pieceIdMineurType !== t('forms.id_not_presented') && (
         <FormField label={t('forms.id_number')} value={data.pieceIdMineurNumero || ''} onChange={v => update('pieceIdMineurNumero', v)} />
       )}
       <FormSection title="2 — TATOUAGE DEMANDE" />
       <FormField label="Zone a tatouer" value={data.zoneATatouer || ''} onChange={v => update('zoneATatouer', v)} required />
-      <RadioField label={t('q01.skin_diseases')} options={yesNo} value={data.maladiesPeau || t('forms.no')} onChange={v => update('maladiesPeau', v)} />
-      <RadioField label={t('q01.diabetes')} options={yesNo} value={data.diabete || t('forms.no')} onChange={v => update('diabete', v)} />
-      <RadioField label={t('q01.coagulation')} options={yesNo} value={data.troublesCoagulation || t('forms.no')} onChange={v => update('troublesCoagulation', v)} />
-      <RadioField label={t('q01.keloid')} options={yesNo} value={data.cheloide || t('forms.no')} onChange={v => update('cheloide', v)} />
-      <RadioField label={t('q01.allergy_inks')} options={yesNo} value={data.allergieEncres || t('forms.no')} onChange={v => update('allergieEncres', v)} />
-      <RadioField label={t('q01.latex_allergy')} options={yesNo} value={data.allergieLatex || t('forms.no')} onChange={v => update('allergieLatex', v)} />
-      <RadioField label={t('q01.pregnancy')} options={yesNo} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
+      <FormSection title={t('q05.section_health')} />
+      <WarningBox>{t('q05.warning_health')}</WarningBox>
+      <FormSection title={t('q05.section_medical_history')} />
+      <RadioField label={t('q05.skin_diseases')} options={yesNo} value={data.maladiesPeau || t('forms.no')} onChange={v => update('maladiesPeau', v)} />
+      <RadioField label={t('q05.autoimmune')} options={yesNo} value={data.maladiesAutoImmunes || t('forms.no')} onChange={v => update('maladiesAutoImmunes', v)} />
+      <RadioField label={t('q05.diabetes')} options={yesNo} value={data.diabete || t('forms.no')} onChange={v => update('diabete', v)} />
+      <RadioField label={t('q05.cardiac')} options={yesNo} value={data.maladieCardiaque || t('forms.no')} onChange={v => update('maladieCardiaque', v)} />
+      <RadioField label={t('q05.renal_hepatic')} options={yesNo} value={data.insuffisanceRenale || t('forms.no')} onChange={v => update('insuffisanceRenale', v)} />
+      <RadioField label={t('q05.immunodepression')} options={yesNo} value={data.immunodepression || t('forms.no')} onChange={v => update('immunodepression', v)} />
+      <RadioField label={t('q05.coagulation')} options={yesNo} value={data.troublesCoagulation || t('forms.no')} onChange={v => update('troublesCoagulation', v)} />
+      <RadioField label={t('q05.keloid')} options={yesNo} value={data.cheloide || t('forms.no')} onChange={v => update('cheloide', v)} />
+      <RadioField label={t('q05.herpes_history')} options={yesNo} value={data.antecedentsHerpes || t('forms.no')} onChange={v => update('antecedentsHerpes', v)} />
+      <RadioField label={t('q05.hepatitis')} options={yesNo} value={data.hepatite || t('forms.no')} onChange={v => update('hepatite', v)} />
+      <RadioField label={t('q05.epilepsy')} options={yesNo} value={data.epilepsie || t('forms.no')} onChange={v => update('epilepsie', v)} />
+      <RadioField label={t('q05.vitiligo')} options={yesNo} value={data.vitiligo || t('forms.no')} onChange={v => update('vitiligo', v)} />
+      <RadioField label={t('q05.tattoo_reaction')} options={yesNo} value={data.reactionTatouage || t('forms.no')} onChange={v => update('reactionTatouage', v)} />
+      <FormSection title={t('q05.section_medications')} />
+      <RadioField label={t('q05.anticoagulants')} options={yesNo} value={data.anticoagulants || t('forms.no')} onChange={v => update('anticoagulants', v)} />
+      <RadioField label={t('q05.aspirin')} options={yesNo} value={data.aspirine || t('forms.no')} onChange={v => update('aspirine', v)} />
+      <RadioField label={t('q05.roaccutane')} options={yesNo} value={data.roaccutane || t('forms.no')} onChange={v => update('roaccutane', v)} />
+      <RadioField label={t('q05.corticoids')} options={yesNo} value={data.corticoides || t('forms.no')} onChange={v => update('corticoides', v)} />
+      <RadioField label={t('q05.antibiotics')} options={yesNo} value={data.antibiotiques || t('forms.no')} onChange={v => update('antibiotiques', v)} />
+      <FormSection title={t('q05.section_allergies')} />
+      <RadioField label={t('q05.allergy_inks')} options={yesNo} value={data.allergieEncres || t('forms.no')} onChange={v => update('allergieEncres', v)} />
+      <RadioField label={t('q05.allergy_metals')} options={yesNo} value={data.allergieMetaux || t('forms.no')} onChange={v => update('allergieMetaux', v)} />
+      <RadioField label={t('q05.allergy_latex')} options={yesNo} value={data.allergieLatex || t('forms.no')} onChange={v => update('allergieLatex', v)} />
+      <RadioField label={t('q05.allergy_disinfectants')} options={yesNo} value={data.allergieDesinfectants || t('forms.no')} onChange={v => update('allergieDesinfectants', v)} />
+      <RadioField label={t('q05.allergy_anesthetics')} options={yesNo} value={data.allergieAnesthesiants || t('forms.no')} onChange={v => update('allergieAnesthesiants', v)} />
+      <FormSection title={t('q05.section_special')} />
+      <RadioField label={t('q05.pregnancy')} options={yesNo} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
+      <RadioField label={t('q05.alcohol')} options={yesNo} value={data.alcool || t('forms.no')} onChange={v => update('alcool', v)} />
+      <RadioField label={t('q05.ate_well')} options={[t('forms.yes'), t('forms.no')]} value={data.aBienMange || t('forms.yes')} onChange={v => update('aBienMange', v)} />
+      <RadioField label={t('q05.lesion_zone')} options={yesNo} value={data.lesionZone || t('forms.no')} onChange={v => update('lesionZone', v)} />
+      <RadioField label={t('q05.sun_exposure')} options={yesNo} value={data.expositionSolaire || t('forms.no')} onChange={v => update('expositionSolaire', v)} />
       <FormField label={t('forms.additional_medical_info')} value={data.autresInfosMedicales || ''} onChange={v => update('autresInfosMedicales', v)} multiline />
       <FormSection title="3 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
@@ -1448,8 +1614,8 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du mineur</p>
-          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
+          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} required />
           <div className="mt-3"><SignaturePad label={t('forms.client_signature')} value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
@@ -1459,8 +1625,8 @@ function FormDossierMineurTatouage({ data, update, client, salonInfo }: { data: 
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueurSign || data.nomTatoueur || salonInfo?.nomTatoueur || ''} onChange={v => update('nomTatoueurSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureTatoueur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureTatoueur', v)} />
+          <FormField label={t('forms.tattoo_artist_name')} value={data.nomTatoueurSign || data.nomTatoueur || client.praticien || salonInfo?.nomTatoueur || ''} onChange={v => update('nomTatoueurSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureTatoueur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureTatoueur', v)} required />
           <div className="mt-3"><SignaturePad label={t('forms.tattoo_artist_signature')} value={data.signatureImageTatoueur || ''} onChange={v => update('signatureImageTatoueur', v ?? '')} /></div>
         </div>
       </div>
@@ -1474,33 +1640,31 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
   const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
-      <FormSection title="1 — IDENTITE DU SALON" />
-      <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
-      <div className="grid grid-cols-2 gap-3">
-        <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
-      </div>
-      <FormField label="Nom du dermographe" value={data.nomDermographe || salonInfo?.nomDermographe || ''} onChange={v => update('nomDermographe', v)} />
-      <LegalBox color="red">
-        <strong>Cadre legal — Art. 371-1 Code civil</strong><br/>
-        Toute prestation de dermographie sur mineur requiert le consentement ecrit du representant legal et sa presence physique.<br/>
-        Conservation : 3 ans minimum apres la majorite (Art. L1110-4 CSP).
-      </LegalBox>
-      <FormSection title="2 — IDENTITE DU MINEUR" />
+      <FormSection title="1 — IDENTITE DU MINEUR" />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.last_name')} value={data.nom || client.nom || ''} onChange={v => update('nom', v)} required />
         <FormField label={t('forms.first_name')} value={data.prenom || client.prenom || ''} onChange={v => update('prenom', v)} required />
       </div>
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
       <FormSection title="2 — PRESTATION DERMOGRAPHIE DEMANDEE" />
       <FormField label="Zone a traiter" value={data.zoneATatouer || ''} onChange={v => update('zoneATatouer', v)} required />
-      <RadioField label={t('q01.skin_diseases')} options={yesNo} value={data.maladiesPeau || t('forms.no')} onChange={v => update('maladiesPeau', v)} />
+      <FormSection title={t('q09.section_health')} />
+      <WarningBox>{t('q09.warning_health')}</WarningBox>
+      <RadioField label={t('q01.pregnancy')} options={yesNo} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
       <RadioField label={t('q01.diabetes')} options={yesNo} value={data.diabete || t('forms.no')} onChange={v => update('diabete', v)} />
       <RadioField label={t('q01.coagulation')} options={yesNo} value={data.troublesCoagulation || t('forms.no')} onChange={v => update('troublesCoagulation', v)} />
+      <RadioField label={t('q09.autoimmune_dermo')} options={yesNo} value={data.maladiesAutoImmunes || t('forms.no')} onChange={v => update('maladiesAutoImmunes', v)} />
+      <RadioField label={t('q09.skin_diseases_zone')} options={yesNo} value={data.maladiesPeau || t('forms.no')} onChange={v => update('maladiesPeau', v)} />
       <RadioField label={t('q01.keloid')} options={yesNo} value={data.cheloide || t('forms.no')} onChange={v => update('cheloide', v)} />
-      <RadioField label={t('q01.pregnancy')} options={yesNo} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
+      <RadioField label={t('q09.herpes_labial')} options={[t('forms.no'), t('forms.yes'), t('q09.not_applicable')]} value={data.herpesLabial || t('q09.not_applicable')} onChange={v => update('herpesLabial', v)} />
+      <RadioField label={t('q09.allergy_pigments')} options={yesNo} value={data.allergiesPigments || t('forms.no')} onChange={v => update('allergiesPigments', v)} />
+      <RadioField label={t('q01.allergy_latex')} options={yesNo} value={data.allergieLatex || t('forms.no')} onChange={v => update('allergieLatex', v)} />
+      <RadioField label={t('q01.immunodepression')} options={yesNo} value={data.immunodepression || t('forms.no')} onChange={v => update('immunodepression', v)} />
+      <RadioField label={t('q09.anticoagulant')} options={yesNo} value={data.anticoagulant || t('forms.no')} onChange={v => update('anticoagulant', v)} />
+      <RadioField label={t('q09.isotretinoin')} options={yesNo} value={data.isotretinoine || t('forms.no')} onChange={v => update('isotretinoine', v)} />
+      <RadioField label={t('q09.other_medication')} options={yesNo} value={data.autreMedicament || t('forms.no')} onChange={v => update('autreMedicament', v)} />
       <FormField label={t('forms.additional_medical_info')} value={data.autresInfosMedicales || ''} onChange={v => update('autresInfosMedicales', v)} multiline />
       <FormSection title="3 — REPRESENTANT LEGAL" />
       <FormField label={t('forms.last_name')} value={data.nomRepresentant || client.nomRepresentantLegal || ''} onChange={v => update('nomRepresentant', v)} required />
@@ -1521,8 +1685,8 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
           <p className="text-xs mb-3" style={{ color: '#1e293b', fontWeight: 600 }}>Signature du mineur</p>
-          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
+          <FormField label={t('forms.client_name')} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} required />
           <div className="mt-3"><SignaturePad label={t('forms.client_signature')} value={data.signatureImageClient || ''} onChange={v => update('signatureImageClient', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
@@ -1532,8 +1696,8 @@ function FormDossierMineurDermographie({ data, update, client, salonInfo }: { da
           <div className="mt-3"><SignaturePad label="Signature du representant legal" value={data.signatureImageRepresentant || ''} onChange={v => update('signatureImageRepresentant', v ?? '')} /></div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du dermographe" value={data.nomDermographeSign || data.nomDermographe || salonInfo?.nomDermographe || ''} onChange={v => update('nomDermographeSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureDermographe || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureDermographe', v)} />
+          <FormField label="Nom du praticien" value={data.nomDermographeSign || data.nomDermographe || client.praticien || salonInfo?.nomDermographe || ''} onChange={v => update('nomDermographeSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureDermographe || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureDermographe', v)} required />
           <div className="mt-3"><SignaturePad label="Signature du dermographe" value={data.signatureImageDermographe || ''} onChange={v => update('signatureImageDermographe', v ?? '')} /></div>
         </div>
       </div>
@@ -1549,7 +1713,7 @@ export {
   FormAutorisationParentale,
   FormSoins,
   FormFicheSeance,
-  FormConsentementSoinsTatouage,
+  FormConsentementSoinsTatouage, FormConsentementSoinsTatouageMineur,
   FormFicheSeanceTatouage,
   FormQuestionnaireDermographeMineur,
   FormAutorisationParentaleDermographie,

@@ -35,7 +35,7 @@ router.post('/api/super-admin/login', async (req, res) => {
     res.cookie('super_admin_session', token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'none',
+      sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     return res.json({ success: true });
@@ -59,29 +59,22 @@ router.get('/api/super-admin/studios', superAdminAuth, async (_req, res) => {
   try {
     const db = await getDb();
     if (!db) return res.status(500).json({ error: 'Database error' });
-    const rows = await db
-      .select({
-        id: studios.id,
-        nom: studios.nom,
-        slug: studios.slug,
-        email: studios.email,
-        adresse: studios.adresse,
-        codePostal: studios.codePostal,
-        ville: studios.ville,
-        telephone: studios.telephone,
-        ownerEmail: studios.ownerEmail,
-        planType: studios.planType,
-        actif: studios.actif,
-        isTemporary: studios.isTemporary,
-        firstLogin: studios.firstLogin,
-        tempPin: studios.tempPin,
-        trialEndsAt: studios.trialEndsAt,
-        createdAt: studios.createdAt,
-        specialites: studios.specialites,
-      })
-      .from(studios)
-      .orderBy(desc(studios.id)); // Utiliser l'ID pour s'assurer que les anciens studios (comme l'ID 38) apparaissent en haut si nécessaire
+    const [rows] = await (db as any).$client.query(
+      'SELECT id, nom, slug, email, adresse, codePostal, ville, telephone, ownerEmail, planType, actif, isTemporary, firstLogin, tempPin, trialEndsAt, createdAt, specialites, siret FROM studios ORDER BY createdAt DESC'
+    );
     return res.json(rows);
+
+
+
+
+
+
+
+
+
+
+
+
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
   }
@@ -93,7 +86,7 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
     const db = await getDb();
     if (!db) return res.status(500).json({ error: 'Database error' });
 
-    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret = '', password, pin, planType = 'trial', trialDays = 30, specialites = '' } = req.body;
+    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret = '', password, pin, planType = 'trial', trialDays = 30, specialites = '', salarie1Prenom = '', salarie1Nom = '', salarie1Pin = '', salarie2Prenom = '', salarie2Nom = '', salarie2Pin = '' } = req.body;
     const requiredFields = { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail };
     const missingFields = Object.entries(requiredFields).filter(([, value]) => !String(value || '').trim()).map(([key]) => key);
     if (missingFields.length > 0) return res.status(400).json({ error: `Champs obligatoires manquants : ${missingFields.join(', ')}` });
@@ -150,6 +143,16 @@ router.post('/api/super-admin/studios', superAdminAuth, async (req, res) => {
       [userId, nomSalon, '', ownerEmail, 'admin', passwordHash, 'admin', 1, pinHash]
     );
 
+    // Créer les salariés si renseignés
+    for (const [prenom, nom, sPin] of [[salarie1Prenom, salarie1Nom, salarie1Pin], [salarie2Prenom, salarie2Nom, salarie2Pin]]) {
+      if (prenom && sPin && /^\d{4}$/.test(sPin)) {
+        const sPinHash = await bcrypt.hash(sPin, 10);
+        await (db as any).$client.query(
+          'INSERT INTO studio_users (ownerId, prenom, nom, email, login, passwordHash, role, actif, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [userId, prenom, nom || '', ownerEmail, prenom.toLowerCase() + Date.now(), passwordHash, 'employe', 1, sPinHash]
+        );
+      }
+    }
     return res.json({ success: true, tempPin, slug, ownerEmail, nomSalon });
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
@@ -176,8 +179,8 @@ router.patch('/api/super-admin/studios/:id', superAdminAuth, async (req, res) =>
       await db.update(studios).set(update).where(eq(studios.id, id));
     }
     // Mettre à jour aussi salon_settings et les coordonnées si fournies
-    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, pin, password } = req.body;
-    const hasContactUpdate = [nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, pin, password].some(value => value !== undefined && value !== null && String(value).trim() !== '');
+    const { nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret, pin, password } = req.body;
+    const hasContactUpdate = [nomSalon, rue, codePostal, ville, telephone, emailSalon, ownerEmail, siret, pin, password].some(value => value !== undefined && value !== null && String(value).trim() !== '');
     if (hasContactUpdate) {
       // Trouver le userId du studio
       const studioRow = await (db as any).$client.query('SELECT userId FROM studios WHERE id = ? LIMIT 1', [id]);
@@ -210,6 +213,10 @@ router.patch('/api/super-admin/studios/:id', superAdminAuth, async (req, res) =>
         if (ownerEmail) {
           await (db as any).$client.query('UPDATE users SET email = ? WHERE id = ?', [ownerEmail, userId]);
           await (db as any).$client.query('UPDATE studios SET ownerEmail = ? WHERE id = ?', [ownerEmail, id]);
+        }
+        if (siret !== undefined) {
+          await (db as any).$client.query('UPDATE studios SET siret = ?, updatedAt = NOW() WHERE id = ?', [siret || null, id]);
+          await (db as any).$client.query('UPDATE salon_settings SET siret = ?, updatedAt = NOW() WHERE userId = ?', [siret || null, userId]);
         }
       }
     }
@@ -274,11 +281,13 @@ router.get('/api/studio-info', async (req, res) => {
         const { payload } = await jwtVerify(sessionCookie, JWT_SECRET);
         const openId = ((payload as any).openId || payload.sub) as string | undefined;
         const tokenUserId = (payload as any).userId;
+        const tokenEmployeeId = (payload as any).employeeId;
+        const tokenOwnerId = (payload as any).ownerId;
 
         // Cas 1 : salarié connecté via PIN (userId dans studio_users)
-        if (tokenUserId) {
+        if (tokenOwnerId || tokenEmployeeId || tokenUserId) {
           const [suRows] = await (db as any).$client.query(
-            'SELECT ownerId FROM studio_users WHERE id = ? LIMIT 1', [tokenUserId]
+            'SELECT ownerId FROM studio_users WHERE id = ? LIMIT 1', [tokenEmployeeId || tokenUserId]
           );
           if ((suRows as any[]).length > 0) {
             const ownerId = (suRows as any[])[0].ownerId;
@@ -344,7 +353,7 @@ router.post('/api/check-temp-pin', async (req, res) => {
     const { pin } = req.body;
     if (!pin) return res.status(400).json({ valid: false });
     const [rows] = await (db as any).$client.query(
-      'SELECT * FROM studios WHERE tempPin = ? AND isTemporary = 1 AND firstLogin = 1 AND actif = 1',
+      'SELECT * FROM studios WHERE tempPin = ? AND actif = 1',
       [pin]
     );
     if ((rows as any[]).length === 0) return res.json({ valid: false });
@@ -523,7 +532,9 @@ router.get('/api/super-admin/studios/:id/open', superAdminAuth, async (req, res)
     );
     const studioOpenId = userRows.length ? userRows[0].openId : ownerId.toString();
     // Générer un token de session avec le bon userId (ownerId du studio)
-    const token = await new SignJWT({ openId: studioOpenId, userId: ownerId })
+    // Récupérer le studio_user id pour employeeId
+    const suId = (suRows as any[]).length ? (suRows as any[])[0].id : null;
+    const token = await new SignJWT({ openId: studioOpenId, userId: ownerId, employeeId: suId, ownerId: ownerId, role: "admin" })
       .setProtectedHeader({ alg: 'HS256' })
       .setExpirationTime('8h')
       .sign(JWT_SECRET());
@@ -533,11 +544,12 @@ router.get('/api/super-admin/studios/:id/open', superAdminAuth, async (req, res)
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 8 * 60 * 60 * 1000,
-      domain: 'studio.studiomanagereurope.eu',
     } );
     const host = req.headers.host || '';
     const referer = req.headers.referer || req.headers.origin || '';
-    return res.redirect('https://studio.studiomanagereurope.eu/');
+    const isApp = host.includes('app.studiomanagereurope.eu') || referer.includes('app.studiomanagereurope.eu');
+    const baseUrl = isApp ? 'https://app.studiomanagereurope.eu' : 'https://studio.studiomanagereurope.eu';
+    return res.redirect(baseUrl + '/clients');
   } catch (e: any) {
     return res.status(500).json({ error: e.message });
   }

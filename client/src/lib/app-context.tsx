@@ -34,38 +34,39 @@ type AppAction =
 function generateDocumentsForClient(estMineur: boolean, prestationsSouhaitees: string[]): string[] {
   const docs: string[] = [];
   
-  // Questionnaire de base
-  if (estMineur) {
-    docs.push('questionnaire_mineur');
-  } else {
-    docs.push('questionnaire_majeur');
+  // Questionnaire de base piercing (seulement si prestation piercing)
+  const hasPiercingPrestation = !prestationsSouhaitees || prestationsSouhaitees.length === 0 || prestationsSouhaitees.some((prestation) =>
+    !['Tatouage', 'Dermographie'].includes(prestation)
+  );
+  if (hasPiercingPrestation) {
+    if (estMineur) {
+      docs.push('questionnaire_mineur');
+    } else {
+      docs.push('questionnaire_majeur');
+    }
   }
   
   // Documents spécifiques à la prestation
   if (prestationsSouhaitees && prestationsSouhaitees.length > 0) {
     for (const prestation of prestationsSouhaitees) {
       if (prestation === 'Nez') {
-        docs.push('fiche_seance_piercing', 'soins_nez');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_nez' : 'soins_nez');
       } else if (prestation === 'Oreilles') {
-        docs.push('fiche_seance_piercing', 'soins_oreilles');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_oreilles' : 'soins_oreilles');
       } else if (prestation === 'Nombril') {
-        docs.push('fiche_seance_piercing', 'soins_nombril');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_nombril' : 'soins_nombril');
       } else if (prestation === 'Téton') {
-        docs.push('fiche_seance_piercing', 'soins_mamelons');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_mamelons' : 'soins_mamelons');
       } else if (prestation === 'Arcade / Sourcil') {
-        docs.push('fiche_seance_piercing', 'soins_arcade_sourcil');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_arcade_sourcil' : 'soins_arcade_sourcil');
       } else if (prestation === 'Surface / Dermal') {
-        docs.push('fiche_seance_piercing', 'soins_surface_dermal');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_surface_dermal' : 'soins_surface_dermal');
       } else if (prestation === 'Labret') {
-        docs.push('fiche_seance_piercing', 'soins_bouche_levres');
+        docs.push('fiche_seance_piercing', estMineur ? 'soins_mineur_bouche_levres' : 'soins_bouche_levres');
       } else if (prestation === 'Tatouage') {
-        if (estMineur) {
-          docs.push('questionnaire_tatouage_mineur', 'fiche_seance_tatouage', 'consentement_soins_tatouage');
-        } else {
-          docs.push('questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'consentement_soins_tatouage');
-        }
+        if (estMineur) { docs.push('questionnaire_tatouage_mineur', 'fiche_seance_tatouage', 'consentement_soins_tatouage_mineur'); } else { docs.push('questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'fiche_seance_tatouage'); }
       } else if (prestation === 'Dermographie') {
-        docs.push('questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe');
+        if (estMineur) { docs.push('questionnaire_dermographe_mineur', 'fiche_seance_dermographe', 'soins_dermographe'); } else { docs.push('questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe_majeur'); }
       }
     }
   }
@@ -179,6 +180,7 @@ const DEMO_CLIENTS: Client[] = [
     adresse: '3 rue Sainte-Catherine', codePostal: '33000', ville: 'Bordeaux',
     telephone: '07 56 78 90 12',
     estMineur: false,
+    prestationsSouhaitees: [],
     prestations: [],
     documentsAssocies: [],
     documents: [],
@@ -211,6 +213,10 @@ function dbClientToClient(row: Record<string, unknown>): Client {
     email: row.email as string | undefined,
     pieceIdentiteType: row.pieceIdentiteType as Client['pieceIdentiteType'],
     pieceIdentiteNumero: row.pieceIdentiteNumero as string | undefined,
+    nomRepresentantLegal: row.nomRepresentantLegal as string | undefined,
+    prenomRepresentantLegal: row.prenomRepresentantLegal as string | undefined,
+    lienRepresentantLegal: row.lienRepresentantLegal as string | undefined,
+    telephoneRepresentantLegal: row.telephoneRepresentantLegal as string | undefined,
     estMineur: Boolean(row.estMineur),
     estArchive: Boolean(row.estArchive),
     dateArchivage: row.dateArchivage as string | undefined,
@@ -220,6 +226,7 @@ function dbClientToClient(row: Record<string, unknown>): Client {
     rgpdDroitsExerces: (row.rgpdDroitsExerces as Client['rgpdDroitsExerces']) || [],
     dateCreation: row.createdAt ? new Date(row.createdAt as string).toISOString().split('T')[0] : fmt(new Date()),
     dateModification: row.updatedAt ? new Date(row.updatedAt as string).toISOString().split('T')[0] : undefined,
+    prestationsSouhaitees: (row.prestationsSouhaitees as string[]) || [],
     prestations: [],
     documentsAssocies: [],
     documents: [],
@@ -515,6 +522,8 @@ function AppProviderInner({ children, dispatch, state }: {
           rgpdDroitsExerces: newClient.rgpdDroitsExerces || [],
           employeeId: employeeSession?.id || undefined,
           prestationsSouhaitees: newClient.prestationsSouhaitees || [],
+          zoneATatouer: newClient.zoneATatouer,
+          zoneDermographie: newClient.zoneDermographie || [],
           nomRepresentantLegal: newClient.nomRepresentantLegal,
           prenomRepresentantLegal: newClient.prenomRepresentantLegal,
           lienRepresentantLegal: newClient.lienRepresentantLegal,
@@ -528,12 +537,18 @@ function AppProviderInner({ children, dispatch, state }: {
       if (newClient.documentsAssocies && newClient.documentsAssocies.length > 0) {
         for (const docType of newClient.documentsAssocies) {
           try {
+            const docData: Record<string, any> = {};
+            if (newClient.zoneATatouer && ['questionnaire_tatouage_mineur', 'questionnaire_tatouage_majeur', 'consentement_soins_tatouage', 'consentement_soins_tatouage_mineur', 'questionnaire_dermographe_mineur', 'questionnaire_dermographe', 'fiche_seance_tatouage', 'fiche_seance_dermographe'].includes(docType)) {
+              docData.zoneATatouer = newClient.zoneATatouer;
+              docData.zoneTatouage = newClient.zoneATatouer;
+              docData.zones = newClient.zoneATatouer;
+            }
             await createDocumentMutation.mutateAsync({
               id: `doc-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
               clientId: newClient.id,
               type: docType,
               status: 'empty',
-              data: {},
+              data: docData,
             });
           } catch (err) {
             console.error('[Sync] Document create failed:', err);
@@ -570,6 +585,11 @@ function AppProviderInner({ children, dispatch, state }: {
           dateConsentement: client.dateConsentement,
           dateSuppressionPrevue: client.dateSuppressionPrevue,
           rgpdDroitsExerces: client.rgpdDroitsExerces || [],
+          prestationsSouhaitees: client.prestationsSouhaitees || [],
+          nomRepresentantLegal: client.nomRepresentantLegal,
+          prenomRepresentantLegal: client.prenomRepresentantLegal,
+          lienRepresentantLegal: client.lienRepresentantLegal,
+          telephoneRepresentantLegal: client.telephoneRepresentantLegal,
         });
       } catch (err) {
         console.warn('[Sync] Client update failed:', err);

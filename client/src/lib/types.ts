@@ -36,23 +36,20 @@ export type DocumentType =
   | 'soins_mineur_surface_dermal'
   | 'questionnaire_tatouage_mineur'
   | 'autorisation_parentale_tatouage'
-  | 'fiche_tracabilite_tatouage_mineur'
-  | 'soins_mineur_tatouage'
   | 'questionnaire_tatouage_majeur'
-  | 'fiche_seance_tatouage'
-  | 'consentement_soins_tatouage'
   | 'questionnaire_dermographe_mineur'
   | 'autorisation_parentale_dermographie'
-  | 'fiche_tracabilite_dermographe_mineur'
-  | 'soins_mineur_dermographe'
   | 'questionnaire_dermographe'
-  | 'fiche_seance_dermographe'
+  | 'consentement_soins_tatouage'
   | 'soins_dermographe'
+  | 'soins_dermographe_majeur'
   | 'engagement_confidentialite'
-  | 'info_client_rgpd'
   | 'affichage_salon'
   | 'archivage_dossier_papier'
-  ;
+  | 'fiche_seance_tatouage'
+  | 'fiche_seance_dermographe'
+  | 'consentement_soins_tatouage_mineur'
+;
 
 // Document rempli
 export interface ClientDocument {
@@ -92,8 +89,11 @@ export interface Client {
   email?: string;
   pieceIdentiteType?: 'CNI' | 'Passeport' | 'Permis' | 'Autre';
   pieceIdentiteNumero?: string;
-  praticien?: string;
   estMineur: boolean;
+  nomRepresentantLegal?: string;
+  prenomRepresentantLegal?: string;
+  lienRepresentantLegal?: string;
+  telephoneRepresentantLegal?: string;
   estSalarie?: boolean;
   prestations: Prestation[];
   documentsAssocies: DocumentType[];
@@ -109,6 +109,9 @@ export interface Client {
   dateModification?: string;
   notes?: string;
   prestationsSouhaitees?: string[];
+  zoneATatouer?: string;
+  praticien?: string;
+  zoneDermographie?: string[];
 }
 
 // Informations du salon
@@ -122,7 +125,7 @@ export interface SalonInfo {
   email: string;
   siret: string;
   siren?: string;
-  nomPierceur?: string;
+  nomPierceur: string;
   nomTatoueur?: string;
   nomDermographe?: string;
   logo?: string; // base64 data URL
@@ -187,10 +190,9 @@ export const RDV_STATUT_COLORS: Record<RDVStatut, string> = {
 export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   // Piercing — Mineurs
   questionnaire_mineur: '01 — Questionnaire Médical Mineur / Autorisation Parentale / Piercing',
-  autorisation_parentale: '01 — Autorisation Parentale (Piercing)',
   // Piercing — Majeurs
   questionnaire_majeur: '02 — Questionnaire Médical Majeur (Piercing)',
-  fiche_seance_piercing: '03 — Fiche de Traçabilité Matériel Stérile (Piercing)',
+  fiche_seance_piercing: '03 — Fiche de Traçabilité Matériel Stérile',
   // Soins Piercing
   soins_oreilles: 'A — Soins Majeur Post-Piercing Oreilles',
   soins_nez: 'B — Soins Majeur Post-Piercing Nez',
@@ -199,6 +201,7 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_mamelons: 'E — Soins Majeur Post-Piercing Téton',
   soins_arcade_sourcil: 'F — Soins Majeur Post-Piercing Arcade / Sourcil',
   soins_surface_dermal: 'G — Soins Majeur Post-Piercing Surface / Dermal',
+  // Soins Piercing — Mineurs
   soins_mineur_oreilles: 'H — Soins Mineur Post-Piercing Oreilles',
   soins_mineur_nez: 'I — Soins Mineur Post-Piercing Nez',
   soins_mineur_bouche_levres: 'J — Soins Mineur Post-Piercing Labret (Bouche & Lèvres)',
@@ -207,26 +210,22 @@ export const DOCUMENT_LABELS: Record<DocumentType, string> = {
   soins_mineur_arcade_sourcil: 'M — Soins Mineur Post-Piercing Arcade / Sourcil',
   soins_mineur_surface_dermal: 'N — Soins Mineur Post-Piercing Surface / Dermal',
   // Tatouage
-  questionnaire_tatouage_mineur: '05 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
-  autorisation_parentale_tatouage: '05 — Autorisation Parentale (Tatouage)',
-  fiche_tracabilite_tatouage_mineur: '07 — Fiche de Traçabilité Mineur Matériel Stérile (Tatouage)',
-  soins_mineur_tatouage: '09 — Soins Mineur Post-Tatouage',
-  questionnaire_tatouage_majeur: '06 — Questionnaire Médical Tatouage Majeur',
-  fiche_seance_tatouage: '08 — Fiche de Traçabilité Majeur Matériel Stérile (Tatouage)',
-  consentement_soins_tatouage: '10 — Soins Majeur Post-Tatouage',
+  questionnaire_tatouage_mineur: '04 — Questionnaire Médical Mineur / Autorisation Parentale / Tatouage',
+  questionnaire_tatouage_majeur: '05 — Questionnaire Médical Tatouage Majeur',
+  fiche_seance_tatouage: '06 — Fiche de Traçabilité Matériel Stérile (Tatouage)',
+  consentement_soins_tatouage: '07 — Soins Majeur Post-Tatouage',
+  consentement_soins_tatouage_mineur: '08 — Soins Mineur Post-Tatouage',
   // Dermographie
   questionnaire_dermographe_mineur: '10 — Questionnaire Médical Mineur / Autorisation Parentale / Dermographie',
-  autorisation_parentale_dermographie: '10 — Autorisation Parentale (Dermographie)',
-  fiche_tracabilite_dermographe_mineur: '13 — Fiche de Traçabilité Mineur Matériel Stérile (Dermographie)',
-  soins_mineur_dermographe: '15 — Soins Mineur Post-Dermographie',
   questionnaire_dermographe: '11 — Questionnaire Médical Dermographie Majeur',
   fiche_seance_dermographe: '12 — Fiche de Traçabilité Matériel Stérile (Dermographie)',
-  soins_dermographe: '13 — Soins Post-Dermographie',
+  soins_dermographe: '13 — Soins Mineur Post-Dermographie',
+  soins_dermographe_majeur: '14 — Soins Majeur Post-Dermographie',
   // RGPD
-  engagement_confidentialite: '18 — Engagement de Confidentialité (RGPD Art. 29)',
-  info_client_rgpd: '19 — Information Client — Protection des Données (RGPD)',
-  affichage_salon: '20 — Affichage Salon (RGPD)',
-  archivage_dossier_papier: '21 — Archivage Dossier Papier',
+  engagement_confidentialite: '15 — Engagement de Confidentialité (RGPD Art. 29)',
+  affichage_salon: '16 — Information Client — Protection des Données (RGPD)',
+  archivage_dossier_papier: '17 — Archivage Dossier Papier',
+  dossier_mineur_piercing: '18 — Dossier Complet Mineur Piercing',
 };
 
 export function calculateRGPDStatus(dateSuppressionPrevue: string): RGPDStatus {

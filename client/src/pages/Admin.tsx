@@ -285,8 +285,8 @@ export default function Admin() {
                           <div style={{ color: "white", fontWeight: 500 }}>{s.salonNom || s.name || "—"}</div>
                           <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 11 }}>{s.loginMethod === "email" ? "📧 Email" : "🔢 PIN"}</div>
                           {s.loginMethod === "email" && s.email && (
-                            <a href={`https://studio.studiomanagereurope.eu`} target="_blank" style={{ color: "#34d399", fontSize: 10 }}>
-                              studio.studiomanagereurope.eu
+                            <a href={`https://app.studiomanagereurope.eu`} target="_blank" style={{ color: "#34d399", fontSize: 10 }}>
+                              app.studiomanagereurope.eu
                             </a>
                           )}
                         </td>
@@ -309,8 +309,8 @@ export default function Admin() {
                           <div style={{ display: "flex", gap: 6 }}>
                             <button
                               onClick={() => {
-                                const url = s.salonNom ? `https://${s.email?.split('@')[0]}.studiomanagereurope.eu` : 'https://studio.studiomanagereurope.eu';
-                                window.open('https://studio.studiomanagereurope.eu', '_blank');
+                                const url = s.salonNom ? `https://${s.email?.split('@')[0]}.studiomanagereurope.eu` : 'https://app.studiomanagereurope.eu';
+                                window.open('https://app.studiomanagereurope.eu', '_blank');
                               }}
                               style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, border: "1px solid #10b981", background: "transparent", color: "#34d399", cursor: "pointer" }}
                             >

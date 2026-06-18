@@ -157,7 +157,9 @@ export default function Login() {
     cursor: 'pointer', border: 'none', transition: 'all 0.2s',
   };
 
-  const displayDomain = 'studio.studiomanagereurope.eu';
+  const displayDomain = typeof window !== 'undefined' && window.location.hostname
+    ? window.location.hostname
+    : 'studio.studiomanagereurope.eu';
 
   return (
     <div
@@ -177,8 +179,8 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle RGPD & Cybersécurité"
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
             className="rounded-lg mb-4"
             style={{ width: '220px', objectFit: 'contain' }}
           />
@@ -262,7 +264,7 @@ export default function Login() {
             </div>
 
             {/* Salariés */}
-            {emps && emps.filter(e => e.hasPinSet).length > 0 && (
+            {emps && emps.filter(e => e.hasPinSet && e.role !== 'admin').length > 0 && (
               <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--brand-border)' }}>
                 <p style={{ color: 'var(--brand-text-muted)', fontSize: 12, textAlign: 'center', marginBottom: 8 }}>Connexion salarié</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
@@ -271,7 +273,7 @@ export default function Login() {
                       PIN de {selEmp.prenom}{' '}
                       <button onClick={() => { setSelEmp(null); setLocalPin(''); }} style={{ background: 'none', border: 'none', color: 'var(--brand-text-muted)', cursor: 'pointer' }}>×</button>
                     </p>
-                  ) : emps.filter(e => e.hasPinSet).map(e => (
+                  ) : emps.filter(e => e.hasPinSet && e.role !== 'admin').map(e => (
                     <button key={e.id} onClick={() => { setSelEmp(e); setLocalPin(''); }}
                       style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid var(--brand-cyan)', background: 'rgba(131,208,245,0.1)', color: 'var(--brand-cyan)', cursor: 'pointer', fontWeight: 600 }}
                     >{e.prenom}</button>

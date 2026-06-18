@@ -6,13 +6,13 @@ export default function PolitiqueConfidentialite() {
       <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--brand-cyan)' }}>
         Politique de Confidentialité
       </h1>
-      <p className="mb-8 text-xs" style={{ color: 'var(--brand-text-muted)' }}>Dernière mise à jour : Mars 2026 — Studio Pierceur Tatoueur Dermographe by Intemporelle</p>
+      <p className="mb-8 text-xs" style={{ color: 'var(--brand-text-muted)' }}>Dernière mise à jour : Mars 2026 — Studio Manager Europe</p>
 
       {/* Section 1 */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3" style={{ color: 'var(--brand-cyan)' }}>1. Responsable de traitement</h2>
         <p>
-          La présente politique de confidentialité s'applique à l'application <strong>Studio Pierceur Tatoueur Dermographe</strong>, accessible à l'adresse <strong>studio.studiomanagereurope.eu</strong>, éditée par <strong>Intemporelle</strong> (François Dimpre), France.
+          La présente politique de confidentialité s'applique à l'application <strong>Studio Pierceur Tatoueur Dermographe</strong>, accessible à l'adresse <strong>app.studiomanagereurope.eu</strong>, éditée par <strong>Intemporelle</strong> (François Dimpre), France.
         </p>
         <p className="mt-2">Contact RGPD : <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a></p>
       </section>
@@ -149,7 +149,7 @@ export default function PolitiqueConfidentialite() {
       {/* Section 6 */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3" style={{ color: 'var(--brand-cyan)' }}>6. Sécurité des données</h2>
-        <p className="mb-3">Intemporelle met en œuvre les mesures de sécurité suivantes :</p>
+        <p className="mb-3">Studio Manager Europe met en œuvre les mesures de sécurité suivantes :</p>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             "Chiffrement en transit (TLS 1.3)",
@@ -201,7 +201,7 @@ export default function PolitiqueConfidentialite() {
       </section>
 
       <div className="mt-10 pt-6 text-xs text-center" style={{ borderTop: '1px solid var(--brand-border)', color: 'var(--brand-text-muted)' }}>
-        Studio Pierceur Tatoueur Dermographe by Intemporelle — <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a>
+        Studio Manager Europe — <a href="mailto:privacy@studiomanagereurope.eu" style={{ color: 'var(--brand-cyan)' }}>privacy@studiomanagereurope.eu</a>
       </div>
     </div>
   );

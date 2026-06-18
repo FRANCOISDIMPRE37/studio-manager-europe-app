@@ -44,6 +44,7 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const stats = getDashboardStats();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<'nom' | 'dateNaissance'>('nom');
   type PhotoItem = { id: string; name: string; dataUrl: string; date: string };
   const [photos, setPhotos] = useState<PhotoItem[]>(() => {
     return [];
@@ -153,7 +154,12 @@ export default function Dashboard() {
         `${c.prenom} ${c.nom}`.toLowerCase().includes(q) ||
         `${c.nom} ${c.prenom}`.toLowerCase().includes(q) ||
         (c.telephone || '').includes(q) ||
-        (c.email || '').toLowerCase().includes(q)
+        (c.email || '').toLowerCase().includes(q) ||
+        (searchMode === 'dateNaissance' && (() => {
+          const raw = (c.dateNaissance || '');
+          const localDate = raw ? new Date(raw).toLocaleDateString('fr-FR') : '';
+          return raw.includes(q) || localDate.includes(q);
+        })())
       )
       .slice(0, 5);
 
@@ -192,7 +198,7 @@ export default function Dashboard() {
       });
 
     return { clients, rdv, documents: documents.slice(0, 3) };
-  }, [searchQuery, state.clients, state.rendezVous]);
+  }, [searchQuery, searchMode, state.clients, state.rendezVous]);
 
   return (
     <div className="p-4 md:p-6 space-y-6 w-full min-w-0">
@@ -211,13 +217,18 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Onglets recherche */}
+      <div className="flex gap-2 mb-2">
+        <button onClick={() => { setSearchMode('nom'); setSearchQuery(''); }} style={{ padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, background: searchMode === 'nom' ? 'var(--brand-cyan)' : 'rgba(255,255,255,0.06)', color: searchMode === 'nom' ? '#000' : 'var(--brand-text-muted)' }}>Nom / Prénom</button>
+        <button onClick={() => { setSearchMode('dateNaissance'); setSearchQuery(''); }} style={{ padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13, background: searchMode === 'dateNaissance' ? 'var(--brand-cyan)' : 'rgba(255,255,255,0.06)', color: searchMode === 'dateNaissance' ? '#000' : 'var(--brand-text-muted)' }}>Date de naissance</button>
+      </div>
       {/* Barre de recherche client */}
       <div className="relative">
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid var(--brand-border)' }}>
           <Search size={16} style={{ color: 'var(--brand-cyan)', flexShrink: 0 }} />
           <input
             type="text"
-            placeholder={t('dashboard.search_placeholder')}
+            placeholder={searchMode === 'dateNaissance' ? 'JJ/MM/AAAA ou AAAA...' : t('dashboard.search_placeholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm"

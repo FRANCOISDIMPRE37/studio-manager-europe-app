@@ -10,97 +10,56 @@ import { useLocation } from 'wouter';
 
 const DOC_CATEGORY_KEYS = [
   {
-    titleKey: 'documents.categories.piercing_mineurs',
+    titleKey: 'doc_categories.piercing_mineurs',
     icon: Baby,
     color: '#9C27B0',
-    docs: [
-      'questionnaire_mineur',
-      'autorisation_parentale',
-      'soins_mineur_oreilles',
-      'soins_mineur_nez',
-      'soins_mineur_bouche_levres',
-      'soins_mineur_nombril',
-      'soins_mineur_mamelons',
-      'soins_mineur_arcade_sourcil',
-      'soins_mineur_surface_dermal',
-    ] as DocumentType[],
+    docs: ['questionnaire_mineur'] as DocumentType[],
     forMineur: true,
   },
   {
-    titleKey: 'documents.categories.piercing_majeurs',
+    titleKey: 'doc_categories.piercing_majeurs',
     icon: User,
     color: 'var(--brand-cyan)',
-    docs: [
-      'questionnaire_majeur',
-      'fiche_seance_piercing',
-      'soins_oreilles',
-      'soins_nez',
-      'soins_bouche_levres',
-      'soins_nombril',
-      'soins_mamelons',
-      'soins_arcade_sourcil',
-      'soins_surface_dermal',
-    ] as DocumentType[],
+    docs: ['questionnaire_majeur', 'fiche_seance_piercing'] as DocumentType[],
     forMineur: false,
   },
   {
-    titleKey: 'documents.categories.tatouage_mineurs',
-    icon: Baby,
-    color: '#FF5722',
-    docs: [
-      'questionnaire_tatouage_mineur',
-      'autorisation_parentale_tatouage',
-      'fiche_tracabilite_tatouage_mineur',
-      'soins_mineur_tatouage',
-    ] as DocumentType[],
-    forMineur: true,
-  },
-  {
-    titleKey: 'documents.categories.tatouage_majeurs',
-    icon: User,
-    color: '#FF5722',
-    docs: [
-      'questionnaire_tatouage_majeur',
-      'fiche_seance_tatouage',
-      'consentement_soins_tatouage',
-    ] as DocumentType[],
-    forMineur: false,
-  },
-  {
-    titleKey: 'documents.categories.dermographie_mineurs',
-    icon: Baby,
-    color: '#FF9800',
-    docs: [
-      'questionnaire_dermographe_mineur',
-      'autorisation_parentale_dermographie',
-      'fiche_tracabilite_dermographe_mineur',
-      'soins_mineur_dermographe',
-    ] as DocumentType[],
-    forMineur: true,
-  },
-  {
-    titleKey: 'documents.categories.dermographie_majeurs',
-    icon: User,
-    color: '#FF9800',
-    docs: [
-      'questionnaire_dermographe',
-      'fiche_seance_dermographe',
-      'soins_dermographe',
-    ] as DocumentType[],
-    forMineur: false,
-  },
-  {
-    titleKey: 'documents.categories.rgpd',
+    titleKey: 'doc_categories.soins_piercing',
     icon: Shield,
-    color: '#E53935',
-    docs: [
-      'engagement_confidentialite',
-      'info_client_rgpd',
-      'affichage_salon',
-      'archivage_dossier_papier',
-    ] as DocumentType[],
+    color: '#4CAF50',
+    docs: ['soins_oreilles', 'soins_nez', 'soins_bouche_levres', 'soins_nombril', 'soins_mamelons', 'soins_arcade_sourcil', 'soins_surface_dermal'] as DocumentType[],
     forMineur: null,
   },
+  {
+    titleKey: 'doc_categories.soins_piercing_mineurs',
+    icon: Baby,
+    color: '#9C27B0',
+    docs: ['soins_mineur_oreilles', 'soins_mineur_nez', 'soins_mineur_bouche_levres', 'soins_mineur_nombril', 'soins_mineur_mamelons', 'soins_mineur_arcade_sourcil', 'soins_mineur_surface_dermal'] as DocumentType[],
+    displayEmpty: true,
+  },
+  {
+    titleKey: 'doc_categories.tatouage',
+    icon: FileText,
+    color: '#FF5722',
+    docs: ['questionnaire_tatouage_mineur', 'questionnaire_tatouage_majeur', 'fiche_seance_tatouage', 'consentement_soins_tatouage', 'consentement_soins_tatouage_mineur'] as DocumentType[],
+    forMineur: null,
+  },
+  {
+    titleKey: 'doc_categories.dermographie',
+    icon: FileText,
+    color: '#FF9800',
+    docs: ['questionnaire_dermographe_mineur', 'questionnaire_dermographe', 'fiche_seance_dermographe', 'soins_dermographe', 'soins_dermographe_majeur'] as DocumentType[],
+    forMineur: null,
+  },
+  {
+    titleKey: 'doc_categories.rgpd',
+    icon: Shield,
+    color: '#E53935',
+    // La fiche 15 — Engagement de Confidentialité (RGPD Art. 29) est réservée aux salariés.
+    // Elle est donc volontairement exclue du catalogue client et accessible depuis /salaries.
+    docs: [] as DocumentType[],
+  },
+
 ];
 
 export default function Documents() {
@@ -127,33 +86,13 @@ export default function Documents() {
     title: t(cat.titleKey),
   })).filter(cat => {
     const key = cat.titleKey;
-    if (key.includes('piercing')) return specialites.piercing;
+    if (key.includes('piercing') || key.includes('soins_piercing')) return specialites.piercing;
     if (key.includes('tatouage')) return specialites.tatouage;
     if (key.includes('dermographie')) return specialites.dermographie;
     return true;
   });
-  const [clientSearch, setClientSearch] = useState('');
-
-  const activeClients = state.clients.filter(c => !c.estArchive);
-
-  const filteredClients = activeClients.filter(c => {
-    const q = clientSearch.toLowerCase();
-    return (
-      c.nom.toLowerCase().includes(q) ||
-      c.prenom.toLowerCase().includes(q) ||
-      (c.telephone && c.telephone.includes(q))
-    );
-  });
-
   const handlePreview = (doc: DocumentType) => {
     setSelectedDoc(doc);
-    setClientSearch('');
-  };
-
-  const handleSelectClient = (clientId: string) => {
-    if (!selectedDoc) return;
-    navigate(`/clients/${clientId}/document/${selectedDoc}`);
-    setSelectedDoc(null);
   };
 
   const handleOpenWithoutClient = () => {
@@ -188,16 +127,18 @@ export default function Documents() {
       </div>
 
       {/* Document categories */}
-      {DOC_CATEGORIES.map(cat => (
+      {DOC_CATEGORIES.filter(cat => cat.docs.length > 0 || cat.displayEmpty).map(cat => (
         <div key={cat.title} className="studio-card p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: cat.color + '22' }}>
               <cat.icon size={16} style={{ color: cat.color }} />
             </div>
             <h2 className="text-sm font-600" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{cat.title}</h2>
-            <span className="text-xs px-1.5 py-0.5 rounded ml-auto" style={{ background: cat.color + '22', color: cat.color }}>
-              {cat.docs.length} {t('documents.sheet', 'fiche')}{cat.docs.length > 1 ? 's' : ''}
-            </span>
+            {cat.docs.length > 0 && (
+              <span className="text-xs px-1.5 py-0.5 rounded ml-auto" style={{ background: cat.color + '22', color: cat.color }}>
+                {cat.docs.length} {t('documents.sheet', 'fiche')}{cat.docs.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
           <div className="space-y-2">
             {cat.docs.map(doc => (
@@ -209,7 +150,7 @@ export default function Documents() {
                 <FileText size={14} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
                 <span className="flex-1 text-sm" style={{ color: 'var(--brand-text)' }}>{t(`doc_labels.${doc}`, DOCUMENT_LABELS[doc])}</span>
                 <button
-                  onClick={() => handlePreview(doc)}
+                  onClick={() => navigate(`/document/${doc}`)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-600 transition-all hover:opacity-80"
                   style={{
                     background: 'rgba(131, 208, 245, 0.1)',
@@ -275,7 +216,7 @@ export default function Documents() {
                   <FileText size={16} style={{ color: 'var(--brand-cyan)' }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-600" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>{t('documents.open_without_client', 'Ouvrir sans client')}</p>
+                  <p className="text-sm font-600" style={{ color: 'var(--brand-cyan)', fontWeight: 600 }}>{t('documents.open_without_client', 'INFORMATION CLIENT – PROTECTION DE VOS DONNÉES (RGPD)')}</p>
                   <p className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>{t('documents.open_without_client_desc', 'Remplir manuellement · Impression rapide')}</p>
                 </div>
                 <ChevronRight size={16} style={{ color: 'var(--brand-cyan)', flexShrink: 0 }} />
@@ -315,69 +256,6 @@ export default function Documents() {
               </button>
             )}
 
-            {/* Séparateur */}
-            <div className="flex items-center gap-2">
-              <div className="h-px flex-1" style={{ background: 'var(--brand-border)' }} />
-              <span className="text-xs" style={{ color: 'var(--brand-text-muted)' }}>{t('documents.or_choose_client', 'ou choisir un client')}</span>
-              <div className="h-px flex-1" style={{ background: 'var(--brand-border)' }} />
-            </div>
-
-            {/* Recherche */}
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--brand-text-muted)' }} />
-              <input
-                type="text"
-                placeholder={t('common.search') + '...'}
-                value={clientSearch}
-                onChange={e => setClientSearch(e.target.value)}
-                autoFocus
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm outline-none"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid var(--brand-border)',
-                  color: 'var(--brand-text)',
-                }}
-              />
-            </div>
-
-            {/* Liste clients */}
-            <div className="overflow-y-auto flex-1 space-y-1.5" style={{ minHeight: 0 }}>
-              {filteredClients.length === 0 ? (
-                <div className="text-center py-8" style={{ color: 'var(--brand-text-muted)' }}>
-                  <User size={32} className="mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">{t('clients.no_clients', 'Aucun client trouvé')}</p>
-                  <button
-                    onClick={() => navigate('/clients')}
-                    className="mt-3 text-xs underline"
-                    style={{ color: 'var(--brand-cyan)' }}
-                  >
-                    {t('clients.create_new', 'Créer un nouveau client')}
-                  </button>
-                </div>
-              ) : (
-                filteredClients.map(client => (
-                  <button
-                    key={client.id}
-                    onClick={() => handleSelectClient(client.id)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:opacity-80"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--brand-border)' }}
-                  >
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{
-                        background: client.estMineur ? 'rgba(156,39,176,0.15)' : 'rgba(76,175,80,0.15)',
-                        color: client.estMineur ? '#CE93D8' : '#81C784',
-                      }}>
-                      {client.estMineur ? <Baby size={16} /> : <User size={16} />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-600 truncate" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{client.prenom} {client.nom}</p>
-                      <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>{client.telephone}</p>
-                    </div>
-                    <ChevronRight size={16} style={{ color: 'var(--brand-text-muted)', flexShrink: 0 }} />
-                  </button>
-                ))
-              )}
-            </div>
           </div>
         </div>
       )}

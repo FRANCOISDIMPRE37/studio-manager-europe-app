@@ -14,7 +14,7 @@ import stripeRoutes from "../stripe-routes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { startRappelsScheduler } from "../rappels";
+import { runRappelsJob } from "../rappels";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,8 +39,8 @@ async function startServer() {
   const app = express();
 app.use(cors({
   origin: [
-    'https://studio.studiomanagereurope.eu',
-
+    'https://app.studiomanagereurope.eu',
+    'https://app.studiomanagereurope.eu',
     'http://localhost:3000',
     'http://localhost:8080',
     'http://localhost:8081',
@@ -95,4 +95,4 @@ app.use(stripeRoutes);
 startServer().catch(console.error);
 
 // Démarrer le scheduler de rappels automatiques
-// startRappelsScheduler(); // Désactivé
+runRappelsJob();

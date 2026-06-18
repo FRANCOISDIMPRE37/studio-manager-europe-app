@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Studio Manager",
-    "subtitle": "door Intemporelle — AVG & Cyberbeveiliging",
+    "subtitle": "door Studio Manager Europe — AVG & Cyberbeveiliging",
     "tagline": "De digitale oplossing voor tattoo- en piercingprofessionals"
   },
   "nav": {
@@ -226,8 +226,7 @@
     "soins_piercing": "Piercing Nazorg (A, B, C, D–G)",
     "tatouage": "Tatoeage (05-07)",
     "dermographie": "Dermografie (08-10)",
-    "rgpd": "AVG & Vertrouwelijkheid (11-12)",
-    "momer_rgpd": "MOMER AVG"
+    "rgpd": "AVG & Vertrouwelijkheid (11-12)"
   },
   "soins": {
     "fiche_title": "VERZORGINGSBLAD",
@@ -543,6 +542,11 @@
       "ID-kaart",
       "Paspoort",
       "Verblijfsvergunning"
+    ],
+    "id_options_adult": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour"
     ],
     "id_options_minor": [
       "ID-kaart",

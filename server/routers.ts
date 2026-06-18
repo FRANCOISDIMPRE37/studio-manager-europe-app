@@ -44,6 +44,11 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    getSession: publicProcedure.query(({ ctx }) => ({
+      employeeRole: ctx.employeeRole || null,
+      employeeId: ctx.employeeId || null,
+      isEmployee: !!ctx.employeeRole && ctx.employeeRole !== "admin",
+    })),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       const { maxAge: _maxAge, ...clearOptions } = cookieOptions;
@@ -186,9 +191,12 @@ export const appRouter = router({
         // Cohérence PC/iPad obligatoire : tous les appareils consultent la même source serveur.
         // On ignore volontairement le filtre employé historique pour éviter qu'un client mineur
         // créé sur PC soit invisible sur l'iPad à cause d'une session locale différente.
-        console.log('[DEBUG] clients.list called for userId:', ctx.user?.id, 'user:', ctx.user?.name);
-        const clients = await getClientsByUserId(ctx.user.id);
-        console.log('[DEBUG] clients.list returned:', clients.length, 'clients');
+        const allClients = await getClientsByUserId(ctx.user.id);
+        // Le gérant (admin) voit TOUS les clients — les employés voient seulement les leurs
+        const isAdmin = !ctx.employeeId || ctx.employeeRole === 'admin';
+        const clients = isAdmin
+          ? allClients
+          : allClients.filter((c: any) => c.createdByEmployeeId === ctx.employeeId);
         return clients;
       }),
     get: protectedProcedure
@@ -219,9 +227,21 @@ export const appRouter = router({
           type: z.string(), date: z.string(), note: z.string().optional(),
         })).default([]),
         prestationsSouhaitees: z.array(z.string()).optional().default([]),
+        zoneATatouer: z.string().optional(),
+        zoneDermographie: z.array(z.string()).optional().default([]),
+        praticien: z.string().optional(),
+        nomRepresentantLegal: z.string().optional(),
+        prenomRepresentantLegal: z.string().optional(),
+        lienRepresentantLegal: z.string().optional(),
+        telephoneRepresentantLegal: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        return createClient({ ...input, userId: ctx.user.id });
+        try {
+          return await createClient({ ...input, userId: ctx.user.id, ...(ctx.employeeId ? { createdByEmployeeId: ctx.employeeId } : {}) });
+        } catch (e: any) {
+          console.error("[clients.create] échec de création client:", e?.message || e);
+          throw e;
+        }
       }),
     update: protectedProcedure
       .input(z.object({
@@ -246,6 +266,13 @@ export const appRouter = router({
           type: z.string(), date: z.string(), note: z.string().optional(),
         })).optional(),
         prestationsSouhaitees: z.array(z.string()).optional(),
+        zoneATatouer: z.string().optional(),
+        zoneDermographie: z.array(z.string()).optional(),
+        praticien: z.string().optional(),
+        nomRepresentantLegal: z.string().optional(),
+        prenomRepresentantLegal: z.string().optional(),
+        lienRepresentantLegal: z.string().optional(),
+        telephoneRepresentantLegal: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
@@ -317,6 +344,18 @@ export const appRouter = router({
         dateSigned: z.string().nullable().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // Anti-doublon : vérifier si un document du même type existe déjà pour ce client
+        const existingDocs = await getDocumentsByUserId(ctx.user.id);
+        const duplicate = existingDocs.find((d: any) => d.clientId === input.clientId && d.type === input.type);
+        if (duplicate) {
+          // Mettre à jour l'existant au lieu de créer un doublon
+          await updateDocumentById(duplicate.id, ctx.user.id, {
+            status: input.status || 'filled',
+            data: input.data,
+            dateSigned: input.dateSigned,
+          });
+          return { id: duplicate.id, ...input, status: input.status || 'filled' };
+        }
         return createDocument({ ...input, userId: ctx.user.id });
       }),
     update: protectedProcedure
@@ -660,6 +699,15 @@ export const appRouter = router({
         if (!ok) {
           throw new Error("PIN incorrect");
         }
+        // Poser un cookie JWT avec role employe
+        const { SignJWT } = await import('jose');
+        const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'Intemporelle2026!');
+        const token = await new SignJWT({ openId: ctx.user.openId, userId: ctx.user.id, employeeId: Number(employe.id), ownerId: ctx.user.id, role: employe.role })
+          .setProtectedHeader({ alg: 'HS256' })
+          .setExpirationTime('365d')
+          .sign(JWT_SECRET);
+        const isSecure = ctx.req.headers['x-forwarded-proto'] === 'https' || process.env.NODE_ENV === 'production';
+        ctx.res.cookie('local_session', token, { httpOnly: true, secure: isSecure, sameSite: isSecure ? 'none' : 'lax', maxAge: 365 * 24 * 60 * 60 * 1000 });
         return {
           success: true,
           employe: {
@@ -748,6 +796,15 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         await deleteStudioUser(input.id, ctx.user.id);
+        return { success: true };
+      }),
+    updatePin: protectedProcedure
+      .input(z.object({ id: z.number(), pin: z.string().length(4).regex(/^[0-9]{4}$/) }))
+      .mutation(async ({ ctx, input }) => {
+        const db = await getDb();
+        if (!db) throw new Error('DB unavailable');
+        const pinHash = await bcrypt.hash(input.pin, 12);
+        await (db as any).$client.query('UPDATE studio_users SET pinHash = ?, updatedAt = NOW() WHERE id = ? AND ownerId = ?', [pinHash, input.id, ctx.user.id]);
         return { success: true };
       }),
 
@@ -1160,8 +1217,8 @@ export const appRouter = router({
           const passwordHash = await bcrypt.hash(tempPassword, 10);
 
           const [userResult] = await conn.query(
-            `INSERT INTO users (name, email, loginMethod, role, passwordHash, createdAt, updatedAt)
-             VALUES (?, ?, 'email', 'user', ?, NOW(), NOW())`,
+            `INSERT INTO users (name, email, loginMethod, role, passwordHash, openId, createdAt, updatedAt)
+             VALUES (?, ?, 'email', 'user', ?, NULL, NOW(), NOW())`,
             [input.nomSalon, input.email, passwordHash]
           ) as any;
           const newUserId = (userResult as any).insertId;

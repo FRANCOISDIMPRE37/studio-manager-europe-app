@@ -86,12 +86,10 @@ export default function Clients() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const filtered = useMemo(() => {
-    return state.clients.filter(c => {
+    return (state.clients || []).filter(c => {
       const matchSearch = search
         ? (c.nom + ' ' + c.prenom).toLowerCase().includes(search.toLowerCase()) ||
-          c.telephone.includes(search) ||
-          (c.dateNaissance && c.dateNaissance.includes(search)) ||
-          (c.dateNaissance && c.dateNaissance.substring(0, 4).includes(search))
+          c.telephone.includes(search)
         : true;
       const matchFilter =
         filter === 'mineurs' ? c.estMineur && !c.estArchive && !c.estSalarie :
@@ -101,8 +99,8 @@ export default function Clients() {
   }, [state.clients, search, filter]);
 
   const FILTERS: { key: FilterType; label: string; count: number }[] = [
-    { key: 'mineurs', label: t('clients.minor') + 's', count: state.clients.filter(c => c.estMineur && !c.estArchive && !c.estSalarie).length },
-    { key: 'majeurs', label: t('clients.adult') + 's', count: state.clients.filter(c => !c.estMineur && !c.estArchive && !c.estSalarie).length },
+    { key: 'mineurs', label: t('clients.minor') + 's', count: (state.clients || []).filter(c => c.estMineur && !c.estArchive && !c.estSalarie).length },
+    { key: 'majeurs', label: t('clients.adult') + 's', count: (state.clients || []).filter(c => !c.estMineur && !c.estArchive && !c.estSalarie).length },
   ];
 
   return (

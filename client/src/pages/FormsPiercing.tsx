@@ -29,7 +29,7 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
-      <RadioField label="Numéro de la pièce d'identité du mineur" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} required />
+      <RadioField label="Pièce d'identité du représentant légal" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} required />
       {data.pieceId && data.pieceId !== t('forms.id_not_presented') && (
         <FormField label={t('forms.id_number')} value={data.numeroPiece || ''} onChange={v => update('numeroPiece', v)} required />
       )}
@@ -75,7 +75,7 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
       )}
 
       <FormSection title={t('q01.section_special')} />
-      <RadioField label={t('q01.pregnancy')} options={yesNo} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
+      <RadioField label={t('q01.pregnancy')} options={yesNoMaybe} value={data.grossesse || t('forms.no')} onChange={v => update('grossesse', v)} />
       <RadioField label={t('q01.alcohol')} options={yesNo} value={data.alcool || t('forms.no')} onChange={v => update('alcool', v)} />
       <RadioField label={t('q01.drugs')} options={yesNo} value={data.drogues || t('forms.no')} onChange={v => update('drogues', v)} />
       <RadioField label={t('q01.ate_well')} options={[t('forms.yes'), t('forms.no')]} value={data.aBienMange || t('forms.yes')} onChange={v => update('aBienMange', v)} />
@@ -119,7 +119,9 @@ function FormQuestionnaireMineur({ data, update, client }: { data: Record<string
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)} />
+          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)}
+  required
+/>
           <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
           <div className="mt-3">
             <SignaturePad
@@ -141,7 +143,6 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
   const salonInfo = appState.salonInfo;
   const { t } = useTranslation();
   const yesNo = [t('forms.no'), t('forms.yes')];
-  const yesNoMaybe = [t('forms.no'), t('forms.yes'), t('forms.dont_know')];
   return (
     <>
       <LegalBox color="green">
@@ -156,7 +157,7 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <FormField label={t('forms.dob')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} required />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
       <FormField label={t('forms.phone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
-      <RadioField label="Numéro de la pièce d'identité du mineur" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} required />
+      <RadioField label="Pièce d'identité du client" options={t('forms.id_options_minor', { returnObjects: true }) as string[]} value={data.pieceId || ''} onChange={v => update('pieceId', v)} required />
       {data.pieceId && data.pieceId !== t('forms.id_not_presented') && (
         <FormField label={t('forms.id_number')} value={data.numeroPiece || ''} onChange={v => update('numeroPiece', v)} required />
       )}
@@ -228,12 +229,12 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
       <CheckboxField label={t('q03.consent_protocol')} value={data.consent_protocole || false} onToggle={() => update('consent_protocole', !data.consent_protocole)} required />
       <CheckboxField label="Je consens expressement au traitement de mes donnees de sante par le salon (Art. 9 RGPD)" value={data.consentDonneesSante || false} onToggle={() => update('consentDonneesSante', !data.consentDonneesSante)} required />
 
-      <RgpdMentions />
+      <RgpdMentions hideLegalIdCopyMention printHidden />
       <FormSection title={t('q03.section_signatures')} />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.client_name')} value={data.nomClientSign || data.nom || client.nom || ''} onChange={v => update('nomClientSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
+          <FormField label={t('forms.client_name')} value={data.nomClientSign || data.nom || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
+          <FormField label={t('forms.date')} value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} required />
           <div className="mt-3">
             <SignaturePad
               label={t('forms.client_signature')}
@@ -243,8 +244,10 @@ function FormQuestionnaireMajeur({ data, update, client }: { data: Record<string
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)} />
-          <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
+          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)}
+  required
+/>
+          <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} required />
           <div className="mt-3">
             <SignaturePad
               label={t('forms.piercer_signature')}
@@ -268,9 +271,11 @@ function FormAutorisationParentale({ data, update, client, salonInfo }: { data: 
       <FormField label={t('forms.salon_name')} value={data.nomSalon || salonInfo?.nom || ''} onChange={v => update('nomSalon', v)} required />
       <div className="grid grid-cols-2 gap-3">
         <FormField label={t('forms.phone')} value={data.telSalon || salonInfo?.telephone || ''} onChange={v => update('telSalon', v)} type="tel" />
-        {/* SIRET supprimé */}
+        <FormField label={t('forms.siret')} value={data.siret || salonInfo?.siret || ''} onChange={v => update('siret', v)} />
       </div>
-      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)} />
+      <FormField label={t('forms.piercer_name')} value={data.nomPierceur || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceur', v)}
+  required
+/>
 
       <FormSection title={t('q02.section_minor_identity')} />
       <div className="grid grid-cols-2 gap-3">
@@ -320,7 +325,9 @@ function FormAutorisationParentale({ data, update, client, salonInfo }: { data: 
           </div>
         </div>
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)} />
+          <FormField label={t('forms.piercer_name')} value={data.nomPierceurSign || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)}
+  required
+/>
           <FormField label={t('forms.date')} value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
           <div className="mt-3">
             <SignaturePad
@@ -510,6 +517,17 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
   const { state: appState } = useApp();
   const salonInfo = appState.salonInfo;
   const { t } = useTranslation();
+  const soinsMineurBaseMap: Record<string, string> = {
+    soins_mineur_oreilles: 'soins_oreilles',
+    soins_mineur_nez: 'soins_nez',
+    soins_mineur_bouche_levres: 'soins_bouche_levres',
+    soins_mineur_nombril: 'soins_nombril',
+    soins_mineur_mamelons: 'soins_mamelons',
+    soins_mineur_arcade_sourcil: 'soins_arcade_sourcil',
+    soins_mineur_surface_dermal: 'soins_surface_dermal',
+  };
+  const baseDocType = soinsMineurBaseMap[docType] || docType;
+  const isSoinsMineur = Boolean(soinsMineurBaseMap[docType]);
   const soinsKeyMap: Record<string, string> = {
     soins_oreilles: 'oreilles',
     soins_nez: 'nez',
@@ -519,8 +537,8 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
     soins_surface_dermal: 'surface_dermal',
     soins_bouche_levres: 'bouche_levres',
   };
-  const soinsKey = soinsKeyMap[docType];
-  const fallback = SOINS_DATA[docType];
+  const soinsKey = soinsKeyMap[baseDocType];
+  const fallback = SOINS_DATA[baseDocType];
   const soinsTitle = soinsKey ? t(`soins.${soinsKey}.title`, fallback?.title || '') : (fallback?.title || '');
   const soinsZones = soinsKey
     ? (t(`soins.${soinsKey}.zones`, { returnObjects: true }) as { zone: string; desc: string; cica: string }[])
@@ -547,7 +565,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       </div>
       <FormField label={t('forms.dob', 'Date de naissance (JJ/MM/AAAA)')} value={data.dateNaissance || client.dateNaissance || ''} onChange={v => update('dateNaissance', v)} />
       <AgeVerif dateNaissance={data.dateNaissance || client.dateNaissance || ''} />
-      <FormField label={t('forms.phone', 'Téléphone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" />
+      <FormField label={t('forms.phone', 'Téléphone')} value={data.telephone || client.telephone || ''} onChange={v => update('telephone', v)} type="tel" required />
       <FormSection title={t('soins.prestation_section', 'INFORMATIONS PRESTATION')} />
       <FormField label={t('soins.zone_piercing_label', 'Zone percée / traitée')} value={data.zonePiercing || ''} onChange={v => update('zonePiercing', v)} required />
 
@@ -592,7 +610,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       <FormSection title="INFORMATIONS COMPLÉMENTAIRES" />
       <FormField label="Notes du professionnel" value={data.notes || ''} onChange={v => update('notes', v)} multiline />
 
-      {docType === 'soins_oreilles' && (
+      {baseDocType === 'soins_oreilles' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/pasted_file_vRQdfj_image_04a9dd8b.png"
@@ -603,7 +621,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_bouche_levres' && (
+      {baseDocType === 'soins_bouche_levres' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_labret_new_3c0b91d9.jpg"
@@ -614,7 +632,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_nombril' && (
+      {baseDocType === 'soins_nombril' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_nombril_new_d5f89320.webp"
@@ -625,7 +643,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_nez' && (
+      {baseDocType === 'soins_nez' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_nez_new_1ea6172d.webp"
@@ -636,7 +654,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_mamelons' && (
+      {baseDocType === 'soins_mamelons' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_oreilles_mamelons_arcade_d6fa385b.webp"
@@ -647,7 +665,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_arcade_sourcil' && (
+      {baseDocType === 'soins_arcade_sourcil' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_oreilles_mamelons_arcade_d6fa385b.webp"
@@ -658,7 +676,7 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
         </div>
       )}
 
-      {docType === 'soins_surface_dermal' && (
+      {baseDocType === 'soins_surface_dermal' && (
         <div className="mb-4">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/soins_surface_dermal_new_6c6a051e.webp"
@@ -670,27 +688,40 @@ function FormSoins({ docType, data, update, client }: { docType: string; data: R
       )}
 
       <LegalBox color="cyan">
-        <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). Copie conservée par le salon — Pièces jointes : copie de la/des pièce(s) d'identité du/des représentant(s) légal/aux. VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
+        <em>Conservation : 3 ans minimum à compter de la majorité du mineur (Art. L1110-4 CSP). VOS DROITS RGPD Dans le cadre de votre prestation, nous collectons et traitons vos données personnelles. Conformément au RGPD, vous disposez des droits suivants : Art. 15 — Droit d'accès · Art. 16 — Droit de rectification · Art. 17 — Droit à l'effacement · Art. 21 — Droit d'opposition Conservation : données de santé 3 ans — Pour exercer vos droits : {salonInfo?.email || "contact@votresalon.fr"}<br />
         Support : L'écrit électronique a la même force probante que l'écrit papier (Art. 1366 du Code civil).</em>
       </LegalBox>
 
 
-      <RgpdMentions />
+      <RgpdMentions hideLegalIdCopyMention />
       <FormSection title="SIGNATURES" />
       <div className="grid grid-cols-1 gap-6">
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du client — Lu et approuvé" value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} />
+          <FormField label={isSoinsMineur ? "Nom du mineur — Lu et approuvé" : "Nom du client — Lu et approuvé"} value={data.nomClientSign || client.nom || ''} onChange={v => update('nomClientSign', v)} required />
           <FormField label="Date" value={data.dateSignatureClient || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureClient', v)} />
           <div className="mt-3">
             <SignaturePad
-              label="Signature du client"
+              label={isSoinsMineur ? "Signature du mineur — obligatoire" : "Signature du client"}
               value={data.signatureImageClient || ''}
               onChange={v => update('signatureImageClient', v ?? '')}
             />
           </div>
         </div>
+        {isSoinsMineur && (
+          <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
+            <FormField label="Nom du représentant légal" value={data.nomRepresentantLegalSign || data.nomRepresentantSign || [client.nomRepresentantLegal, client.prenomRepresentantLegal].filter(Boolean).join(' ')} onChange={v => update('nomRepresentantLegalSign', v)} required />
+            <FormField label="Date" value={data.dateSignatureRepresentant || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignatureRepresentant', v)} />
+            <div className="mt-3">
+              <SignaturePad
+                label="Signature du représentant légal — obligatoire"
+                value={data.signatureImageRepresentant || ''}
+                onChange={v => update('signatureImageRepresentant', v ?? '')}
+              />
+            </div>
+          </div>
+        )}
         <div className="p-4 rounded-xl" style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)' }}>
-          <FormField label="Nom du pierceur" value={data.nomPierceurSign || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)} />
+          <FormField label="Nom du piéceur" value={data.nomPierceurSign || client.praticien || salonInfo?.nomPierceur || ''} onChange={v => update('nomPierceurSign', v)} required />
           <FormField label="Date" value={data.dateSignaturePierceur || new Date().toLocaleDateString('fr-FR')} onChange={v => update('dateSignaturePierceur', v)} />
           <div className="mt-3">
             <SignaturePad

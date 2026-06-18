@@ -39,12 +39,12 @@ export default function ConnexionEmail() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle RGPD & Cybersécurité"
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
             className="rounded-lg mb-4"
             style={{ width: "120px", objectFit: "contain" }}
           />
-          <h1 className="text-2xl font-bold text-white">studio.studiomanagereurope.eu</h1>
+          <h1 className="text-2xl font-bold text-white">app.studiomanagereurope.eu</h1>
           <p className="text-sm mt-1" style={{ color: "var(--brand-text-muted)" }}>
             Gestion RGPD pour salons de tatouage & piercing
           </p>
@@ -54,7 +54,7 @@ export default function ConnexionEmail() {
           <CardHeader>
             <CardTitle className="text-white text-xl">Connexion</CardTitle>
             <CardDescription style={{ color: "var(--brand-text-muted)" }}>
-              Accédez à votre espace studio.studiomanagereurope.eu
+              Accédez à votre espace app.studiomanagereurope.eu
             </CardDescription>
           </CardHeader>
           <CardContent>

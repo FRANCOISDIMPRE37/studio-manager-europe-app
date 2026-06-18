@@ -10,11 +10,12 @@ import { trpc } from "@/lib/trpc";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Vitrine from "./pages/Vitrine";
 import NotFound from "./pages/NotFound";
 import Inscription from "@/pages/Inscription";
 import ConnexionEmail from "@/pages/ConnexionEmail";
 
-// Lazy-loaded pages
+// Lazy-loaded pages (chargées à la demande)
 const Archives = lazy(() => import('@/pages/Archives'));
 const ArchivesNumerisees = lazy(() => import('@/pages/ArchivesNumerisees'));
 const EcranPIN = lazy(() => import('@/pages/EcranPIN'));
@@ -34,10 +35,15 @@ const PolitiqueConfidentialite = lazy(() => import("@/pages/PolitiqueConfidentia
 const MentionsLegales = lazy(() => import("@/pages/MentionsLegales"));
 const VideosDemoPage = lazy(() => import("@/pages/VideosDemoPage"));
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
-const APropos = lazy(() => import('@/pages/APropos'));
-const Dirigeant = lazy(() => import('./pages/Dirigeant'));
-const Vitrine = lazy(() => import('./pages/Vitrine'));
+const APropos = lazy(() => import("@/pages/APropos"));
+const Admin = lazy(() => import("@/pages/Admin"));
 
+const isEmployeAllowedRoute = (path: string) => {
+  const cleanPath = path.split('?')[0];
+  return cleanPath === '/pin' || cleanPath === '/clients' || /^\/clients\/[^/]+$/.test(cleanPath) || /^\/clients\/[^/]+\/document\/[^/]+$/.test(cleanPath);
+};
+
+// Composant de chargement
 function LoadingFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
@@ -50,35 +56,102 @@ function LoadingFallback() {
 }
 
 function AppRoutes() {
-  const { state } = useApp();
-  const [location] = useLocation();
-  const path = location;
-
-  // SÉPARATION RADICALE : Si l'URL contient super-admin, on force le monde Admin
-  if (path.includes('/super-admin')) {
-    if (!state.isAuthenticated) {
-      return <Login />;
+  const { state, setAuthenticated } = useApp();
+  const { isLoggedIn: isEmployeLoggedIn } = useEmployeSession();
+  const [location, navigate] = useLocation();
+  const { data: firstLoginData, isLoading: firstLoginLoading, error: firstLoginError } = trpc.salon.getFirstLogin.useQuery(
+    undefined,
+    {
+      enabled: state.isAuthenticated && !state.isDemo,
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 30_000,
     }
+  );
+
+  useEffect(() => {
+    if (state.isAuthenticated && firstLoginError) {
+      console.warn('[iPad Auth] Session serveur invalide ou expirée : retour connexion sans boucle de chargement.', firstLoginError.message);
+      setAuthenticated(false);
+    }
+  }, [state.isAuthenticated, firstLoginError, setAuthenticated]);
+
+  useEffect(() => {
+    if (isEmployeLoggedIn && !isEmployeAllowedRoute(location)) {
+      navigate('/clients');
+    }
+  }, [isEmployeLoggedIn, location, navigate]);
+
+  if (state.isLoading) {
     return (
-      <Suspense fallback={<LoadingFallback />}>
-        <SuperAdmin />
-      </Suspense>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
+            className="rounded-lg animate-pulse"
+            style={{ width: '180px', objectFit: 'contain' }}
+          />
+          <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Chargement...</p>
+        </div>
+      </div>
     );
   }
 
-  // SINON : Monde iPad / Client
-  if (state.isLoading) {
+  // Routes publiques accessibles sans authentification
+  const path = location;
+  const hostname = window.location.hostname;
+
+  if (isEmployeLoggedIn && !isEmployeAllowedRoute(path)) {
     return <LoadingFallback />;
   }
 
+  if (path === '/inscription') return <Inscription />;
+  if (path === '/connexion') return <ConnexionEmail />;
+  
+  if (path === '/super-admin') {
+    if (hostname !== 'app.studiomanagereurope.eu' && hostname !== 'studio.studiomanagereurope.eu' && hostname !== 'localhost' && !hostname.startsWith('127.')) {
+      window.location.href = '/';
+      return null;
+    }
+    return <Suspense fallback={<LoadingFallback />}><SuperAdmin /></Suspense>;
+  }
+
+  if (path === '/setup-studio' || path.startsWith('/setup-studio')) return <Suspense fallback={<LoadingFallback />}><Onboarding /></Suspense>;
+
+  if ((!state.isAuthenticated && !isEmployeLoggedIn) || firstLoginError) {
+    return <Login />;
+  }
+
+  // Première connexion : onboarding non encore effectué → Engagements (flag côté serveur)
+  if (firstLoginLoading && !firstLoginError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--brand-navy)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
+            className="rounded-lg animate-pulse"
+            style={{ width: '140px', objectFit: 'contain' }}
+          />
+          <p className="text-sm" style={{ color: 'var(--brand-text-muted)' }}>Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+  if (firstLoginData?.firstLogin === true) {
+    return <Suspense fallback={<LoadingFallback />}><Onboarding /></Suspense>;
+  }
+
+  // make sure to consider if you need authentication for certain routes
   return (
     <Layout>
       <Suspense fallback={<LoadingFallback />}>
         <Switch>
+          <Route path="/super-admin" component={SuperAdmin} />
           <Route path="/pin" component={EcranPIN} />
-          <Route path="/" component={EcranPIN} />
           <Route path="/gestion-utilisateurs" component={GestionUtilisateurs} />
-          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/" component={Dashboard} />
           <Route path="/clients" component={Clients} />
           <Route path="/clients/:id" component={ClientDetail} />
           <Route path="/clients/:clientId/document/:docType" component={DocumentForm} />
@@ -86,7 +159,6 @@ function AppRoutes() {
           <Route path="/documents" component={Documents} />
           <Route path="/parametres" component={Parametres} />
           <Route path="/salaries" component={Salaries} />
-          <Route path="/dirigeant" component={Dirigeant} />
           <Route path="/engagements" component={Engagements} />
           <Route path="/archives" component={Archives} />
           <Route path="/archives-numerisees" component={ArchivesNumerisees} />

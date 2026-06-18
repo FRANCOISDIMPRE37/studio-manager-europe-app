@@ -81,8 +81,8 @@ export default function SetupStudio() {
 
         {/* Logo */}
         <div className="flex flex-col items-center">
-          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle" className="rounded-lg mb-3" style={{ width: '180px' }} />
+          <img src="/new_logo.webp"
+            alt="Studio Manager Europe" className="rounded-lg mb-3" style={{ width: '180px' }} />
           <h1 className="text-2xl font-800 text-white text-center" style={{ fontFamily: 'Outfit', fontWeight: 800 }}>
             Bienvenue !
           </h1>
@@ -214,7 +214,7 @@ export default function SetupStudio() {
         )}
 
         <p className="text-xs text-center" style={{ color: 'var(--brand-text-muted)', opacity: 0.5 }}>
-          Application propriété de la Société Intemporelle · 06.17.07.41.69
+          Application propriété de la Studio Manager Europe · 06.17.07.41.69
         </p>
       </div>
     </div>

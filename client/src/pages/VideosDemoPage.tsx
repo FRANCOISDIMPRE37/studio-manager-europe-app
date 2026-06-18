@@ -265,14 +265,14 @@ export default function VideosDemoPage() {
                 06.17.07.41.69
               </a>
               <a
-                href="https://studio.studiomanagereurope.eu"
+                href="https://app.studiomanagereurope.eu"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm transition-opacity hover:opacity-90"
                 style={{ background: "rgba(255,255,255,0.08)", color: "white", border: "1px solid rgba(255,255,255,0.15)" }}
               >
                 <Globe size={16} />
-                studio.studiomanagereurope.eu
+                app.studiomanagereurope.eu
                 <ExternalLink size={12} />
               </a>
             </div>
@@ -299,7 +299,7 @@ export default function VideosDemoPage() {
 
         {/* Footer note */}
         <p className="text-center text-xs mt-8" style={{ color: "rgba(255,255,255,0.3)" }}>
-          Studio Manager by Intemporelle — Licence perpétuelle sans abonnement — Données hébergées en Europe 🇪🇺 — Conformité RGPD incluse
+          Studio Manager Europe — Licence perpétuelle sans abonnement — Données hébergées en Europe 🇪🇺 — Conformité RGPD incluse
         </p>
       </div>
     </div>

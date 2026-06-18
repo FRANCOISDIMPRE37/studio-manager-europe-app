@@ -1,7 +1,7 @@
 import { eq, desc, and } from "drizzle-orm";
 import { encrypt, decrypt, encryptStr, decryptStr } from "./_core/crypto";
 
-const CLIENT_SENSITIVE_FIELDS = ['telephone', 'email', 'dateNaissance', 'nomRepresentantLegal', 'prenomRepresentantLegal', 'telephoneRepresentantLegal'] as const;
+const CLIENT_SENSITIVE_FIELDS = ['telephone', 'email', 'dateNaissance', 'nomRepresentantLegal', 'prenomRepresentantLegal', 'lienRepresentantLegal', 'telephoneRepresentantLegal'] as const;
 
 function encryptClient<T extends Record<string, any>>(data: T): T {
   const result = { ...data };
@@ -197,21 +197,25 @@ export async function deletePrestationById(prestationId: string, userId: number)
 
 // ============ DOCUMENTS ============
 
+function sortDocumentsNewestFirst<T extends { createdAt: Date | string }>(rows: T[]): T[] {
+  return [...rows].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
 export async function getDocumentsByClientId(clientId: string, userId: number) {
   const db = await getDb();
   if (!db) return [];
   const rows = await db.select().from(documents)
-    .where(and(eq(documents.clientId, clientId), eq(documents.userId, userId)))
-    .orderBy(desc(documents.createdAt));
-  return rows.map(r => ({ ...r, data: decrypt(r.data as any) }));
+    .where(and(eq(documents.clientId, clientId), eq(documents.userId, userId)));
+  return sortDocumentsNewestFirst(rows).map(r => ({ ...r, data: decrypt(r.data as any) }));
 }
 
 export async function getDocumentsByUserId(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(documents)
+  const rows = await db.select().from(documents)
     .where(eq(documents.userId, userId))
     .orderBy(desc(documents.createdAt));
+  return rows.map(r => ({ ...r, data: decrypt(r.data as any) }));
 }
 
 export async function getDocumentById(docId: string, userId: number) {
@@ -228,7 +232,12 @@ export async function createDocument(data: InsertDocument) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   const encrypted = { ...data, data: encrypt(data.data as Record<string, unknown>) as any };
-  await db.insert(documents).values(encrypted);
+  try {
+    await db.insert(documents).values(encrypted);
+  } catch(e: any) {
+    console.error("[documents.create] échec de création document:", e?.message || e);
+    throw e;
+  }
   return data;
 }
 

@@ -15,12 +15,21 @@ import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 import { useState } from 'react';
 import LanguageSelector from '@/components/LanguageSelector';
+import { useEmployeSession } from '@/contexts/EmployeSessionContext';
 
 const MODE_EMPLOI_URL = '/mode-emploi.html';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { state, getDashboardStats, setAuthenticated, syncFromCloud } = useApp();
+  const { employe, isLoggedIn: isEmployeLoggedIn, logout: logoutEmploye } = useEmployeSession();
+  const sessionQuery = trpc.auth.getSession.useQuery();
+  const isEmployeeFromCookie = sessionQuery.data?.isEmployee ?? false;
+  const effectiveIsEmploye = isEmployeLoggedIn || isEmployeeFromCookie;
+  const empIdFromCookie = sessionQuery.data?.employeeId;
+  const empListQuery = trpc.studioUsers.list.useQuery(undefined, { enabled: isEmployeeFromCookie && !isEmployeLoggedIn });
+  const empFromCookie = empIdFromCookie ? empListQuery.data?.find((e: any) => e.id === empIdFromCookie) : null;
+  const employeeName = employe ? [employe.prenom, employe.nom].filter(Boolean).join(' ') : (empFromCookie ? [empFromCookie.prenom, empFromCookie.nom].filter(Boolean).join(' ') : 'Salarié');
   const stats = getDashboardStats();
   const { t } = useTranslation();
   const [showNotifs, setShowNotifs] = useState(false);
@@ -28,6 +37,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const markRead = trpc.notifications.markRead.useMutation({ onSuccess: () => notifsQuery.refetch() });
   const notifs = notifsQuery.data ?? [];
   const unread = notifs.filter(n => !n.lu).length;
+  const activeIdentityName = effectiveIsEmploye
+    ? employeeName
+    : state.salonInfo?.nom || 'Salon';
+  const activeIdentityLabel = effectiveIsEmploye ? 'Salarié connecté' : 'Session salon';
 
   // Nav items using translation keys
   // Navigation organisée par sections
@@ -37,13 +50,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       items: [
         { path: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
         { path: '/clients', icon: Users, labelKey: 'nav.clients' },
+        { path: '/salaries', icon: Users, labelKey: 'nav.salaries' },
         { path: '/documents', icon: FileText, labelKey: 'nav.documents' },
       ],
     },
     {
       sectionKey: 'nav.section_rgpd',
       items: [
-        { path: '/info-client-rgpd', icon: Info, labelKey: 'nav.client_info' },
         { path: '/archives', icon: Archive, labelKey: 'nav.archives' },
         { path: '/archives-numerisees', icon: Archive, labelKey: 'nav.archives_numerisees' },
       ],
@@ -51,16 +64,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     {
       sectionKey: 'nav.section_admin',
       items: [
-        { path: '/salaries', icon: Users, labelKey: 'nav.salaries' },
-        { path: '/dirigeant', icon: Users, labelKey: 'nav.directors' },
-        { path: '/rgpd-salarie', icon: Shield, labelKey: 'nav.rgpd_employee' },
-        { path: '/mentions-legales', icon: FileText, labelKey: 'nav.legal_cgu' },
         { path: '/parametres', icon: Settings, labelKey: 'nav.settings' },
+
       ],
     },
   ];
 
-  const handleLogout = () => {
+  const visibleNavSections = effectiveIsEmploye
+    ? [{ sectionKey: null, items: [{ path: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' }, { path: '/clients', icon: Users, labelKey: 'nav.clients' }] }]
+    : NAV_SECTIONS;
+
+  const handleLogout = async () => {
+    if (effectiveIsEmploye) {
+      logoutEmploye();
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/';
+      return;
+    }
     setAuthenticated(false);
   };
 
@@ -105,8 +125,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <div className="flex flex-col items-center px-3 py-3 border-b flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Studio Manager Europe — RGPD & Cybersécurité"
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
             className="w-full rounded-md"
             style={{ maxHeight: '52px', objectFit: 'contain' }}
           />
@@ -122,9 +142,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
+        {/* Identité active tablette */}
+        <div className="mx-2 mt-2 mb-1 px-3 py-2 rounded-md border" style={{ borderColor: 'rgba(201,168,76,0.35)', background: 'rgba(201,168,76,0.08)' }}>
+          <p className="text-xs uppercase tracking-wider" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', marginBottom: 3 }}>{activeIdentityLabel}</p>
+          <p className="text-sm font-700 truncate" style={{ color: 'var(--brand-cyan)', fontWeight: 700 }} title={activeIdentityName}>{activeIdentityName}</p>
+          <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', marginTop: 2 }}>👤 {effectiveIsEmploye ? employeeName : (state.salonInfo?.nom || 'Patron')}</p>
+        </div>
+
         {/* Navigation par sections */}
         <nav className="py-3 px-1">
-          {NAV_SECTIONS.map((section, sIdx) => (
+          {visibleNavSections.map((section, sIdx) => (
             <div key={sIdx} className={sIdx > 0 ? 'mt-3 pt-3 border-t' : ''} style={sIdx > 0 ? { borderColor: 'var(--brand-border)' } : {}}>
               {section.sectionKey && (
                 <p className="px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.5, fontWeight: 600 }}>
@@ -162,6 +189,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           ))}
 
+          {!effectiveIsEmploye && (
+          <>
           {/* Cloche notifications */}
         <div style={{ padding: '8px 12px', marginBottom: 4 }}>
           <button onClick={() => setShowNotifs(s => !s)}
@@ -177,26 +206,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </span>
           </button>
         </div>
-        {/* Mode d'emploi — séparé en bas de nav */}
-          <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--brand-border)' }}>
-            <a
-              href={MODE_EMPLOI_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 hover:bg-white/5 group"
-              style={{ color: 'var(--brand-text-muted)' }}
-            >
-              <BookOpen size={18} className="flex-shrink-0" />
-              <span className="block text-sm font-500 truncate group-hover:text-white transition-colors" style={{ fontWeight: 500 }}>{t('nav.mode_emploi')}</span>
-            </a>
-          </div>
+          </>
+          )}
         </nav>
 
+        {!effectiveIsEmploye && (
+        <>
         {/* Liens externes */}
         <div className="px-1 pb-2 space-y-1 flex-shrink-0">
           <p className="block px-3 text-xs uppercase tracking-wider mb-1" style={{ color: 'var(--brand-text-muted)', fontSize: '9px', opacity: 0.6 }}>{t('nav.resources')}</p>
           {[
-            { href: 'https://www.studiomanagereurope.eu/', label: 'StudioManager' },
             { href: 'https://www.ars.sante.fr/recherche-globale?search_ars=tatouage%20et%20piercing&ars_site=&submit_search=Filtrer&sort_by=date_desc', label: 'ARS Santé' },
             { href: 'https://www.cnil.fr/fr', label: 'CNIL' },
           ].map(({ href, label }) => (
@@ -208,7 +227,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 hover:bg-white/5 group"
               style={{ color: 'var(--brand-text-muted)' }}
             >
-              <ExternalLink size={15} className="flex-shrink-0" />
+              <ExternalLink size={15} className="flex-shrink-0" style={{ color: 'var(--brand-cyan)', opacity: 0.7 }} />
               <span className="block text-xs truncate group-hover:text-white transition-colors" style={{ fontWeight: 400 }}>{label}</span>
             </a>
           ))}
@@ -225,13 +244,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         )}
+        </>
+        )}
 
         {/* Salon info + logout */}
         <div className="border-t p-2 flex-shrink-0" style={{ borderColor: 'var(--brand-border)' }}>
           {state.salonInfo && (
             <div className="block px-2 py-1 mb-1">
               <p className="text-xs font-600 truncate" style={{ color: 'var(--brand-text)', fontWeight: 600 }}>{state.salonInfo.nom}</p>
-              <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>{state.salonInfo.ville}</p>
+              <p className="text-xs truncate" style={{ color: 'var(--brand-text-muted)' }}>{isEmployeLoggedIn && employe ? `Tablette : ${activeIdentityName}` : state.salonInfo.ville}</p>
             </div>
           )}
           {/* Sélecteur de langue — menu déroulant toutes langues européennes */}

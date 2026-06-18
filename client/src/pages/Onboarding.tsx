@@ -1,5 +1,5 @@
 /**
- * ONBOARDING SIMPLIFIÉ — Studio Manager by Intemporelle
+ * ONBOARDING SIMPLIFIÉ — Studio Manager Europe
  * S'affiche uniquement à la première utilisation (flag sm_onboarding_done absent)
  * Flux : Engagements → Démarrer
  * Les informations du salon sont déjà configurées par le Super-Admin côté serveur.
@@ -70,7 +70,7 @@ export default function Onboarding() {
       key: 'sterilisation' as const,
       icon: '🧴',
       titre: 'Obligation ARS — Traçabilité',
-      texte: "Je m'engage à respecter la traçabilité obligatoire demandée par l'ARS (Art. R1311-1 à R1311-4 du Code de la Santé Publique) et décharge la société Intemporelle de toute responsabilité en cas de manquement de ma part.",
+      texte: "Je m'engage à respecter la traçabilité obligatoire demandée par l'ARS (Art. R1311-1 à R1311-4 du Code de la Santé Publique) et décharge Studio Manager Europe de toute responsabilité en cas de manquement de ma part.",
     },
     {
       key: 'rgpd' as const,
@@ -110,8 +110,8 @@ export default function Onboarding() {
         {/* Logo + titre */}
         <div className="flex flex-col items-center">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310519663159292899/kHAXDDN9mqMmBLtorFtFyT/logo_intemporelle_293813dd.jpg"
-            alt="Intemporelle RGPD & Cybersécurité"
+            src="/new_logo.webp"
+            alt="Studio Manager Europe"
             className="rounded-lg mb-3"
             style={{ width: '200px', objectFit: 'contain' }}
           />
@@ -119,7 +119,7 @@ export default function Onboarding() {
             className="text-2xl font-800 text-white text-center"
             style={{ fontFamily: 'Outfit', fontWeight: 800 }}
           >
-            studio.studiomanagereurope.eu
+            {window.location.hostname === 'studio.studiomanagereurope.eu' ? 'studio.studiomanagereurope.eu' : 'app.studiomanagereurope.eu'}
           </h1>
           <p className="text-xs mt-1" style={{ color: 'var(--brand-cyan)' }}>
             Première utilisation — Engagements professionnels
@@ -241,7 +241,7 @@ export default function Onboarding() {
           className="text-xs text-center"
           style={{ color: 'var(--brand-text-muted)', opacity: 0.5, maxWidth: 320 }}
         >
-          Application propriété de la Société Intemporelle · 06.17.07.41.69
+          Application propriété de la Studio Manager Europe · 06.17.07.41.69
         </p>
       </div>
     </div>

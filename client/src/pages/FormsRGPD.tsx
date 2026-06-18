@@ -95,9 +95,8 @@ function FormEngagementConfidentialite({ data, update, client }: { data: Record<
             <p className="text-xs font-700" style={{ color: '#1b5e20', fontWeight: 700 }}>SALARIÉ — Lu et approuvé <span aria-hidden="true" style={{ color: '#b71c1c', fontWeight: 900 }}>*</span></p>
             <FormField label="Nom, Prénom" value={data.signataireNomSignature || ''} onChange={v => update('signataireNomSignature', v)} required />
             <DateSlashField label="Date" value={data.signataireDate || ''} onChange={v => update('signataireDate', v)} required />
-            <FormField label="Nom du dirigeant" value={data.nomDirigeant || ''} onChange={v => update('nomDirigeant', v)} required />
             <SignaturePad
-              label="Signature du dirigeant"
+              label="Signature du salarié"
               value={data.signatureImageSignataire || ''}
               onChange={v => update('signatureImageSignataire', v ?? '')}
             />

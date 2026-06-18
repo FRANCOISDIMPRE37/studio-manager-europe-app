@@ -21,9 +21,13 @@ interface Studio {
 }
 
 export default function SuperAdmin() {
-  // Redirection : si on est sur un domaine studio spécifique (pas studio.studiomanagereurope.eu), rediriger vers le dashboard du studio
+  // Redirection : si on est sur un domaine studio spécifique (pas app.studiomanagereurope.eu), rediriger vers le dashboard du studio
   useEffect(() => {
-    // Aucune redirection forcée ici pour permettre l'accès super-admin sur studio.studiomanagereurope.eu
+    const hostname = window.location.hostname;
+    if (hostname !== 'app.studiomanagereurope.eu' && hostname !== 'studio.studiomanagereurope.eu' && hostname !== 'localhost' && !hostname.startsWith('127.')) {
+      // C'est un domaine studio spécifique (app.studiomanagereurope.eu, studio-francois.studiomanagereurope.eu, etc.)
+      window.location.href = '/';
+    }
   }, []);
 
   const [authed, setAuthed] = useState(false);
@@ -38,7 +42,7 @@ export default function SuperAdmin() {
   const [studios, setStudios] = useState<Studio[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const emptyStudioForm = { nomSalon: "", rue: "", codePostal: "", ville: "", telephone: "", emailSalon: "", ownerEmail: "", siret: "", password: "", pin: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"] };
+  const emptyStudioForm = { nomSalon: "", rue: "", codePostal: "", ville: "", telephone: "", emailSalon: "", ownerEmail: "", siret: "", password: "", pin: "", planType: "studio", specialites: ["piercing", "tatouage", "dermographie"], salariéPrenom: "", salariéNom: "", salariéPin: "" };
   const [newStudio, setNewStudio] = useState(emptyStudioForm);
   const [created, setCreated] = useState<{ tempPin: string; nomSalon: string; ownerEmail: string; password: string; pin: string } | null>(null);
   const [actionMsg, setActionMsg] = useState("");
@@ -95,7 +99,7 @@ export default function SuperAdmin() {
 
   async function openEditModal(studio: any) {
     const specs = typeof studio.specialites === 'string' ? (studio.specialites||'piercing,tatouage,dermographie').split(',').map((s:string)=>s.trim()) : Object.keys(studio.specialites||{}).filter((k:string)=>(studio.specialites as any)[k]);
-    setEditForm({ ...emptyStudioForm, nomSalon: studio.nom||'', rue: studio.adresse||'', codePostal: studio.codePostal||'', ville: studio.ville||'', telephone: studio.telephone||'', emailSalon: studio.email||'', ownerEmail: studio.ownerEmail||'', pin: studio.tempPin||'', password: '', planType: studio.planType||'studio', specialites: specs });
+    setEditForm({ ...emptyStudioForm, nomSalon: studio.nom||'', rue: studio.adresse||'', codePostal: studio.codePostal||'', ville: studio.ville||'', telephone: studio.telephone||'', emailSalon: studio.email||'', ownerEmail: studio.ownerEmail||'', siret: studio.siret||'', pin: studio.tempPin||'', password: '', planType: studio.planType||'studio', specialites: specs });
     setEditingStudio(studio);
   }
   async function handleEditStudio(e: React.FormEvent) {
@@ -116,6 +120,7 @@ export default function SuperAdmin() {
       pin: editForm.pin,
       specialites: editForm.specialites.join(','),
       planType: editForm.planType,
+      siret: editForm.siret,
     };
     if (editForm.password) body.password = editForm.password;
     const r = await fetch(`/api/super-admin/studios/${editingStudio.id}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, credentials: 'include', body: JSON.stringify(body) });
@@ -125,36 +130,7 @@ export default function SuperAdmin() {
   }
   async function loadStudios() {
     const r = await fetch("/api/super-admin/studios", { credentials: "include" });
-    if (r.ok) {
-      const data = await r.json();
-      // Forcer l'affichage du studio 38 s'il n'est pas présent
-      if (!data.find((s: any) => s.id === 38)) {
-        try {
-          const res38 = await fetch("/api/super-admin/studios/38", { credentials: "include" });
-          if (res38.ok) {
-            const studio38 = await res38.json();
-            data.push(studio38);
-          } else {
-            // Fallback si l'API refuse l'accès direct, on ajoute une ligne factice qui pointe vers les données SQL connues
-            data.push({
-              id: 38,
-              nom: "Studio Pierceur Tatoueur Dermographe",
-              slug: "studio-manager-pro-moqqt5nw",
-              email: "contact@studiomanagereurope.eu",
-              ownerEmail: "contact@studiomanagereurope.eu",
-              planType: "studio",
-              actif: true,
-              isTemporary: false,
-              firstLogin: false,
-              createdAt: new Date().toISOString()
-            });
-          }
-        } catch (e) {
-          console.error("Erreur lors du forçage du studio 38", e);
-        }
-      }
-      setStudios(data);
-    }
+    if (r.ok) setStudios(await r.json());
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -186,7 +162,7 @@ export default function SuperAdmin() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ ...newStudio, specialites: newStudio.specialites.join(',') }),
+      body: JSON.stringify({ ...newStudio, ownerEmail: newStudio.ownerEmail || newStudio.emailSalon, specialites: newStudio.specialites.join(',') }),
     });
     const data = await r.json();
     if (r.ok) {
@@ -267,8 +243,8 @@ export default function SuperAdmin() {
       <div style={{ background: "#13131a", border: "1px solid #2a2a3a", borderRadius: 16, padding: 40, width: 360 }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🔐</div>
-          <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>STUDIO MANAGER</div>
-          <div style={{ color: "#D4AF37", fontSize: 13, marginTop: 4, fontWeight: 600 }}>EUROPE — ACCÈS ADMINISTRATEUR</div>
+          <div style={{ color: "#fff", fontSize: 20, fontWeight: 700 }}>Console Admin</div>
+          <div style={{ color: "#555", fontSize: 13, marginTop: 4 }}>Intemporelle — Accès restreint</div>
         </div>
         <form onSubmit={handleLogin}>
           <input
@@ -282,7 +258,7 @@ export default function SuperAdmin() {
             style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", marginBottom: 16, boxSizing: "border-box", outline: "none" }}
           />
           {loginError && <div style={{ color: "#ef4444", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{loginError}</div>}
-          <button type="submit" style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg, #D4AF37, #B8860B)", border: "none", borderRadius: 8, color: "#000", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
+          <button type="submit" style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 15 }}>
             Connexion
           </button>
         </form>
@@ -298,10 +274,10 @@ export default function SuperAdmin() {
       {/* Header */}
       <div style={{ background: "#13131a", borderBottom: "1px solid #2a2a3a", padding: "16px 32px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ fontSize: 24 }}>👑</div>
+          <div style={{ fontSize: 24 }}>💎</div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16 }}>Console Super-Admin</div>
-            <div style={{ color: "#D4AF37", fontSize: 12, fontWeight: 600 }}>STUDIO MANAGER EUROPE</div>
+            <div style={{ color: "#555", fontSize: 12 }}>{window.location.hostname === "studio.studiomanagereurope.eu" ? "studio.studiomanagereurope.eu" : "app.studiomanagereurope.eu"}</div>
           </div>
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -422,10 +398,7 @@ export default function SuperAdmin() {
                 <button onClick={() => openEditModal(studio)} style={{padding: "6px 14px", background: "#6366f120", border: "1px solid #6366f1", borderRadius: 6, color: "#818cf8", cursor: "pointer", fontSize: 12, fontWeight: 600}}>✏️ Modifier</button>
                 {/* Lien vers l'app */}
                 <button
-                  onClick={() => {
-                    const url = `/api/super-admin/studios/${studio.id}/open`;
-                    window.open(url, '_blank');
-                  }}
+                  onClick={() => window.open(`/api/super-admin/studios/${studio.id}/open`, '_blank')}
                   style={{ padding: "6px 14px", background: "#10b98120", border: "1px solid #10b981", borderRadius: 6, color: "#10b981", cursor: "pointer", fontSize: 12, fontWeight: 600 }}
                 >
                   🔗 Ouvrir
@@ -518,7 +491,7 @@ export default function SuperAdmin() {
       {/* Modal création */}
       {showCreate && (
         <div style={{ position: "fixed", inset: 0, background: "#000a", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#13131a", border: "1px solid #2a2a3a", borderRadius: 16, padding: 32, width: 420, maxWidth: "90vw" }}>
+          <div style={{ background: "#13131a", border: "1px solid #2a2a3a", borderRadius: 16, padding: 32, width: 420, maxWidth: "90vw", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 24 }}>Créer un nouveau studio</div>
             <form onSubmit={handleCreate}>
               <div style={{ marginBottom: 16 }}>
@@ -588,16 +561,6 @@ export default function SuperAdmin() {
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>SIRET</label>
-                <input
-                  type="text"
-                  value={newStudio.siret}
-                  onChange={e => setNewStudio({ ...newStudio, siret: e.target.value })}
-                  placeholder="Ex: 12345678901234"
-                  style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
-                />
-              </div>
-              <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>EMAIL DU PROPRIÉTAIRE</label>
                 <input
                   type="email"
@@ -608,6 +571,7 @@ export default function SuperAdmin() {
                   style={{ width: "100%", padding: "10px 14px", background: "#1e1e2e", border: "1px solid #2a2a3a", borderRadius: 8, color: "#fff", boxSizing: "border-box", outline: "none" }}
                 />
               </div>
+
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", color: "#888", fontSize: 12, marginBottom: 6 }}>CODE PIN (4 chiffres)</label>
                 <input
@@ -667,15 +631,7 @@ export default function SuperAdmin() {
                 </div>
                 {newStudio.specialites.length === 0 && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 8 }}>Au moins une spécialité doit être sélectionnée.</div>}
               </div>
-
-              <div style={{ display: "flex", gap: 12 }}>
-                <button type="button" onClick={() => setShowCreate(false)} style={{ flex: 1, padding: "10px", background: "transparent", border: "1px solid #2a2a3a", borderRadius: 8, color: "#888", cursor: "pointer" }}>
-                  Annuler
-                </button>
-                <button type="submit" disabled={newStudio.specialites.length === 0} style={{ flex: 1, padding: "10px", background: newStudio.specialites.length === 0 ? "#333" : "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: newStudio.specialites.length === 0 ? "not-allowed" : "pointer" }}>
-                  Créer le studio
-                </button>
-              </div>
+              <button type="submit" disabled={newStudio.specialites.length === 0} style={{ width: "100%", marginTop: 8, padding: "12px", background: newStudio.specialites.length === 0 ? "#333" : "linear-gradient(135deg, #7c3aed, #a855f7)", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, cursor: newStudio.specialites.length === 0 ? "not-allowed" : "pointer", fontSize: 15 }}>Créer le salon</button>
             </form>
           </div>
         </div>

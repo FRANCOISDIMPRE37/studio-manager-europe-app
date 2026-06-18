@@ -279,13 +279,14 @@ export default function SignaturePad({
           ref={canvasRef}
           width={width}
           height={height}
-          className="w-full touch-none"
+          className="w-full touch-none print-hide"
           style={{ touchAction: 'none', WebkitUserSelect: 'none' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
         />
+        {value && <img src={value} alt={label} className="print-show" style={{ display: 'none', width: '100%', maxHeight: height }} />}
       </div>
 
       {requireConfidentiality && showConfidentiality && !confidentialityAccepted && (

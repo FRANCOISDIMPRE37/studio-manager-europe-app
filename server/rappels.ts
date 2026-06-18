@@ -70,22 +70,20 @@ async function checkAndSendRgpdRappels() {
       pass: process.env.SMTP_PASS || "M@tdepasseionos37",
     },
     tls: { rejectUnauthorized: false },
-    debug: true,
-    logger: true
+    debug: false,
+    logger: false
   });
 
   for (const client of clients) {
     try {
-      console.log(`[RGPD] Traitement du client : ${client.email}`);
-      
       // Vérifier si un rappel a déjà été envoyé pour ce client
       const alreadySent = await query(
-        "SELECT id FROM rgpd_rappels WHERE clientId = ? AND type = '30_jours' LIMIT 1",
+        "SELECT id FROM rgpd_rappels WHERE clientId = ? LIMIT 1",
         [client.id]
       );
       
       if (alreadySent.length > 0) {
-        console.log(`[RGPD] Rappel déjà envoyé pour ${client.email}, on passe.`);
+        console.log(`[RGPD] Rappel déjà envoyé pour un client, on passe.`);
         continue;
       }
 
@@ -98,7 +96,7 @@ async function checkAndSendRgpdRappels() {
       const studioTel = client.studioTel || "0617074169";
       const studioAdresse = `${client.studioAdresse || '3 rue de tours'}, ${client.studioCP || '37000'} ${client.studioVille || 'TOURS'}`;
 
-      console.log(`[RGPD] Tentative d'envoi mail à ${client.email}...`);
+      console.log(`[RGPD] Tentative d'envoi mail RGPD pour un client.`);
 
       await transporter.sendMail({
         from: `"${studioNom}" <${process.env.SMTP_USER || 'piercing-tatouage-dermographie@studiomanagereurope.eu'}>`,
@@ -141,12 +139,12 @@ ${studioTel}`,
         `
       });
 
-      console.log(`[RGPD] Mail envoyé avec succès à ${client.email}`);
+      console.log(`[RGPD] Mail RGPD envoyé avec succès pour un client.`);
 
       // Enregistrer l'envoi dans la base de données
       await query(
-        "INSERT INTO rgpd_rappels (id, clientId, userId, type, sentAt) VALUES (?, ?, ?, ?, ?)",
-        [randomUUID(), client.id, client.userId, '30_jours', Math.floor(Date.now() / 1000)]
+        "INSERT INTO rgpd_rappels (id, clientId, userId, sentAt, createdAt) VALUES (?, ?, ?, ?, ?)",
+        [randomUUID(), client.id, client.userId, Math.floor(Date.now() / 1000), Math.floor(Date.now() / 1000)]
       );
 
     } catch (err) {

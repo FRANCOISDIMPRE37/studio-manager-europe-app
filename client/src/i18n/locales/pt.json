@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Studio Manager",
-    "subtitle": "by Intemporelle — RGPD & Cibersegurança",
+    "subtitle": "by Studio Manager Europe — RGPD & Cibersegurança",
     "tagline": "A solução digital para profissionais de tatuagem e piercing"
   },
   "nav": {
@@ -720,6 +720,11 @@
       "Passaporte",
       "Autorização de residência"
     ],
+    "id_options_adult": [
+      "CNI",
+      "Passeport",
+      "Titre de séjour"
+    ],
     "id_options_minor": [
       "Bilhete de Identidade",
       "Passaporte",
@@ -957,7 +962,6 @@
     "piercing_majeurs": "Piercing — Adultos (02-03)",
     "piercing_mineurs": "Piercing — Menores (01-02)",
     "rgpd": "RGPD & Confidencialidade (11-12)",
-    "momer_rgpd": "MOMER RGPD",
     "soins_piercing": "Cuidados Pós-Piercing (A, B, C, D–G)",
     "tatouage": "Tatuagem (05-07)"
   },
